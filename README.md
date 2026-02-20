@@ -145,16 +145,9 @@ Organizar tarefas por motorista e data.
 
 ---
 
-### Divisão de Papéis (Dupla)
+### Divisão de Papéis
 
-#### Pessoa 1 – Backend
-- Modelagem do banco  
-- CRUD das entidades  
-- Autenticação  
-- Regras de negócio  
+<img width="1629" height="581" alt="image" src="https://github.com/user-attachments/assets/d7970e3b-165d-49a1-9a3b-69ad7bc3b20c" />
 
-#### Pessoa 2 – Frontend
-- Layout  
-- Dashboard  
-- Formulários  
-- Integração com API  
+
+
