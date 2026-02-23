@@ -79,7 +79,6 @@ Criar uma plataforma que permita:
   - CANCELADO  
   - JUSTIFICADO  
 - justificativa (opcional)  
-- observacoes  
 
 ---
 
