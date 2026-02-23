@@ -8,7 +8,6 @@ Sistema web para gerenciamento de entregas, coletas e trocas de caçambas, permi
 Empresas de caçambas enfrentam desafios como:
 
 - Controle manual de entregas e coletas  
-- Dificuldade em rastrear onde cada caçamba está
 - Falta de histórico por cliente  
 - Comunicação descentralizada  
 
@@ -23,7 +22,7 @@ Criar uma plataforma que permita:
 
 ---
 
-## 2. Modelagem do Domínio
+## 2. Modelagem
 
 ### Entidades Principais
 ### Veículo
@@ -142,10 +141,6 @@ Organizar tarefas por motorista e data.
 
 **Ferrametas**
 - Clickup
-
----
-
-### Divisão de Papéis
 
 <img width="1629" height="581" alt="image" src="https://github.com/user-attachments/assets/d7970e3b-165d-49a1-9a3b-69ad7bc3b20c" />
 
