@@ -1,15 +1,6 @@
 # Sistema de Gestão de Caçambas
 
-Sistema web para gerenciamento de entregas, coletas e trocas de caçambas, permitindo controle operacional, rastreabilidade e organização de rotas para empresas de locação de caçambas.
-
----
-
-## 1. Domínio do Problema
-Empresas de caçambas enfrentam desafios como:
-
-- Controle manual de entregas e coletas  
-- Falta de histórico por cliente  
-- Comunicação descentralizada  
+Sistema web para gerenciamento de entregas, coletas e trocas de caçambas, permitindo controle operacional, rastreabilidade e organização de rotas e tarefas para empresas de locação de caçambas.
 
 ---
 
@@ -129,7 +120,7 @@ Organizar tarefas por motorista e data.
 ---
 
 ### Banco de Dados
-**SQL**
+**MySQL**
 
 ---
 
