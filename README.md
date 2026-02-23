@@ -123,7 +123,7 @@ Organizar tarefas por motorista e data.
 
 ---
 
-## 5. Arquitetura Sugerida
+## 5. Arquiteturas
 ### Backend
 **Node.js + Express**
 
