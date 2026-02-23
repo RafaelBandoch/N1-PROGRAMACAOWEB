@@ -13,9 +13,8 @@ Criar uma plataforma que permita:
 
 ---
 
-## 2. Modelagem
+## 2. Modelagem do BD
 
-### Entidades Principais
 ### Veículo
 
 - id  
