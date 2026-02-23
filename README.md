@@ -134,7 +134,7 @@ Organizar tarefas por motorista e data.
 ---
 
 ### Frontend
-**HTML + CSS + JavaScript**
+**HTML + TailwindCSS + JavaScript**
 
 ## 6. Organização Simples de Tarefas (Dupla)
 
