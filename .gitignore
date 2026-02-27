@@ -1,0 +1,23 @@
+# Node
+node_modules/
+package-lock.json
+
+# Env
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Build
+dist/
+build/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
