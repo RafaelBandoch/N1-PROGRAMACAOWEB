@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Caçambas</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .header h1 {
+        color: #333;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95em;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-back {
+        background: #e0e7ff;
+        color: #667eea;
+      }
+
+      .btn-back:hover {
+        background: #667eea;
+        color: white;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .form-section {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-section h2 {
+        color: #333;
+        margin-bottom: 20px;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .form-group label {
+        font-weight: 600;
+        color: #666;
+      }
+
+      .form-group input,
+      .form-group select {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 0.95em;
+        font-family: inherit;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 30px;
+      }
+
+      .table-section {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .table-section h2 {
+        color: #333;
+        margin-bottom: 20px;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+
+      table thead {
+        background: #f8f9fa;
+      }
+
+      table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #666;
+        border-bottom: 2px solid #ddd;
+      }
+
+      table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      table tbody tr:hover {
+        background: #f8f9fa;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .actions .btn {
+        padding: 6px 12px;
+        font-size: 0.85em;
+      }
+
+      .btn-success {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-success:hover {
+        background: #218838;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #5a6268;
+      }
+
+      .alert {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        display: block;
+      }
+
+      .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        display: block;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+      }
+
+      @media (max-width: 968px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .form-actions {
+          flex-direction: column;
+        }
+
+        .form-actions .btn {
+          width: 100%;
+        }
+
+        table {
+          font-size: 0.9em;
+        }
+
+        table th,
+        table td {
+          padding: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>📦 Cadastro de Caçambas</h1>
+        <a href="/" class="btn btn-back">← Voltar</a>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <!-- Formulário -->
+        <div class="form-section">
+          <h2>➕ Nova Caçamba</h2>
+
+          <div id="alert" class="alert"></div>
+
+          <form onsubmit="criarCacamba(event)" id="formCacamba">
+            <div class="form-group">
+              <label for="tamanho">Tamanho *</label>
+              <select id="tamanho" name="tamanho" required>
+                <option value="">Selecione...</option>
+                <option value="GRANDE">Grande</option>
+                <option value="MEDIO">Médio</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Status *</label>
+              <select id="status" name="status" required>
+                <option value="DISPONIVEL">Disponível</option>
+                <option value="ENTREGUE">Entregue</option>
+                <option value="EM_MANUTENCAO">Em Manutenção</option>
+                <option value="RESERVADA">Reservada</option>
+              </select>
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="document.getElementById('formCacamba').reset()"
+              >
+                Limpar
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Cadastrar Caçamba
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Lista de Caçambas -->
+        <div class="table-section">
+          <h2>📋 Caçambas Cadastradas</h2>
+          <table id="tabelaCacambas">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Tamanho</th>
+                <th>Status</th>
+                <th>Criado em</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoCacambas"></tbody>
+          </table>
+          <div id="emptyCacambas" class="empty-state" style="display: none">
+            <p>Nenhuma caçamba cadastrada</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let cacambas = [];
+
+      carregarCacambas();
+
+      async function criarCacamba(event) {
+        event.preventDefault();
+
+        const dados = {
+          tamanho: document.getElementById("tamanho").value,
+          status: document.getElementById("status").value,
+        };
+
+        try {
+          const response = await fetch("/api/cacambas", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados),
+          });
+
+          const alert = document.getElementById("alert");
+
+          if (response.ok) {
+            alert.textContent = "✅ Caçamba cadastrada com sucesso!";
+            alert.className = "alert alert-success";
+            document.getElementById("formCacamba").reset();
+            carregarCacambas();
+          } else {
+            alert.textContent = "❌ Erro ao cadastrar caçamba!";
+            alert.className = "alert alert-error";
+          }
+        } catch (error) {
+          console.error("Erro:", error);
+          const alert = document.getElementById("alert");
+          alert.textContent = "❌ Erro ao cadastrar caçamba!";
+          alert.className = "alert alert-error";
+        }
+      }
+
+      async function carregarCacambas() {
+        try {
+          const response = await fetch("/api/cacambas");
+          cacambas = await response.json();
+          exibirCacambas();
+        } catch (error) {
+          console.error("Erro ao carregar caçambas:", error);
+        }
+      }
+
+      function exibirCacambas() {
+        const corpo = document.getElementById("corpoCacambas");
+        const emptyState = document.getElementById("emptyCacambas");
+        const tabela = document.getElementById("tabelaCacambas");
+
+        if (cacambas.length === 0) {
+          tabela.style.display = "none";
+          emptyState.style.display = "block";
+          return;
+        }
+
+        tabela.style.display = "table";
+        emptyState.style.display = "none";
+
+        corpo.innerHTML = cacambas
+          .map(
+            (cacamba) => `
+                <tr>
+                    <td>#${cacamba.id}</td>
+                    <td>${cacamba.tamanho}</td>
+                    <td><span class="badge">${cacamba.status}</span></td>
+                    <td>${new Date(cacamba.created_at).toLocaleString("pt-BR")}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="editarCacamba(${cacamba.id})">✏️ Editar</button>
+                            <button class="btn btn-danger" onclick="deletarCacamba(${cacamba.id})">🗑️ Deletar</button>
+                        </div>
+                    </td>
+                </tr>
+            `,
+          )
+          .join("");
+      }
+
+      async function editarCacamba(id) {
+        const cacamba = cacambas.find((c) => c.id === id);
+        if (!cacamba) return;
+
+        const tamanho = prompt("Tamanho (GRANDE/MEDIO):", cacamba.tamanho);
+        if (tamanho === null) return;
+
+        const status = prompt(
+          "Status (DISPONIVEL/ENTREGUE/EM_MANUTENCAO/RESERVADA):",
+          cacamba.status,
+        );
+        if (status === null) return;
+
+        try {
+          const response = await fetch(`/api/cacambas/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tamanho, status }),
+          });
+
+          if (response.ok) {
+            alert("✅ Caçamba atualizada!");
+            carregarCacambas();
+          } else {
+            alert("❌ Erro ao atualizar!");
+          }
+        } catch (error) {
+          console.error("Erro:", error);
+          alert("❌ Erro ao atualizar!");
+        }
+      }
+
+      async function deletarCacamba(id) {
+        if (!confirm("Tem certeza que deseja deletar esta caçamba?")) return;
+
+        try {
+          const response = await fetch(`/api/cacambas/${id}`, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            alert("✅ Caçamba deletada!");
+            carregarCacambas();
+          } else {
+            alert("❌ Erro ao deletar!");
+          }
+        } catch (error) {
+          console.error("Erro:", error);
+          alert("❌ Erro ao deletar!");
+        }
+      }
+    </script>
+  </body>
+</html>

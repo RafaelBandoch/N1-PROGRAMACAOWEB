@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestão de Tarefas</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .header {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .header h1 {
+        color: #333;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95em;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-success {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-success:hover {
+        background: #218838;
+      }
+
+      .btn-warning {
+        background: #ffc107;
+        color: #333;
+      }
+
+      .btn-warning:hover {
+        background: #e0a800;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+      }
+
+      .btn-back {
+        background: #e0e7ff;
+        color: #667eea;
+      }
+
+      .btn-back:hover {
+        background: #667eea;
+        color: white;
+      }
+
+      .content-section {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .section-title {
+        color: #333;
+        font-size: 1.3em;
+        margin-bottom: 20px;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .filters {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .filter-group label {
+        font-weight: 600;
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .filter-group input,
+      .filter-group select {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 0.95em;
+      }
+
+      .filter-group input:focus,
+      .filter-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+
+      table thead {
+        background: #f8f9fa;
+      }
+
+      table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #666;
+        border-bottom: 2px solid #ddd;
+      }
+
+      table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      table tbody tr:hover {
+        background: #f8f9fa;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+      }
+
+      .badge-info {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+
+      .badge-warning {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .badge-success {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .badge-danger {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .badge-secondary {
+        background: #e2e3e5;
+        color: #383d41;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .actions .btn {
+        padding: 6px 12px;
+        font-size: 0.85em;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 15px;
+      }
+
+      .modal-header h2 {
+        color: #333;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5em;
+        cursor: pointer;
+        color: #999;
+      }
+
+      .close-btn:hover {
+        color: #333;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .form-group label {
+        font-weight: 600;
+        color: #666;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 0.95em;
+        font-family: inherit;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 30px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 20px;
+      }
+
+      .pagination button {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        background: white;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: all 0.3s;
+      }
+
+      .pagination button:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+
+      .pagination button.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .filters {
+          grid-template-columns: 1fr;
+        }
+
+        table {
+          font-size: 0.9em;
+        }
+
+        table th,
+        table td {
+          padding: 8px;
+        }
+
+        .actions {
+          gap: 4px;
+        }
+
+        .actions .btn {
+          padding: 4px 8px;
+          font-size: 0.8em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>📋 Gestão de Tarefas</h1>
+        <div style="display: flex; gap: 10px">
+          <button class="btn btn-primary" onclick="abrirNovaTaskForm()">
+            ➕ Nova Tarefa
+          </button>
+          <a href="/" class="btn btn-back">← Voltar</a>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="content-section">
+        <div class="filters">
+          <div class="filter-group">
+            <label for="filtroTipo">Tipo de Tarefa</label>
+            <select id="filtroTipo" onchange="aplicarFiltros()">
+              <option value="">Todos</option>
+              <option value="ENTREGA">Entrega</option>
+              <option value="COLETA">Coleta</option>
+              <option value="TROCA">Troca</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filtroStatus">Status</label>
+            <select id="filtroStatus" onchange="aplicarFiltros()">
+              <option value="">Todos</option>
+              <option value="EM_ANDAMENTO">Em Andamento</option>
+              <option value="ENTREGUE">Entregue</option>
+              <option value="COLETADO">Coletado</option>
+              <option value="CANCELADO">Cancelado</option>
+              <option value="JUSTIFICADO">Justificado</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filtroCliente">Cliente</label>
+            <input
+              type="text"
+              id="filtroCliente"
+              placeholder="Buscar cliente..."
+              onchange="aplicarFiltros()"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label for="filtroMotorista">Motorista</label>
+            <input
+              type="text"
+              id="filtroMotorista"
+              placeholder="Buscar motorista..."
+              onchange="aplicarFiltros()"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label for="filtroData">Data</label>
+            <input type="date" id="filtroData" onchange="aplicarFiltros()" />
+          </div>
+
+          <div class="filter-group">
+            <label>&nbsp;</label>
+            <button
+              class="btn btn-primary"
+              onclick="limparFiltros()"
+              style="margin-top: 5px"
+            >
+              🔄 Limpar Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela de Tarefas -->
+      <div class="content-section">
+        <h2 class="section-title">Lista de Tarefas</h2>
+        <table id="tabelaTarefas">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tipo</th>
+              <th>Cliente</th>
+              <th>Motorista</th>
+              <th>Endereço</th>
+              <th>Data Agendada</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="corpoTarefas"></tbody>
+        </table>
+        <div id="emptyTarefas" class="empty-state" style="display: none">
+          <p>Nenhuma tarefa encontrada</p>
+        </div>
+        <div class="pagination" id="paginacao"></div>
+      </div>
+    </div>
+
+    <!-- Modal para Editar/Visualizar Tarefa -->
+    <div id="modalTarefa" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Detalhes da Tarefa</h2>
+          <button class="close-btn" onclick="fecharModal('modalTarefa')">
+            &times;
+          </button>
+        </div>
+        <form onsubmit="salvarTarefa(event)" id="formTarefa">
+          <div class="form-group">
+            <label for="taskId">ID da Tarefa</label>
+            <input type="text" id="taskId" readonly />
+          </div>
+
+          <div class="form-group">
+            <label for="taskTipo">Tipo</label>
+            <select id="taskTipo" required>
+              <option value="ENTREGA">Entrega</option>
+              <option value="COLETA">Coleta</option>
+              <option value="TROCA">Troca</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskCliente">Cliente</label>
+            <select id="taskCliente" required>
+              <option value="">Selecionar cliente...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskMotorista">Motorista</label>
+            <select id="taskMotorista" required>
+              <option value="">Selecionar motorista...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskCacamba">Caçamba</label>
+            <select id="taskCacamba" required>
+              <option value="">Selecionar caçamba...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskVeiculo">Veículo</label>
+            <select id="taskVeiculo" required>
+              <option value="">Selecionar veículo...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskEndereco">Endereço de Execução</label>
+            <input type="text" id="taskEndereco" required />
+          </div>
+
+          <div class="form-group">
+            <label for="taskData">Data Agendada</label>
+            <input type="datetime-local" id="taskData" required />
+          </div>
+
+          <div class="form-group">
+            <label for="taskStatus">Status</label>
+            <select id="taskStatus" required>
+              <option value="EM_ANDAMENTO">Em Andamento</option>
+              <option value="ENTREGUE">Entregue</option>
+              <option value="COLETADO">Coletado</option>
+              <option value="CANCELADO">Cancelado</option>
+              <option value="JUSTIFICADO">Justificado</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskJustificativa">Justificativa (se necessário)</label>
+            <textarea id="taskJustificativa"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="fecharModal('modalTarefa')"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      let paginaAtual = 1;
+      const tarefasPorPagina = 10;
+      let todasAsTarefas = [];
+
+      // Carregar tarefas ao abrir a página
+      carregarTarefas();
+
+      async function carregarTarefas() {
+        try {
+          const response = await fetch("/api/tarefas");
+          todasAsTarefas = await response.json();
+          aplicarFiltros();
+          carregarSelectsComDados();
+        } catch (error) {
+          console.error("Erro ao carregar tarefas:", error);
+        }
+      }
+
+      async function carregarSelectsComDados() {
+        try {
+          const [clientes, motoristas, cacambas, veiculos] = await Promise.all([
+            fetch("/api/clientes").then((r) => r.json()),
+            fetch("/api/motoristas").then((r) => r.json()),
+            fetch("/api/cacambas").then((r) => r.json()),
+            fetch("/api/veiculos").then((r) => r.json()),
+          ]);
+
+          preencherSelect("taskCliente", clientes, "id", "nome");
+          preencherSelect("taskMotorista", motoristas, "id", "nome");
+          preencherSelect("taskCacamba", cacambas, "id", "tamanho");
+          preencherSelect("taskVeiculo", veiculos, "id", "placa");
+        } catch (error) {
+          console.error("Erro ao carregar selects:", error);
+        }
+      }
+
+      function preencherSelect(elementId, dados, valorKey, labelKey) {
+        const select = document.getElementById(elementId);
+        const opcaoVazia = select.firstElementChild;
+        select.innerHTML = "";
+        select.appendChild(opcaoVazia);
+
+        dados.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item[valorKey];
+          option.textContent = item[labelKey];
+          select.appendChild(option);
+        });
+      }
+
+      function aplicarFiltros() {
+        const filtroTipo = document.getElementById("filtroTipo").value;
+        const filtroStatus = document.getElementById("filtroStatus").value;
+        const filtroCliente = document
+          .getElementById("filtroCliente")
+          .value.toLowerCase();
+        const filtroMotorista = document
+          .getElementById("filtroMotorista")
+          .value.toLowerCase();
+        const filtroData = document.getElementById("filtroData").value;
+
+        let tarefasFiltradas = todasAsTarefas.filter((tarefa) => {
+          let passa = true;
+
+          if (filtroTipo && tarefa.tipo !== filtroTipo) passa = false;
+          if (filtroStatus && tarefa.status !== filtroStatus) passa = false;
+          if (
+            filtroCliente &&
+            !tarefa.cliente_nome.toLowerCase().includes(filtroCliente)
+          )
+            passa = false;
+          if (
+            filtroMotorista &&
+            !tarefa.motorista_nome.toLowerCase().includes(filtroMotorista)
+          )
+            passa = false;
+          if (
+            filtroData &&
+            new Date(tarefa.data_agendada).toLocaleDateString() !==
+              new Date(filtroData).toLocaleDateString()
+          )
+            passa = false;
+
+          return passa;
+        });
+
+        paginaAtual = 1;
+        exibirTarefas(tarefasFiltradas);
+      }
+
+      function exibirTarefas(tarefas) {
+        const corpo = document.getElementById("corpoTarefas");
+        const emptyState = document.getElementById("emptyTarefas");
+        const tabela = document.getElementById("tabelaTarefas");
+
+        if (tarefas.length === 0) {
+          tabela.style.display = "none";
+          emptyState.style.display = "block";
+          document.getElementById("paginacao").innerHTML = "";
+          return;
+        }
+
+        tabela.style.display = "table";
+        emptyState.style.display = "none";
+
+        const inicio = (paginaAtual - 1) * tarefasPorPagina;
+        const fim = inicio + tarefasPorPagina;
+        const tarefasPagina = tarefas.slice(inicio, fim);
+
+        corpo.innerHTML = tarefasPagina
+          .map((tarefa) => {
+            const badgeClass =
+              {
+                ENTREGA: "badge-info",
+                COLETA: "badge-warning",
+                TROCA: "badge-success",
+              }[tarefa.tipo] || "";
+
+            const statusClass =
+              {
+                EM_ANDAMENTO: "badge-warning",
+                ENTREGUE: "badge-success",
+                COLETADO: "badge-success",
+                CANCELADO: "badge-danger",
+                JUSTIFICADO: "badge-secondary",
+              }[tarefa.status] || "";
+
+            return `
+                    <tr>
+                        <td>#${tarefa.id}</td>
+                        <td><span class="badge ${badgeClass}">${tarefa.tipo}</span></td>
+                        <td>${tarefa.cliente_nome}</td>
+                        <td>${tarefa.motorista_nome}</td>
+                        <td>${tarefa.endereco_execucao}</td>
+                        <td>${new Date(tarefa.data_agendada).toLocaleString("pt-BR")}</td>
+                        <td><span class="badge ${statusClass}">${tarefa.status}</span></td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn btn-primary" onclick="editarTarefa(${tarefa.id})">✏️ Editar</button>
+                                <button class="btn btn-danger" onclick="deletarTarefa(${tarefa.id})">🗑️ Deletar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+          })
+          .join("");
+
+        // Paginação
+        const totalPaginas = Math.ceil(tarefas.length / tarefasPorPagina);
+        const paginacao = document.getElementById("paginacao");
+        paginacao.innerHTML = "";
+
+        for (let i = 1; i <= totalPaginas; i++) {
+          const btn = document.createElement("button");
+          btn.textContent = i;
+          btn.classList.add("btn");
+          if (i === paginaAtual) btn.classList.add("active");
+          btn.onclick = () => {
+            paginaAtual = i;
+            exibirTarefas(tarefas);
+          };
+          paginacao.appendChild(btn);
+        }
+      }
+
+      function limparFiltros() {
+        document.getElementById("filtroTipo").value = "";
+        document.getElementById("filtroStatus").value = "";
+        document.getElementById("filtroCliente").value = "";
+        document.getElementById("filtroMotorista").value = "";
+        document.getElementById("filtroData").value = "";
+        aplicarFiltros();
+      }
+
+      function abrirNovaTaskForm() {
+        document.getElementById("formTarefa").reset();
+        document.getElementById("taskId").value = "";
+        document.getElementById("modalTarefa").classList.add("active");
+      }
+
+      async function editarTarefa(id) {
+        try {
+          const response = await fetch(`/api/tarefas/${id}`);
+          const tarefa = await response.json();
+
+          document.getElementById("taskId").value = tarefa.id;
+          document.getElementById("taskTipo").value = tarefa.tipo;
+          document.getElementById("taskCliente").value = tarefa.cliente_id;
+          document.getElementById("taskMotorista").value = tarefa.motorista_id;
+          document.getElementById("taskCacamba").value = tarefa.cacamba_id;
+          document.getElementById("taskVeiculo").value = tarefa.veiculo_id;
+          document.getElementById("taskEndereco").value =
+            tarefa.endereco_execucao;
+          document.getElementById("taskData").value =
+            tarefa.data_agendada.slice(0, 16);
+          document.getElementById("taskStatus").value = tarefa.status;
+          document.getElementById("taskJustificativa").value =
+            tarefa.justificativa || "";
+
+          document.getElementById("modalTarefa").classList.add("active");
+        } catch (error) {
+          console.error("Erro ao carregar tarefa:", error);
+          alert("Erro ao carregar tarefa!");
+        }
+      }
+
+      async function salvarTarefa(event) {
+        event.preventDefault();
+
+        const id = document.getElementById("taskId").value;
+        const dados = {
+          tipo: document.getElementById("taskTipo").value,
+          cliente_id: document.getElementById("taskCliente").value,
+          motorista_id: document.getElementById("taskMotorista").value,
+          cacamba_id: document.getElementById("taskCacamba").value,
+          veiculo_id: document.getElementById("taskVeiculo").value,
+          endereco_execucao: document.getElementById("taskEndereco").value,
+          data_agendada: document.getElementById("taskData").value,
+          status: document.getElementById("taskStatus").value,
+          justificativa: document.getElementById("taskJustificativa").value,
+        };
+
+        try {
+          const metodo = id ? "PUT" : "POST";
+          const url = id ? `/api/tarefas/${id}` : "/api/tarefas";
+
+          const response = await fetch(url, {
+            method: metodo,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados),
+          });
+
+          if (response.ok) {
+            alert(
+              id
+                ? "Tarefa atualizada com sucesso!"
+                : "Tarefa criada com sucesso!",
+            );
+            fecharModal("modalTarefa");
+            carregarTarefas();
+          } else {
+            alert("Erro ao salvar tarefa!");
+          }
+        } catch (error) {
+          console.error("Erro ao salvar tarefa:", error);
+          alert("Erro ao salvar tarefa!");
+        }
+      }
+
+      async function deletarTarefa(id) {
+        if (!confirm("Tem certeza que deseja deletar esta tarefa?")) return;
+
+        try {
+          const response = await fetch(`/api/tarefas/${id}`, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            alert("Tarefa deletada com sucesso!");
+            carregarTarefas();
+          } else {
+            alert("Erro ao deletar tarefa!");
+          }
+        } catch (error) {
+          console.error("Erro ao deletar tarefa:", error);
+          alert("Erro ao deletar tarefa!");
+        }
+      }
+
+      function fecharModal(modalId) {
+        document.getElementById(modalId).classList.remove("active");
+      }
+
+      // Fechar modal ao clicar fora
+      window.onclick = (event) => {
+        const modal = document.getElementById("modalTarefa");
+        if (event.target === modal) {
+          modal.classList.remove("active");
+        }
+      };
+    </script>
+  </body>
+</html>

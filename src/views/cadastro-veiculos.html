@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Veículos</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .header h1 {
+        color: #333;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95em;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-back {
+        background: #e0e7ff;
+        color: #667eea;
+      }
+
+      .btn-back:hover {
+        background: #667eea;
+        color: white;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .form-section {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-section h2 {
+        color: #333;
+        margin-bottom: 20px;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .form-group label {
+        font-weight: 600;
+        color: #666;
+      }
+
+      .form-group input {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 0.95em;
+        font-family: inherit;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 30px;
+      }
+
+      .table-section {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .table-section h2 {
+        color: #333;
+        margin-bottom: 20px;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+
+      table thead {
+        background: #f8f9fa;
+      }
+
+      table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #666;
+        border-bottom: 2px solid #ddd;
+      }
+
+      table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      table tbody tr:hover {
+        background: #f8f9fa;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .actions .btn {
+        padding: 6px 12px;
+        font-size: 0.85em;
+      }
+
+      .btn-success {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-success:hover {
+        background: #218838;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #5a6268;
+      }
+
+      .alert {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        display: block;
+      }
+
+      .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        display: block;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+      }
+
+      @media (max-width: 968px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .form-actions {
+          flex-direction: column;
+        }
+
+        .form-actions .btn {
+          width: 100%;
+        }
+
+        table {
+          font-size: 0.9em;
+        }
+
+        table th,
+        table td {
+          padding: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>🚗 Cadastro de Veículos</h1>
+        <a href="/" class="btn btn-back">← Voltar</a>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <!-- Formulário -->
+        <div class="form-section">
+          <h2>➕ Novo Veículo</h2>
+
+          <div id="alert" class="alert"></div>
+
+          <form onsubmit="criarVeiculo(event)" id="formVeiculo">
+            <div class="form-group">
+              <label for="placa">Placa *</label>
+              <input
+                type="text"
+                id="placa"
+                name="placa"
+                required
+                placeholder="Ex: ABC-1234"
+                style="text-transform: uppercase"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="capacidade">Capacidade (kg) *</label>
+              <input
+                type="number"
+                id="capacidade"
+                name="capacidade"
+                required
+                placeholder="Ex: 5000"
+                min="1"
+              />
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="document.getElementById('formVeiculo').reset()"
+              >
+                Limpar
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Cadastrar Veículo
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Lista de Veículos -->
+        <div class="table-section">
+          <h2>📋 Veículos Cadastrados</h2>
+          <table id="tabelaVeiculos">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Placa</th>
+                <th>Capacidade</th>
+                <th>Criado em</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoVeiculos"></tbody>
+          </table>
+          <div id="emptyVeiculos" class="empty-state" style="display: none">
+            <p>Nenhum veículo cadastrado</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let veiculos = [];
+
+      carregarVeiculos();
+
+      async function criarVeiculo(event) {
+        event.preventDefault();
+
+        const dados = {
+          placa: document.getElementById("placa").value.toUpperCase(),
+          capacidade: parseInt(document.getElementById("capacidade").value),
+        };
+
+        try {
+          const response = await fetch("/api/veiculos", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados),
+          });
+
+          const alert = document.getElementById("alert");
+
+          if (response.ok) {
+            alert.textContent = "✅ Veículo cadastrado com sucesso!";
+            alert.className = "alert alert-success";
+            document.getElementById("formVeiculo").reset();
+            carregarVeiculos();
+          } else {
+            alert.textContent = "❌ Erro ao cadastrar veículo!";
+            alert.className = "alert alert-error";
+          }
+        } catch (error) {
+          console.error("Erro:", error);
+          const alert = document.getElementById("alert");
+          alert.textContent = "❌ Erro ao cadastrar veículo!";
+          alert.className = "alert alert-error";
+        }
+      }
+
+      async function carregarVeiculos() {
+        try {
+          const response = await fetch("/api/veiculos");
+          veiculos = await response.json();
+          exibirVeiculos();
+        } catch (error) {
+          console.error("Erro ao carregar veículos:", error);
+        }
+      }
+
+      function exibirVeiculos() {
+        const corpo = document.getElementById("corpoVeiculos");
+        const emptyState = document.getElementById("emptyVeiculos");
+        const tabela = document.getElementById("tabelaVeiculos");
+
+        if (veiculos.length === 0) {
+          tabela.style.display = "none";
+          emptyState.style.display = "block";
+          return;
+        }
+
+        tabela.style.display = "table";
+        emptyState.style.display = "none";
+
+        corpo.innerHTML = veiculos
+          .map(
+            (veiculo) => `
+                <tr>
+                    <td>#${veiculo.id}</td>
+                    <td>${veiculo.placa}</td>
+                    <td>${veiculo.capacidade} kg</td>
+                    <td>${new Date(veiculo.created_at).toLocaleString("pt-BR")}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="editarVeiculo(${veiculo.id})">✏️ Editar</button>
+                            <button class="btn btn-danger" onclick="deletarVeiculo(${veiculo.id})">🗑️ Deletar</button>
+                        </div>
+                    </td>
+                </tr>
+            `,
+          )
+          .join("");
+      }
+
+      async function editarVeiculo(id) {
+        const veiculo = veiculos.find((v) => v.id === id);
+        if (!veiculo) return;
+
+        const placa = prompt("Placa:", veiculo.placa);
+        if (placa === null) return;
+
+        const capacidade = prompt("Capacidade (kg):", veiculo.capacidade);
+        if (capacidade === null) return;
+
+        try {
+          const response = await fetch(`/api/veiculos/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              placa: placa.toUpperCase(),
+              capacidade: parseInt(capacidade),
+            }),
+          });
+
+          if (response.ok) {
+            alert("✅ Veículo atualizado!");
+            carregarVeiculos();
+          } else {
+            alert("❌ Erro ao atualizar!");
+          }
+        } catch (error) {
+          console.error("Erro:", error);
+          alert("❌ Erro ao atualizar!");
+        }
+      }
+
+      async function deletarVeiculo(id) {
+        if (!confirm("Tem certeza que deseja deletar este veículo?")) return;
+
+        try {
+          const response = await fetch(`/api/veiculos/${id}`, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            alert("✅ Veículo deletado!");
+            carregarVeiculos();
+          } else {
+            alert("❌ Erro ao deletar!");
+          }
+        } catch (error) {
+          console.error("Erro:", error);
+          alert("❌ Erro ao deletar!");
+        }
+      }
+    </script>
+  </body>
+</html>

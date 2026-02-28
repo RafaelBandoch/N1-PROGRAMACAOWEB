@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerência de Caçambas e Veículos</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .header {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .header h1 {
+        color: #333;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95em;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-success {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-success:hover {
+        background: #218838;
+      }
+
+      .btn-warning {
+        background: #ffc107;
+        color: #333;
+      }
+
+      .btn-warning:hover {
+        background: #e0a800;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+      }
+
+      .btn-back {
+        background: #e0e7ff;
+        color: #667eea;
+      }
+
+      .btn-back:hover {
+        background: #667eea;
+        color: white;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #ddd;
+      }
+
+      .tab-btn {
+        padding: 12px 24px;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: 600;
+        color: #666;
+        transition: all 0.3s;
+      }
+
+      .tab-btn.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+      }
+
+      .tab-btn:hover {
+        color: #667eea;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .content-section {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .section-title {
+        color: #333;
+        font-size: 1.3em;
+        margin-bottom: 20px;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .filters {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .filter-group label {
+        font-weight: 600;
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .filter-group input,
+      .filter-group select {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 0.95em;
+      }
+
+      .filter-group input:focus,
+      .filter-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+
+      table thead {
+        background: #f8f9fa;
+      }
+
+      table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #666;
+        border-bottom: 2px solid #ddd;
+      }
+
+      table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      table tbody tr:hover {
+        background: #f8f9fa;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+      }
+
+      .badge-success {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .badge-warning {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .badge-danger {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .badge-info {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .actions .btn {
+        padding: 6px 12px;
+        font-size: 0.85em;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 15px;
+      }
+
+      .modal-header h2 {
+        color: #333;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5em;
+        cursor: pointer;
+        color: #999;
+      }
+
+      .close-btn:hover {
+        color: #333;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .form-group label {
+        font-weight: 600;
+        color: #666;
+      }
+
+      .form-group input,
+      .form-group select {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 0.95em;
+        font-family: inherit;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 30px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .filters {
+          grid-template-columns: 1fr;
+        }
+
+        table {
+          font-size: 0.9em;
+        }
+
+        table th,
+        table td {
+          padding: 8px;
+        }
+
+        .actions {
+          gap: 4px;
+        }
+
+        .actions .btn {
+          padding: 4px 8px;
+          font-size: 0.8em;
+        }
+
+        .tabs {
+          flex-wrap: wrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>🚚 Gerência de Caçambas e Veículos</h1>
+        <div style="display: flex; gap: 10px">
+          <a href="/" class="btn btn-back">← Voltar</a>
+        </div>
+      </div>
+
+      <!-- Abas -->
+      <div class="content-section">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="mudarAba('cacambas')">
+            📦 Caçambas
+          </button>
+          <button class="tab-btn" onclick="mudarAba('veiculos')">
+            🚗 Veículos
+          </button>
+        </div>
+      </div>
+
+      <!-- Seção Caçambas -->
+      <div id="cacambas" class="tab-content active">
+        <div class="content-section">
+          <h2 class="section-title">Gerenciamento de Caçambas</h2>
+
+          <div class="filters">
+            <div class="filter-group">
+              <label for="filtroCacabaStatus">Status</label>
+              <select id="filtroCacabaStatus" onchange="filtrarCacambas()">
+                <option value="">Todos</option>
+                <option value="DISPONIVEL">Disponível</option>
+                <option value="ENTREGUE">Entregue</option>
+                <option value="EM_MANUTENCAO">Em Manutenção</option>
+                <option value="RESERVADA">Reservada</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filtroCacabaTamanho">Tamanho</label>
+              <select id="filtroCacabaTamanho" onchange="filtrarCacambas()">
+                <option value="">Todos</option>
+                <option value="GRANDE">Grande</option>
+                <option value="MEDIO">Médio</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary" onclick="abrirNovasCacamba()">
+                ➕ Nova Caçamba
+              </button>
+            </div>
+          </div>
+
+          <table id="tabelaCacambas">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Tamanho</th>
+                <th>Status</th>
+                <th>Cliente</th>
+                <th>Responsável</th>
+                <th>Criada em</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoCacambas"></tbody>
+          </table>
+          <div id="emptyCacambas" class="empty-state" style="display: none">
+            <p>Nenhuma caçamba encontrada</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção Veículos -->
+      <div id="veiculos" class="tab-content">
+        <div class="content-section">
+          <h2 class="section-title">Gerenciamento de Veículos</h2>
+
+          <div class="filters">
+            <div class="filter-group">
+              <label for="filtroVeiculoStatus">Status</label>
+              <select id="filtroVeiculoStatus" onchange="filtrarVeiculos()">
+                <option value="">Todos</option>
+                <option value="DISPONIVEL">Disponível</option>
+                <option value="EM_USO">Em Uso</option>
+                <option value="EM_MANUTENCAO">Em Manutenção</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filtroVeiculoPlaca">Buscar por Placa</label>
+              <input
+                type="text"
+                id="filtroVeiculoPlaca"
+                placeholder="Ex: ABC-1234"
+                onchange="filtrarVeiculos()"
+              />
+            </div>
+
+            <div class="filter-group">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary" onclick="abrirNovosVeiculo()">
+                ➕ Novo Veículo
+              </button>
+            </div>
+          </div>
+
+          <table id="tabelaVeiculos">
+            <thead>
+              <tr>
+                <th>Placa</th>
+                <th>Capacidade</th>
+                <th>Status</th>
+                <th>Responsável</th>
+                <th>Criado em</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoVeiculos"></tbody>
+          </table>
+          <div id="emptyVeiculos" class="empty-state" style="display: none">
+            <p>Nenhum veículo encontrado</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Caçamba -->
+    <div id="modalCacamba" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Editar Caçamba</h2>
+          <button class="close-btn" onclick="fecharModal('modalCacamba')">
+            &times;
+          </button>
+        </div>
+        <form onsubmit="salvarCacamba(event)" id="formCacamba">
+          <div class="form-group">
+            <label for="cacambaId">ID</label>
+            <input type="text" id="cacambaId" readonly />
+          </div>
+
+          <div class="form-group">
+            <label for="cacabaTamanho">Tamanho</label>
+            <select id="cacabaTamanho" required>
+              <option value="GRANDE">Grande</option>
+              <option value="MEDIO">Médio</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="cacabaStatus">Status</label>
+            <select id="cacabaStatus" required>
+              <option value="DISPONIVEL">Disponível</option>
+              <option value="ENTREGUE">Entregue</option>
+              <option value="EM_MANUTENCAO">Em Manutenção</option>
+              <option value="RESERVADA">Reservada</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="fecharModal('modalCacamba')"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Veículo -->
+    <div id="modalVeiculo" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Editar Veículo</h2>
+          <button class="close-btn" onclick="fecharModal('modalVeiculo')">
+            &times;
+          </button>
+        </div>
+        <form onsubmit="salvarVeiculo(event)" id="formVeiculo">
+          <div class="form-group">
+            <label for="veiculoId">ID</label>
+            <input type="text" id="veiculoId" readonly />
+          </div>
+
+          <div class="form-group">
+            <label for="veiculoPlaca">Placa</label>
+            <input type="text" id="veiculoPlaca" required />
+          </div>
+
+          <div class="form-group">
+            <label for="veiculoCapacidade">Capacidade (kg)</label>
+            <input type="number" id="veiculoCapacidade" required />
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="fecharModal('modalVeiculo')"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      let todasAsCacambas = [];
+      let todosOsVeiculos = [];
+
+      carregarCacambas();
+      carregarVeiculos();
+
+      function mudarAba(abaName) {
+        // Esconder todas as abas
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((el) => el.classList.remove("active"));
+
+        // Mostrar aba selecionada
+        document.getElementById(abaName).classList.add("active");
+        event.target.classList.add("active");
+      }
+
+      async function carregarCacambas() {
+        try {
+          const response = await fetch("/api/cacambas");
+          todasAsCacambas = await response.json();
+          filtrarCacambas();
+        } catch (error) {
+          console.error("Erro ao carregar caçambas:", error);
+        }
+      }
+
+      async function carregarVeiculos() {
+        try {
+          const response = await fetch("/api/veiculos");
+          todosOsVeiculos = await response.json();
+          filtrarVeiculos();
+        } catch (error) {
+          console.error("Erro ao carregar veículos:", error);
+        }
+      }
+
+      function filtrarCacambas() {
+        const status = document.getElementById("filtroCacabaStatus").value;
+        const tamanho = document.getElementById("filtroCacabaTamanho").value;
+
+        let cacambas = todasAsCacambas.filter((c) => {
+          return (
+            (!status || c.status === status) &&
+            (!tamanho || c.tamanho === tamanho)
+          );
+        });
+
+        exibirCacambas(cacambas);
+      }
+
+      function exibirCacambas(cacambas) {
+        const corpo = document.getElementById("corpoCacambas");
+        const emptyState = document.getElementById("emptyCacambas");
+        const tabela = document.getElementById("tabelaCacambas");
+
+        if (cacambas.length === 0) {
+          tabela.style.display = "none";
+          emptyState.style.display = "block";
+          return;
+        }
+
+        tabela.style.display = "table";
+        emptyState.style.display = "none";
+
+        corpo.innerHTML = cacambas
+          .map(
+            (cacamba) => `
+                <tr>
+                    <td>#${cacamba.id}</td>
+                    <td>${cacamba.tamanho}</td>
+                    <td><span class="badge badge-${cacamba.status === "DISPONIVEL" ? "success" : cacamba.status === "EM_MANUTENCAO" ? "danger" : "warning"}">${cacamba.status}</span></td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>${new Date(cacamba.created_at).toLocaleString("pt-BR")}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="editarCacamba(${cacamba.id})">✏️ Editar</button>
+                            <button class="btn btn-danger" onclick="deletarCacamba(${cacamba.id})">🗑️ Deletar</button>
+                        </div>
+                    </td>
+                </tr>
+            `,
+          )
+          .join("");
+      }
+
+      function filtrarVeiculos() {
+        const status = document.getElementById("filtroVeiculoStatus").value;
+        const placa = document
+          .getElementById("filtroVeiculoPlaca")
+          .value.toLowerCase();
+
+        let veiculos = todosOsVeiculos.filter((v) => {
+          return (
+            (!status || v.status === status) &&
+            (!placa || v.placa.toLowerCase().includes(placa))
+          );
+        });
+
+        exibirVeiculos(veiculos);
+      }
+
+      function exibirVeiculos(veiculos) {
+        const corpo = document.getElementById("corpoVeiculos");
+        const emptyState = document.getElementById("emptyVeiculos");
+        const tabela = document.getElementById("tabelaVeiculos");
+
+        if (veiculos.length === 0) {
+          tabela.style.display = "none";
+          emptyState.style.display = "block";
+          return;
+        }
+
+        tabela.style.display = "table";
+        emptyState.style.display = "none";
+
+        corpo.innerHTML = veiculos
+          .map(
+            (veiculo) => `
+                <tr>
+                    <td>${veiculo.placa}</td>
+                    <td>${veiculo.capacidade} kg</td>
+                    <td><span class="badge badge-info">Operacional</span></td>
+                    <td>-</td>
+                    <td>${new Date(veiculo.created_at).toLocaleString("pt-BR")}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="editarVeiculo(${veiculo.id})">✏️ Editar</button>
+                            <button class="btn btn-danger" onclick="deletarVeiculo(${veiculo.id})">🗑️ Deletar</button>
+                        </div>
+                    </td>
+                </tr>
+            `,
+          )
+          .join("");
+      }
+
+      function abrirNovasCacamba() {
+        document.getElementById("formCacamba").reset();
+        document.getElementById("cacambaId").value = "";
+        document.getElementById("modalCacamba").classList.add("active");
+      }
+
+      async function editarCacamba(id) {
+        try {
+          const response = await fetch(`/api/cacambas/${id}`);
+          const cacamba = await response.json();
+
+          document.getElementById("cacambaId").value = cacamba.id;
+          document.getElementById("cacabaTamanho").value = cacamba.tamanho;
+          document.getElementById("cacabaStatus").value = cacamba.status;
+
+          document.getElementById("modalCacamba").classList.add("active");
+        } catch (error) {
+          console.error("Erro:", error);
+          alert("Erro ao carregar caçamba!");
+        }
+      }
+
+      async function salvarCacamba(event) {
+        event.preventDefault();
+
+        const id = document.getElementById("cacambaId").value;
+        const dados = {
+          tamanho: document.getElementById("cacabaTamanho").value,
+          status: document.getElementById("cacabaStatus").value,
+        };
+
+        try {
+          const metodo = id ? "PUT" : "POST";
+          const url = id ? `/api/cacambas/${id}` : "/api/cacambas";
+
+          const response = await fetch(url, {
+            method: metodo,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados),
+          });
+
+          if (response.ok) {
+            alert(id ? "Caçamba atualizada!" : "Caçamba criada!");
+            fecharModal("modalCacamba");
+            carregarCacambas();
+          }
+        } catch (error) {
+          console.error("Erro:", error);
+          alert("Erro ao salvar!");
+        }
+      }
+
+      async function deletarCacamba(id) {
+        if (!confirm("Tem certeza?")) return;
+
+        try {
+          await fetch(`/api/cacambas/${id}`, { method: "DELETE" });
+          alert("Caçamba deletada!");
+          carregarCacambas();
+        } catch (error) {
+          console.error("Erro:", error);
+        }
+      }
+
+      function abrirNovosVeiculo() {
+        document.getElementById("formVeiculo").reset();
+        document.getElementById("veiculoId").value = "";
+        document.getElementById("modalVeiculo").classList.add("active");
+      }
+
+      async function editarVeiculo(id) {
+        try {
+          const response = await fetch(`/api/veiculos/${id}`);
+          const veiculo = await response.json();
+
+          document.getElementById("veiculoId").value = veiculo.id;
+          document.getElementById("veiculoPlaca").value = veiculo.placa;
+          document.getElementById("veiculoCapacidade").value =
+            veiculo.capacidade;
+
+          document.getElementById("modalVeiculo").classList.add("active");
+        } catch (error) {
+          console.error("Erro:", error);
+          alert("Erro ao carregar veículo!");
+        }
+      }
+
+      async function salvarVeiculo(event) {
+        event.preventDefault();
+
+        const id = document.getElementById("veiculoId").value;
+        const dados = {
+          placa: document.getElementById("veiculoPlaca").value,
+          capacidade: parseInt(
+            document.getElementById("veiculoCapacidade").value,
+          ),
+        };
+
+        try {
+          const metodo = id ? "PUT" : "POST";
+          const url = id ? `/api/veiculos/${id}` : "/api/veiculos";
+
+          const response = await fetch(url, {
+            method: metodo,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados),
+          });
+
+          if (response.ok) {
+            alert(id ? "Veículo atualizado!" : "Veículo criado!");
+            fecharModal("modalVeiculo");
+            carregarVeiculos();
+          }
+        } catch (error) {
+          console.error("Erro:", error);
+          alert("Erro ao salvar!");
+        }
+      }
+
+      async function deletarVeiculo(id) {
+        if (!confirm("Tem certeza?")) return;
+
+        try {
+          await fetch(`/api/veiculos/${id}`, { method: "DELETE" });
+          alert("Veículo deletado!");
+          carregarVeiculos();
+        } catch (error) {
+          console.error("Erro:", error);
+        }
+      }
+
+      function fecharModal(modalId) {
+        document.getElementById(modalId).classList.remove("active");
+      }
+
+      window.onclick = (event) => {
+        if (event.target.classList.contains("modal")) {
+          event.target.classList.remove("active");
+        }
+      };
+    </script>
+  </body>
+</html>
