@@ -133,5 +133,16 @@ Organizar tarefas por motorista e data.
 
 <img width="1629" height="581" alt="image" src="https://github.com/user-attachments/assets/d7970e3b-165d-49a1-9a3b-69ad7bc3b20c" />
 
+---
+
+## Modelo C4
+### Nível 1 - Contexto
+
+<img width="923" height="731" alt="contexto" src="https://github.com/user-attachments/assets/be72f0b3-61db-4397-9434-1fa39a895e25" />
+
+### Nível 2 - Conatiner
+
+<img width="569" height="1038" alt="container" src="https://github.com/user-attachments/assets/28669d18-24ef-42df-917b-92e04268501f" />
+
 
 
