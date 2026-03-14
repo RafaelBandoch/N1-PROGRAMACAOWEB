@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dados</title>
+    <link rel="stylesheet" href="css/output.css" />
+  </head>
+  <body class="bg-white min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 py-16">
+      <div class="mb-10">
+        <a href="index.html" class="text-sm text-gray-600 hover:text-gray-900"
+          >Voltar</a
+        >
+        <h1 class="text-2xl font-normal text-gray-900 mt-10 mb-1">
+          Dados Cadastrados
+        </h1>
+      </div>
+
+      <div class="space-y-10">
+        <section>
+          <h2 class="text-lg font-normal text-gray-900 mb-3">Usuários</h2>
+          <div
+            id="usuarios"
+            class="bg-gray-50 rounded p-4 overflow-x-auto text-sm"
+          >
+            <p class="text-gray-600">Carregando...</p>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-normal text-gray-900 mb-3">Veículos</h2>
+          <div
+            id="veiculos"
+            class="bg-gray-50 rounded p-4 overflow-x-auto text-sm"
+          >
+            <p class="text-gray-600">Carregando...</p>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-normal text-gray-900 mb-3">Motoristas</h2>
+          <div
+            id="motoristas"
+            class="bg-gray-50 rounded p-4 overflow-x-auto text-sm"
+          >
+            <p class="text-gray-600">Carregando...</p>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-normal text-gray-900 mb-3">Clientes</h2>
+          <div
+            id="clientes"
+            class="bg-gray-50 rounded p-4 overflow-x-auto text-sm"
+          >
+            <p class="text-gray-600">Carregando...</p>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-normal text-gray-900 mb-3">Caçambas</h2>
+          <div
+            id="cacambas"
+            class="bg-gray-50 rounded p-4 overflow-x-auto text-sm"
+          >
+            <p class="text-gray-600">Carregando...</p>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-lg font-normal text-gray-900 mb-3">Rotas</h2>
+          <div
+            id="rotas"
+            class="bg-gray-50 rounded p-4 overflow-x-auto text-sm"
+          >
+            <p class="text-gray-600">Carregando...</p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      async function carregar() {
+        const endpoints = [
+          "usuarios",
+          "veiculos",
+          "motoristas",
+          "clientes",
+          "cacambas",
+          "rotas",
+        ];
+        for (const endpoint of endpoints) {
+          try {
+            const res = await fetch("/api/" + endpoint);
+            const dados = await res.json();
+
+            if (!dados || dados.length === 0) {
+              document.getElementById(endpoint).innerHTML =
+                '<p class="text-gray-600">Nenhum registro</p>';
+              continue;
+            }
+
+            const colunas = Object.keys(dados[0]);
+            let html = '<table class="w-full"><thead><tr>';
+            colunas.forEach((col) => {
+              html +=
+                '<th class="text-left px-2 py-1 border-b text-xs text-gray-700 font-normal">' +
+                col +
+                "</th>";
+            });
+            html += "</tr></thead><tbody>";
+
+            dados.forEach((row) => {
+              html += '<tr class="border-b hover:bg-gray-100 transition">';
+              colunas.forEach((col) => {
+                html +=
+                  '<td class="px-2 py-1 text-xs text-gray-600">' +
+                  (row[col] || "-") +
+                  "</td>";
+              });
+              html += "</tr>";
+            });
+
+            html += "</tbody></table>";
+            document.getElementById(endpoint).innerHTML = html;
+          } catch (e) {
+            document.getElementById(endpoint).innerHTML =
+              '<p class="text-red-600 text-xs">Erro ao carregar</p>';
+          }
+        }
+      }
+
+      carregar();
+    </script>
+  </body>
+</html>
