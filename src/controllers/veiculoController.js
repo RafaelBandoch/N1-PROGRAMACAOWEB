@@ -1,30 +1,49 @@
-const db = require('../db');
+const db = require('../database/db');
 
-exports.criar = async (req, res) => {
+exports.criar = async (req, res, next) => {
   try {
+
     const { placa, capacidade } = req.body;
 
     if (!placa || !capacidade) {
-      return res.status(400).json({ erro: 'Placa e capacidade são obrigatórios' });
+      return res.status(400).json({
+        erro: 'Placa e capacidade são obrigatórios'
+      });
     }
 
-    const placaExistente = await db('veiculos').where('placa', placa).first();
+    const placaExistente = await db('veiculos')
+      .where('placa', placa)
+      .first();
+
     if (placaExistente) {
-      return res.status(409).json({ erro: 'Placa já cadastrada' });
+      return res.status(409).json({
+        erro: 'Placa já cadastrada'
+      });
     }
 
-    const [id] = await db('veiculos').insert({ placa, capacidade });
-    res.status(201).json({ mensagem: 'Veículo criado', id });
-  } catch (erro) {
-    res.status(500).json({ erro: erro.message });
+    const [id] = await db('veiculos').insert({
+      placa,
+      capacidade
+    });
+
+    res.status(201).json({
+      mensagem: 'Veículo criado',
+      id
+    });
+
+  } catch (error) {
+    next(error);
   }
 };
 
-exports.listar = async (req, res) => {
+exports.listar = async (req, res, next) => {
   try {
+
     const veiculos = await db('veiculos').select('*');
+
     res.json(veiculos);
-  } catch (erro) {
-    res.status(500).json({ erro: erro.message });
+
+  } catch (error) {
+    next(error);
   }
 };

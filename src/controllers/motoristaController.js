@@ -1,11 +1,14 @@
-const db = require('../db');
+const db = require('../database/db');
 
-exports.criar = async (req, res) => {
+exports.criar = async (req, res, next) => {
   try {
+
     const { nome, status } = req.body;
 
     if (!nome) {
-      return res.status(400).json({ erro: 'Nome é obrigatório' });
+      return res.status(400).json({
+        erro: 'Nome é obrigatório'
+      });
     }
 
     const [id] = await db('motoristas').insert({
@@ -13,17 +16,24 @@ exports.criar = async (req, res) => {
       status: status || 'ATIVO',
     });
 
-    res.status(201).json({ mensagem: 'Motorista criado', id });
-  } catch (erro) {
-    res.status(500).json({ erro: erro.message });
+    res.status(201).json({
+      mensagem: 'Motorista criado',
+      id
+    });
+
+  } catch (error) {
+    next(error);
   }
 };
 
-exports.listar = async (req, res) => {
+exports.listar = async (req, res, next) => {
   try {
+
     const motoristas = await db('motoristas').select('*');
+
     res.json(motoristas);
-  } catch (erro) {
-    res.status(500).json({ erro: erro.message });
+
+  } catch (error) {
+    next(error);
   }
 };

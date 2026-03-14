@@ -5,10 +5,14 @@ require('dotenv').config();
 const app = express();
 
 app.use(express.json());
+
 app.use(express.static(path.join(__dirname, '../public')));
 
-const apiRoutes = require('./routes/api');
-app.use('/api', apiRoutes);
+const routes = require('./routes');
+app.use('/api', routes);
+
+const errorHandler = require('./middlewares/errorHandler');
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 

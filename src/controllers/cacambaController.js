@@ -1,7 +1,8 @@
-const db = require('../db');
+const db = require('../database/db');
 
-exports.criar = async (req, res) => {
+exports.criar = async (req, res, next) => {
   try {
+
     const { tamanho, status } = req.body;
 
     if (!tamanho) {
@@ -13,17 +14,24 @@ exports.criar = async (req, res) => {
       status: status || 'DISPONIVEL',
     });
 
-    res.status(201).json({ mensagem: 'Caçamba criada', id });
-  } catch (erro) {
-    res.status(500).json({ erro: erro.message });
+    res.status(201).json({
+      mensagem: 'Caçamba criada',
+      id
+    });
+
+  } catch (error) {
+    next(error);
   }
 };
 
-exports.listar = async (req, res) => {
+exports.listar = async (req, res, next) => {
   try {
+
     const cacambas = await db('cacambas').select('*');
+
     res.json(cacambas);
-  } catch (erro) {
-    res.status(500).json({ erro: erro.message });
+
+  } catch (error) {
+    next(error);
   }
 };
