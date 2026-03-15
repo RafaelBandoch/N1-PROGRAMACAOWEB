@@ -39,6 +39,47 @@
       </div>
     </div>
 
+    <!-- Templates -->
+    <template id="section-template">
+      <section class="glass p-7 rounded-[2rem] hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 transform group border border-white/60">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex items-center gap-4">
+            <div class="p-3.5 bg-gradient-to-br from-indigo-100 to-violet-100 rounded-2xl text-indigo-600 shadow-inner group-hover:scale-110 transition-transform duration-300">
+              <svg class="w-6 h-6 section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 tracking-tight section-title"></h2>
+          </div>
+          <button
+            class="btn-cadastrar px-5 py-2.5 rounded-xl text-sm font-semibold bg-slate-900 text-white shadow-lg shadow-slate-900/20 hover:bg-indigo-600 hover:shadow-indigo-600/30 hover:-translate-y-0.5 transition-all duration-300"
+          >
+            + Cadastrar Novo
+          </button>
+        </div>
+        <div class="lista-container bg-white/50 rounded-2xl p-4 overflow-x-auto text-sm no-scrollbar border border-white/40 min-h-[140px]">
+          <div class="animate-pulse flex space-x-4 items-center h-full justify-center loading-state">
+            <div class="text-slate-400 font-medium tracking-wide">Carregando dados...</div>
+          </div>
+        </div>
+      </section>
+    </template>
+
+    <template id="table-template">
+      <table class="w-full text-left whitespace-nowrap">
+        <thead>
+          <tr class="table-header-row"></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100/60 table-body"></tbody>
+      </table>
+    </template>
+
+    <template id="empty-state-template">
+      <div class="flex h-full items-center justify-center py-6 text-slate-400 font-medium">Nenhum registro encontrado</div>
+    </template>
+
+    <template id="error-state-template">
+      <div class="flex items-center justify-center p-4 text-red-500 font-medium text-sm bg-red-50 rounded-xl">Erro ao carregar dados.</div>
+    </template>
+
     <!-- Container para modais -->
     <div id="modal-container"></div>
 

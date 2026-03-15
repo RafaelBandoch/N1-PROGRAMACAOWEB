@@ -82,41 +82,49 @@ setTimeout(() => {
 // Modal
 function abrirModal() {
   const campos = CAMPOS[tipoAtual];
-  let html = "";
+  const modalCampos = document.getElementById("modal-campos");
+  modalCampos.innerHTML = ''; // Limpa os campos antigos
+  
+  const fieldTemplate = document.getElementById("form-field-template");
+  const selectTemplate = document.getElementById("form-select-template");
+  const inputTemplate = document.getElementById("form-input-template");
+
   campos.forEach((campo) => {
-    html += `
-      <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-1.5">${campo.label}</label>`;
+    const fieldClone = fieldTemplate.content.cloneNode(true);
+    fieldClone.querySelector('.field-label').textContent = campo.label;
+    
+    const container = fieldClone.querySelector('.field-container');
     
     if (campo.type === "select") {
-      html += `
-        <div class="relative">
-          <select
-            name="${campo.name}"
-            class="w-full px-4 py-3 rounded-xl text-sm text-slate-700 border border-slate-200 shadow-sm bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 appearance-none transition-all cursor-pointer"
-            ${campo.required ? "required" : ""}
-          >`;
+      const selectClone = selectTemplate.content.cloneNode(true);
+      const selectObj = selectClone.querySelector('select');
+      
+      selectObj.name = campo.name;
+      if (campo.required) selectObj.required = true;
+      
       campo.options.forEach(opt => {
-        html += `<option value="${opt}">${opt}</option>`;
+        const option = document.createElement('option');
+        option.value = opt;
+        option.textContent = opt;
+        selectObj.appendChild(option);
       });
-      html += `</select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-          </div>
-        </div>`;
+      
+      container.appendChild(selectClone);
     } else {
-      html += `
-        <input
-          type="${campo.type}"
-          name="${campo.name}"
-          class="w-full px-4 py-3 rounded-xl text-sm text-slate-700 border border-slate-200 shadow-sm bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all placeholder:text-slate-400"
-          placeholder="Insira ${campo.label.toLowerCase()}"
-          ${campo.required ? "required" : ""}
-        />`;
+      const inputClone = inputTemplate.content.cloneNode(true);
+      const inputObj = inputClone.querySelector('input');
+      
+      inputObj.type = campo.type;
+      inputObj.name = campo.name;
+      inputObj.placeholder = `Insira ${campo.label.toLowerCase()}`;
+      if (campo.required) inputObj.required = true;
+      
+      container.appendChild(inputClone);
     }
-    html += `</div>`;
+    
+    modalCampos.appendChild(fieldClone);
   });
-  document.getElementById("modal-campos").innerHTML = html;
+  
   document.getElementById("modal-titulo").textContent = `Cadastrar ${tipoAtual.charAt(0).toUpperCase() + tipoAtual.slice(1)}`;
   
   modal.classList.remove("hidden");
@@ -193,11 +201,9 @@ modalForm.addEventListener("submit", async (e) => {
 // Carregar lista
 async function carregarLista(showLoading = false) {
   if (showLoading) {
-    listaConteudo.innerHTML = `
-      <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm z-10">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-3"></div>
-        <span class="text-indigo-600 font-medium tracking-wide text-sm">Atualizando dados...</span>
-      </div>`;
+    const loadingState = document.getElementById('loading-template').content.cloneNode(true);
+    listaConteudo.innerHTML = '';
+    listaConteudo.appendChild(loadingState);
   }
   
   try {
@@ -207,19 +213,20 @@ async function carregarLista(showLoading = false) {
     
     titutoLista.innerHTML = `${nomeAmigavel} <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full ml-3 align-middle">${dados.length || 0}</span>`;
 
+    listaConteudo.innerHTML = '';
+
     if (!dados || dados.length === 0) {
-      listaConteudo.innerHTML = `
-        <div class="flex flex-col items-center justify-center p-12 opacity-50">
-          <svg class="w-16 h-16 text-slate-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-          <p class="text-slate-500 font-medium text-lg">Nenhum registro encontrado</p>
-          <p class="text-slate-400 text-sm mt-1">Clique em "Cadastrar Novo" para adicionar o primeiro.</p>
-        </div>`;
+      const emptyState = document.getElementById('empty-state-template').content.cloneNode(true);
+      listaConteudo.appendChild(emptyState);
       return;
     }
 
+    const tableClone = document.getElementById('table-template').content.cloneNode(true);
+    const theadTr = tableClone.querySelector('.table-header-row');
+    const tbody = tableClone.querySelector('.table-body');
     const colunas = Object.keys(dados[0]);
-    let html = '<table class="w-full text-left whitespace-nowrap"><thead><tr>';
     
+    // Generate headers
     colunas.forEach((col) => {
       const nomesAmigaveis = {
         'created_at': 'Criado Em',
@@ -228,15 +235,24 @@ async function carregarLista(showLoading = false) {
         'cpf_cnpj': 'CPF / CNPJ'
       };
       const nomeExibicao = nomesAmigaveis[col] || col.replace('_', ' ');
-      html += '<th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-widest border-b border-slate-200/60 bg-slate-50/50">' + nomeExibicao + "</th>";
+      
+      const th = document.createElement('th');
+      th.className = "px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-widest border-b border-slate-200/60 bg-slate-50/50";
+      th.textContent = nomeExibicao;
+      theadTr.appendChild(th);
     });
-    html += "</tr></thead><tbody class='divide-y divide-slate-100/80'>";
 
+    // Generate rows
     dados.forEach((row) => {
-      html += '<tr class="hover:bg-indigo-50/30 transition-colors duration-150 group">';
+      const tr = document.createElement('tr');
+      tr.className = "hover:bg-indigo-50/30 transition-colors duration-150 group";
+      
       colunas.forEach((col, i) => {
         const isFirst = i === 0;
         let content = row[col] || "-";
+        
+        const td = document.createElement('td');
+        td.className = `px-6 py-4 text-sm ${isFirst ? 'font-semibold text-slate-900' : 'text-slate-600 font-medium'}`;
         
         if (col.toLowerCase().includes('status')) {
           const colorMap = {
@@ -248,33 +264,35 @@ async function carregarLista(showLoading = false) {
             'PLANEJADA': 'bg-blue-50 text-blue-700 ring-blue-600/20'
           };
           const classes = colorMap[content] || 'bg-slate-100 text-slate-600 ring-slate-500/10';
-          content = `<span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ring-1 ring-inset ${classes}">${content}</span>`;
-        } else if (content && (col === 'created_at' || col === 'updated_at' || col === 'data')) {
-           const dateObj = new Date(content);
-           if (!isNaN(dateObj)) {
-             content = dateObj.toLocaleDateString('pt-BR', {
-               day: '2-digit', month: '2-digit', year: 'numeric',
-               hour: col !== 'data' ? '2-digit' : undefined,
-               minute: col !== 'data' ? '2-digit' : undefined
-             });
-           }
+          
+          const span = document.createElement('span');
+          span.className = `inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ring-1 ring-inset ${classes}`;
+          span.textContent = content;
+          td.appendChild(span);
+        } else {
+          if (content && (col === 'created_at' || col === 'updated_at' || col === 'data')) {
+             const dateObj = new Date(content);
+             if (!isNaN(dateObj)) {
+               content = dateObj.toLocaleDateString('pt-BR', {
+                 day: '2-digit', month: '2-digit', year: 'numeric',
+                 hour: col !== 'data' ? '2-digit' : undefined,
+                 minute: col !== 'data' ? '2-digit' : undefined
+               });
+             }
+          }
+          td.textContent = content;
         }
 
-        html += `<td class="px-6 py-4 text-sm ${isFirst ? 'font-semibold text-slate-900' : 'text-slate-600 font-medium'}">${content}</td>`;
+        tr.appendChild(td);
       });
-      html += "</tr>";
+      tbody.appendChild(tr);
     });
 
-    html += "</tbody></table>";
-    listaConteudo.innerHTML = html;
+    listaConteudo.appendChild(tableClone);
   } catch (e) {
-    listaConteudo.innerHTML = `
-      <div class="flex items-center justify-center p-8">
-        <div class="bg-rose-50 text-rose-600 px-4 py-3 rounded-xl border border-rose-100 flex items-center gap-3">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span class="font-medium">Erro ao carregar os dados.</span>
-        </div>
-      </div>`;
+    const errorState = document.getElementById('error-state-template').content.cloneNode(true);
+    listaConteudo.innerHTML = '';
+    listaConteudo.appendChild(errorState);
   }
 }
 

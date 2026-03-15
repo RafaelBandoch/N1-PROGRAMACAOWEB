@@ -8,31 +8,27 @@ const SECTIONS = [
 ];
 
 const dashboardGrid = document.getElementById('dashboard-grid');
+const sectionTemplate = document.getElementById('section-template');
 
 SECTIONS.forEach(sec => {
-  dashboardGrid.innerHTML += `
-    <section class="glass p-7 rounded-[2rem] hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 transform group border border-white/60">
-      <div class="flex justify-between items-center mb-6">
-        <div class="flex items-center gap-4">
-          <div class="p-3.5 bg-gradient-to-br from-indigo-100 to-violet-100 rounded-2xl text-indigo-600 shadow-inner group-hover:scale-110 transition-transform duration-300">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">${sec.icon}</svg>
-          </div>
-          <h2 class="text-xl font-bold text-slate-800 tracking-tight">${sec.title}</h2>
-        </div>
-        <button
-          class="btn-cadastrar px-5 py-2.5 rounded-xl text-sm font-semibold bg-slate-900 text-white shadow-lg shadow-slate-900/20 hover:bg-indigo-600 hover:shadow-indigo-600/30 hover:-translate-y-0.5 transition-all duration-300"
-          data-tipo="${sec.id}"
-        >
-          + Novo
-        </button>
-      </div>
-      <div id="lista-${sec.id}" class="bg-white/50 rounded-2xl p-4 overflow-x-auto text-sm no-scrollbar border border-white/40 min-h-[140px]">
-        <div class="animate-pulse flex space-x-4 items-center h-full justify-center">
-          <div class="text-slate-400 font-medium tracking-wide">Carregando dados...</div>
-        </div>
-      </div>
-    </section>
-  `;
+  const clone = sectionTemplate.content.cloneNode(true);
+  
+  // Update icon path
+  const svg = clone.querySelector('.section-icon');
+  svg.innerHTML = sec.icon;
+  
+  // Update title
+  clone.querySelector('.section-title').textContent = sec.title;
+  
+  // Update button data attribute
+  const btnCadastrar = clone.querySelector('.btn-cadastrar');
+  btnCadastrar.dataset.tipo = sec.id;
+  
+  // Update list container ID
+  const listaContainer = clone.querySelector('.lista-container');
+  listaContainer.id = `lista-${sec.id}`;
+  
+  dashboardGrid.appendChild(clone);
 });
 
 const TIPOS = SECTIONS.map(s => s.id);
@@ -49,15 +45,20 @@ async function carregarLista(tipo) {
     const res = await fetch("/api/" + tipo);
     const dados = await res.json();
     const container = document.getElementById("lista-" + tipo);
+    container.innerHTML = ''; // Clear loading state
 
     if (!dados || dados.length === 0) {
-      container.innerHTML = '<div class="flex h-full items-center justify-center py-6 text-slate-400 font-medium">Nenhum registro encontrado</div>';
+      const emptyState = document.getElementById('empty-state-template').content.cloneNode(true);
+      container.appendChild(emptyState);
       return;
     }
 
+    const tableClone = document.getElementById('table-template').content.cloneNode(true);
+    const theadTr = tableClone.querySelector('.table-header-row');
+    const tbody = tableClone.querySelector('.table-body');
     const colunas = Object.keys(dados[0]);
-    let html = '<table class="w-full text-left whitespace-nowrap"><thead><tr>';
     
+    // Generate headers
     colunas.forEach((col) => {
       const nomesAmigaveis = {
         'created_at': 'Criado Em',
@@ -66,15 +67,24 @@ async function carregarLista(tipo) {
         'cpf_cnpj': 'CPF / CNPJ'
       };
       const nomeExibicao = nomesAmigaveis[col] || col.replace('_', ' ');
-      html += '<th class="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/60">' + nomeExibicao + "</th>";
+      
+      const th = document.createElement('th');
+      th.className = "px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/60";
+      th.textContent = nomeExibicao;
+      theadTr.appendChild(th);
     });
-    html += "</tr></thead><tbody class='divide-y divide-slate-100/60'>";
 
+    // Generate rows
     dados.forEach((row, index) => {
-      html += `<tr class="hover:bg-white/80 transition-colors duration-150 rounded-xl group">`;
+      const tr = document.createElement('tr');
+      tr.className = "hover:bg-white/80 transition-colors duration-150 rounded-xl group";
+      
       colunas.forEach((col, i) => {
         const isFirst = i === 0;
         let content = row[col] || "-";
+        
+        const td = document.createElement('td');
+        td.className = `px-4 py-3 text-sm ${isFirst ? 'font-medium text-slate-900' : 'text-slate-600'}`;
         
         if (col.toLowerCase().includes('status')) {
           const colorMap = {
@@ -86,34 +96,43 @@ async function carregarLista(tipo) {
             'PLANEJADA': 'bg-blue-50 text-blue-700 ring-blue-600/20'
           };
           const classes = colorMap[content] || 'bg-slate-100 text-slate-600 ring-slate-500/10';
-          content = `<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${classes}">${content}</span>`;
-        } else if (content && (col === 'created_at' || col === 'updated_at' || col === 'data')) {
-           const dateObj = new Date(content);
-           if (!isNaN(dateObj)) {
-             content = dateObj.toLocaleDateString('pt-BR', {
-               day: '2-digit', month: '2-digit', year: 'numeric',
-               hour: col !== 'data' ? '2-digit' : undefined,
-               minute: col !== 'data' ? '2-digit' : undefined
-             });
-           }
+          
+          const span = document.createElement('span');
+          span.className = `inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${classes}`;
+          span.textContent = content;
+          td.appendChild(span);
+        } else {
+          if (content && (col === 'created_at' || col === 'updated_at' || col === 'data')) {
+            const dateObj = new Date(content);
+            if (!isNaN(dateObj)) {
+              content = dateObj.toLocaleDateString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: col !== 'data' ? '2-digit' : undefined,
+                minute: col !== 'data' ? '2-digit' : undefined
+              });
+            }
+          }
+          td.textContent = content;
         }
 
-        html += `<td class="px-4 py-3 text-sm ${isFirst ? 'font-medium text-slate-900' : 'text-slate-600'}">${content}</td>`;
+        tr.appendChild(td);
       });
-      html += "</tr>";
+      
+      tbody.appendChild(tr);
     });
 
-    html += "</tbody></table>";
-    container.innerHTML = html;
+    container.appendChild(tableClone);
   } catch (e) {
-    document.getElementById("lista-" + tipo).innerHTML =
-      '<div class="flex items-center justify-center p-4 text-red-500 font-medium text-sm bg-red-50 rounded-xl">Erro ao carregar dados.</div>';
+    const errorState = document.getElementById('error-state-template').content.cloneNode(true);
+    const container = document.getElementById("lista-" + tipo);
+    container.innerHTML = '';
+    container.appendChild(errorState);
   }
 }
 
 async function abrirModal(tipo) {
   tipoAtual = tipo;
-  
+
   // Add a loading state to button
   const btn = document.querySelector(`button[data-tipo="${tipo}"]`);
   const originalText = btn.innerHTML;
@@ -123,7 +142,7 @@ async function abrirModal(tipo) {
   try {
     const res = await fetch("components/" + tipo.slice(0, -1) + "-modal.html");
     let html = await res.text();
-    
+
     // Inject modern styling into existing modal HTML
     // Because we don't want to re-write 6 modal htmls right now, we can just replace classes dynamically here to keep them looking fresh.
     html = html.replace('bg-white rounded max-w-md w-full', 'bg-white/95 backdrop-blur-xl rounded-[2rem] max-w-md w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-white/50 transform transition-all scale-95 opacity-0 duration-300 ease-out');
@@ -136,7 +155,7 @@ async function abrirModal(tipo) {
     html = html.replace(/border-gray-200/g, 'border-slate-200 shadow-sm bg-slate-50/50');
     html = html.replace(/font-normal text-gray-900/g, 'font-medium text-slate-700');
     html = html.replace(/rounded/g, 'rounded-xl');
-    
+
     const container = document.getElementById("modal-container");
     container.innerHTML = html;
 
@@ -147,7 +166,7 @@ async function abrirModal(tipo) {
     const form = document.getElementById("modal-form");
 
     modal.classList.remove("hidden");
-    
+
     // Animate in
     setTimeout(() => {
       modal.classList.remove('opacity-0');
@@ -160,7 +179,7 @@ async function abrirModal(tipo) {
       modalInner.classList.remove('scale-100', 'opacity-100');
       modalInner.classList.add('scale-95', 'opacity-0');
       setTimeout(() => {
-          modal.classList.add("hidden");
+        modal.classList.add("hidden");
       }, 300);
     };
 
@@ -175,7 +194,7 @@ async function abrirModal(tipo) {
       const formData = new FormData(form);
       const dados = Object.fromEntries(formData.entries());
       const alerta = document.getElementById("modal-alerta");
-      
+
       const submitBtn = form.querySelector('button[type="submit"]');
       submitBtn.innerHTML = 'Salvando...';
       submitBtn.disabled = true;
@@ -206,8 +225,8 @@ async function abrirModal(tipo) {
         submitBtn.disabled = false;
       }
     });
-    
-  } catch(err) {
+
+  } catch (err) {
     console.error("Modal load error", err);
   } finally {
     btn.innerHTML = originalText;
