@@ -1,12 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const controller = require('../controllers/cacambaController');
 
-router.get('/', (req, res) => {
-  res.json({ rota: "cacambas funcionando" });
-});
-
-router.post('/', (req, res) => {
-  res.json({ mensagem: "cacamba criada" });
-});
+router.get('/', controller.listar);
+router.post('/', controller.criar);
 
 module.exports = router;

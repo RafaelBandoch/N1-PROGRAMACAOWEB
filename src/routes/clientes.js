@@ -1,12 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const controller = require('../controllers/clienteController');
 
-router.get('/', (req, res) => {
-  res.json({ rota: "clientes funcionando" });
-});
-
-router.post('/', (req, res) => {
-  res.json({ mensagem: "cliente criado" });
-});
+router.get('/', controller.listar);
+router.post('/', controller.criar);
 
 module.exports = router;
