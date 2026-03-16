@@ -4,19 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/server.js"
+    "dev": "concurrently \"npm run tailwind:watch\" \"nodemon src/server.js\"",
+    "tailwind:build": "tailwindcss -i ./src/css/input.css -o ./public/css/output.css",
+    "tailwind:watch": "tailwindcss -i ./src/css/input.css -o ./public/css/output.css --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^17.3.1",
-    "express": "^5.2.1",
+    "express": "^4.22.1",
     "knex": "^3.1.0",
     "mysql2": "^3.18.2"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.17",
+    "concurrently": "^8.2.2",
     "knex-cli": "^1.0.1",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.1"
   }
 }

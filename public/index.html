@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Gestão de Caçambas</title>
+
+<link rel="stylesheet" href="css/output.css">
+
+<style>
+span.inline-flex{
+color:inherit !important;
+}
+</style>
+
+</head>
+
+
+<body class="bg-black text-zinc-200 min-h-screen font-sans">
+
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+
+<header class="mb-10 flex flex-col md:flex-row justify-between items-center bg-zinc-900 border border-zinc-800 p-8 rounded-3xl">
+
+<div>
+
+<h1 class="text-4xl font-bold text-white mb-2">
+Gestão Integrada
+</h1>
+
+<p class="text-zinc-400">
+Painel de controle e monitoramento de caçambas
+</p>
+
+</div>
+
+
+<div class="mt-6 md:mt-0">
+
+<a href="pages/gestao.html"
+class="px-6 py-3 rounded-xl text-sm font-semibold bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition">
+
+Modo Foco (Detalhado)
+
+</a>
+
+</div>
+
+</header>
+
+
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8" id="dashboard-grid">
+
+  <section class="bg-zinc-900 border border-zinc-800 p-7 rounded-3xl hover:border-zinc-700 transition">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-4">
+        <div class="p-3 bg-zinc-800 rounded-xl text-zinc-300">
+          <svg class="w-6 h-6 section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-white section-title">Usuários</h2>
+      </div>
+      <button class="btn-cadastrar px-4 py-2 text-sm font-semibold rounded-lg bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition" data-tipo="usuarios">+ Cadastrar</button>
+    </div>
+    <div class="lista-container bg-zinc-900 rounded-xl p-4 overflow-x-auto text-sm border border-zinc-800 min-h-[140px]" id="lista-usuarios">
+      <div class="loading-state text-zinc-400 text-center py-6">Carregando dados...</div>
+    </div>
+  </section>
+
+  <section class="bg-zinc-900 border border-zinc-800 p-7 rounded-3xl hover:border-zinc-700 transition">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-4">
+        <div class="p-3 bg-zinc-800 rounded-xl text-zinc-300">
+          <svg class="w-6 h-6 section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-white section-title">Veículos</h2>
+      </div>
+      <button class="btn-cadastrar px-4 py-2 text-sm font-semibold rounded-lg bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition" data-tipo="veiculos">+ Cadastrar</button>
+    </div>
+    <div class="lista-container bg-zinc-900 rounded-xl p-4 overflow-x-auto text-sm border border-zinc-800 min-h-[140px]" id="lista-veiculos">
+      <div class="loading-state text-zinc-400 text-center py-6">Carregando dados...</div>
+    </div>
+  </section>
+
+  <section class="bg-zinc-900 border border-zinc-800 p-7 rounded-3xl hover:border-zinc-700 transition">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-4">
+        <div class="p-3 bg-zinc-800 rounded-xl text-zinc-300">
+          <svg class="w-6 h-6 section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-white section-title">Motoristas</h2>
+      </div>
+      <button class="btn-cadastrar px-4 py-2 text-sm font-semibold rounded-lg bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition" data-tipo="motoristas">+ Cadastrar</button>
+    </div>
+    <div class="lista-container bg-zinc-900 rounded-xl p-4 overflow-x-auto text-sm border border-zinc-800 min-h-[140px]" id="lista-motoristas">
+      <div class="loading-state text-zinc-400 text-center py-6">Carregando dados...</div>
+    </div>
+  </section>
+
+  <section class="bg-zinc-900 border border-zinc-800 p-7 rounded-3xl hover:border-zinc-700 transition">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-4">
+        <div class="p-3 bg-zinc-800 rounded-xl text-zinc-300">
+          <svg class="w-6 h-6 section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-white section-title">Clientes</h2>
+      </div>
+      <button class="btn-cadastrar px-4 py-2 text-sm font-semibold rounded-lg bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition" data-tipo="clientes">+ Cadastrar</button>
+    </div>
+    <div class="lista-container bg-zinc-900 rounded-xl p-4 overflow-x-auto text-sm border border-zinc-800 min-h-[140px]" id="lista-clientes">
+      <div class="loading-state text-zinc-400 text-center py-6">Carregando dados...</div>
+    </div>
+  </section>
+
+  <section class="bg-zinc-900 border border-zinc-800 p-7 rounded-3xl hover:border-zinc-700 transition">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-4">
+        <div class="p-3 bg-zinc-800 rounded-xl text-zinc-300">
+          <svg class="w-6 h-6 section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-white section-title">Caçambas</h2>
+      </div>
+      <button class="btn-cadastrar px-4 py-2 text-sm font-semibold rounded-lg bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition" data-tipo="cacambas">+ Cadastrar</button>
+    </div>
+    <div class="lista-container bg-zinc-900 rounded-xl p-4 overflow-x-auto text-sm border border-zinc-800 min-h-[140px]" id="lista-cacambas">
+      <div class="loading-state text-zinc-400 text-center py-6">Carregando dados...</div>
+    </div>
+  </section>
+
+  <section class="bg-zinc-900 border border-zinc-800 p-7 rounded-3xl hover:border-zinc-700 transition">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-4">
+        <div class="p-3 bg-zinc-800 rounded-xl text-zinc-300">
+          <svg class="w-6 h-6 section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-white section-title">Rotas</h2>
+      </div>
+      <button class="btn-cadastrar px-4 py-2 text-sm font-semibold rounded-lg bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition" data-tipo="rotas">+ Cadastrar</button>
+    </div>
+    <div class="lista-container bg-zinc-900 rounded-xl p-4 overflow-x-auto text-sm border border-zinc-800 min-h-[140px]" id="lista-rotas">
+      <div class="loading-state text-zinc-400 text-center py-6">Carregando dados...</div>
+    </div>
+  </section>
+
+</div>
+
+
+
+
+
+
+
+<template id="empty-state-template">
+
+<div class="flex justify-center py-6 text-zinc-500">
+
+Nenhum registro encontrado
+
+</div>
+
+</template>
+
+
+
+<template id="error-state-template">
+
+<div class="text-red-400 text-sm text-center py-6">
+Erro ao carregar dados
+</div>
+</template>
+
+
+<div id="modal-container"></div>
+
+<script src="js/index.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dados Cadastrados</title>
+
+<link rel="stylesheet" href="css/output.css">
+</head>
+
+
+<body class="bg-white min-h-screen">
+
+<div class="max-w-5xl mx-auto px-6 py-16">
+
+<a href="index.html" class="text-sm text-gray-600 hover:text-gray-900">
+← Voltar
+</a>
+
+<h1 class="text-2xl text-gray-900 mt-6 mb-10">
+Dados Cadastrados
+</h1>
+
+
+
+<div class="space-y-10">
+
+<section>
+
+<h2 class="text-lg mb-3">Usuários</h2>
+
+<div id="usuarios" class="bg-gray-50 rounded-xl p-4 overflow-x-auto text-sm">
+Carregando...
+</div>
+
+</section>
+
+
+<section>
+
+<h2 class="text-lg mb-3">Veículos</h2>
+
+<div id="veiculos" class="bg-gray-50 rounded-xl p-4 overflow-x-auto text-sm">
+Carregando...
+</div>
+
+</section>
+
+
+<section>
+
+<h2 class="text-lg mb-3">Motoristas</h2>
+
+<div id="motoristas" class="bg-gray-50 rounded-xl p-4 overflow-x-auto text-sm">
+Carregando...
+</div>
+
+</section>
+
+
+<section>
+
+<h2 class="text-lg mb-3">Clientes</h2>
+
+<div id="clientes" class="bg-gray-50 rounded-xl p-4 overflow-x-auto text-sm">
+Carregando...
+</div>
+
+</section>
+
+
+<section>
+
+<h2 class="text-lg mb-3">Caçambas</h2>
+
+<div id="cacambas" class="bg-gray-50 rounded-xl p-4 overflow-x-auto text-sm">
+Carregando...
+</div>
+
+</section>
+
+
+<section>
+
+<h2 class="text-lg mb-3">Rotas</h2>
+
+<div id="rotas" class="bg-gray-50 rounded-xl p-4 overflow-x-auto text-sm">
+Carregando...
+</div>
+
+</section>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+async function carregar(){
+
+const endpoints = ["usuarios","veiculos","motoristas","clientes","cacambas","rotas"]
+
+for(const endpoint of endpoints){
+
+try{
+
+const res = await fetch("/api/"+endpoint)
+const dados = await res.json()
+
+if(!dados || dados.length===0){
+
+document.getElementById(endpoint).innerHTML = "Nenhum registro"
+
+continue
+
+}
+
+const colunas = Object.keys(dados[0])
+
+let html = `<table class="w-full text-xs">`
+
+html += `<thead class="border-b text-gray-600"><tr>`
+
+colunas.forEach(col=>{
+
+html += `<th class="px-3 py-2 text-left">${col}</th>`
+
+})
+
+html += `</tr></thead><tbody>`
+
+dados.forEach(row=>{
+
+html += `<tr class="border-b hover:bg-gray-100 transition">`
+
+colunas.forEach(col=>{
+
+html += `<td class="px-3 py-2">${row[col]||"-"}</td>`
+
+})
+
+html += `</tr>`
+
+})
+
+html += `</tbody></table>`
+
+document.getElementById(endpoint).innerHTML = html
+
+}catch{
+
+document.getElementById(endpoint).innerHTML="Erro ao carregar"
+
+}
+
+}
+
+}
+
+carregar()
+
+</script>
+
+</body>
+</html>
