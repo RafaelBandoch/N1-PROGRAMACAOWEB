@@ -1,31 +1,4 @@
-const CAMPOS = {
-  usuarios: [
-    { name: "email", label: "Email", type: "email", required: true },
-    { name: "senha", label: "Senha", type: "password", required: true },
-  ],
-  veiculos: [
-    { name: "placa", label: "Placa", type: "text", required: true },
-    { name: "capacidade", label: "Capacidade (m³)", type: "number", required: true },
-  ],
-  motoristas: [
-    { name: "nome", label: "Nome", type: "text", required: true },
-    { name: "status", label: "Status", type: "select", options: ["ATIVO", "INATIVO"], required: true },
-  ],
-  clientes: [
-    { name: "nome", label: "Nome", type: "text", required: true },
-    { name: "cpf_cnpj", label: "CPF/CNPJ", type: "text", required: true },
-    { name: "endereco", label: "Endereço", type: "text", required: true },
-  ],
-  cacambas: [
-    { name: "tamanho", label: "Tamanho", type: "select", options: ["GRANDE", "MEDIO"], required: true },
-    { name: "status", label: "Status", type: "select", options: ["DISPONIVEL", "ENTREGUE", "EM_MANUTENCAO", "RESERVADA"], required: true },
-  ],
-  rotas: [
-    { name: "data", label: "Data", type: "date", required: true },
-    { name: "motorista_id", label: "ID do Motorista", type: "number", required: true },
-    { name: "status", label: "Status", type: "select", options: ["PLANEJADA", "EM_EXECUCAO", "FINALIZADA"], required: true },
-  ],
-};
+
 
 const STATUS_COLORS = {
   ATIVO: "bg-zinc-800 text-emerald-400 ring-emerald-500/30",
@@ -41,15 +14,9 @@ const STATUS_COLORS = {
 
 const botoesTipo = document.querySelectorAll(".tipo-btn");
 const btnCadastrar = document.getElementById("btn-cadastrar");
-const modal = document.getElementById("modal");
-const modalInner = document.getElementById("modal-inner");
-const btnFecharModal = document.getElementById("btn-fechar-modal");
-const btnCancelarModal = document.getElementById("btn-cancelar-modal");
-const modalForm = document.getElementById("modal-form");
+const modalContainer = document.getElementById("modal-container");
 const listaConteudo = document.getElementById("lista-conteudo");
 const titutoLista = document.getElementById("titulo-lista");
-const modalAlerta = document.getElementById("modal-alerta");
-const btnSalvar = document.getElementById("btn-salvar-modal");
 
 let tipoAtual = "usuarios";
 
@@ -70,93 +37,102 @@ botoesTipo.forEach((btn) => {
   });
 });
 
-function abrirModal() {
-  const campos = CAMPOS[tipoAtual];
-  const modalCampos = document.getElementById("modal-campos");
-  modalCampos.innerHTML = "";
-
-  const fieldTemplate = document.getElementById("form-field-template");
-  const selectTemplate = document.getElementById("form-select-template");
-  const inputTemplate = document.getElementById("form-input-template");
-
-  campos.forEach((campo) => {
-    const fieldClone = fieldTemplate.content.cloneNode(true);
-    fieldClone.querySelector(".field-label").textContent = campo.label;
-    const container = fieldClone.querySelector(".field-container");
-
-    if (campo.type === "select") {
-      const selectClone = selectTemplate.content.cloneNode(true);
-      const selectObj = selectClone.querySelector("select");
-      selectObj.name = campo.name;
-      campo.options.forEach((opt) => {
-        const option = document.createElement("option");
-        option.value = opt;
-        option.textContent = opt;
-        selectObj.appendChild(option);
-      });
-      container.appendChild(selectClone);
-    } else {
-      const inputClone = inputTemplate.content.cloneNode(true);
-      const inputObj = inputClone.querySelector("input");
-      inputObj.type = campo.type;
-      inputObj.name = campo.name;
-      inputObj.placeholder = `Insira ${campo.label.toLowerCase()}`;
-      if (campo.required) inputObj.required = true;
-      container.appendChild(inputClone);
-    }
-    modalCampos.appendChild(fieldClone);
-  });
-
-  document.getElementById("modal-titulo").textContent = `Cadastrar ${tipoAtual}`;
-  modal.classList.remove("hidden");
-  setTimeout(() => {
-    modal.classList.remove("opacity-0");
-    modalInner.classList.remove("scale-95", "opacity-0");
-  }, 10);
-}
-
-function fecharModal() {
-  modal.classList.add("opacity-0");
-  modalInner.classList.add("scale-95", "opacity-0");
-  setTimeout(() => {
-    modal.classList.add("hidden");
-    modalForm.reset();
-    modalAlerta.innerHTML = "";
-  }, 300);
-}
-
-btnCadastrar.addEventListener("click", abrirModal);
-btnFecharModal.addEventListener("click", fecharModal);
-btnCancelarModal.addEventListener("click", fecharModal);
-
-modalForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const formData = new FormData(modalForm);
-  const dados = Object.fromEntries(formData.entries());
-
-  btnSalvar.innerHTML = "Salvando...";
-  btnSalvar.disabled = true;
+async function abrirModal() {
+  const originalText = btnCadastrar.innerHTML;
+  btnCadastrar.innerHTML = `<svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+  btnCadastrar.disabled = true;
 
   try {
-    const res = await fetch("/api/" + tipoAtual, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dados),
+    const res = await fetch("../components/" + tipoAtual.slice(0, -1) + "-modal.html");
+    let html = await res.text();
+
+    html = html.replace('bg-white/95 backdrop-blur-xl', 'bg-zinc-900 border border-zinc-800');
+    html = html.replace('text-slate-900', 'text-white');
+    html = html.replace('text-slate-700', 'text-zinc-300');
+    html = html.replace(/bg-slate-50\/50/g, 'bg-zinc-800/50');
+    html = html.replace(/border-slate-200/g, 'border-zinc-700');
+    html = html.replace(/focus:ring-indigo-600/g, 'focus:ring-zinc-400');
+    html = html.replace(/focus:border-indigo-600/g, 'focus:border-zinc-400');
+    html = html.replace('text-slate-900', 'text-white');
+    html = html.replace('text-gray-400', 'text-zinc-500');
+    html = html.replace(/text-slate-900/g, 'text-zinc-100');
+    html = html.replace(/bg-indigo-600/g, 'bg-white');
+    html = html.replace(/hover:bg-indigo-700/g, 'hover:bg-zinc-200');
+    html = html.replace(/text-white/g, 'text-black');
+    html = html.replace(/shadow-indigo-200/g, 'shadow-none');
+    html = html.replace(/hover:shadow-indigo-300/g, 'shadow-none');
+
+    html = html.replace(/text-black/g, 'text-black').replace(/text-slate-700/g, 'text-zinc-400');
+
+    modalContainer.innerHTML = html;
+
+    const modal = document.getElementById("modal");
+    const modalInner = modal.querySelector('.max-w-md');
+    const btnFechar = document.getElementById("btn-fechar-modal");
+    const btnCancelar = document.getElementById("btn-cancelar-modal");
+    const form = document.getElementById("modal-form");
+
+    modal.querySelector('h2').className = "text-2xl font-bold tracking-tight text-white";
+
+    modal.classList.remove("hidden");
+
+    modal.querySelectorAll('input, select').forEach(el => el.classList.add('text-white'));
+
+    setTimeout(() => {
+      modal.classList.remove('opacity-0');
+      modalInner.classList.remove('scale-95', 'opacity-0');
+      modalInner.classList.add('scale-100', 'opacity-100');
+    }, 10);
+
+    const closeModal = () => {
+      modal.classList.add('opacity-0');
+      modalInner.classList.remove('scale-100', 'opacity-100');
+      modalInner.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => { modal.classList.add("hidden"); }, 300);
+    };
+
+    btnFechar.addEventListener("click", closeModal);
+    btnCancelar.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const dados = Object.fromEntries(new FormData(form).entries());
+      const alerta = document.getElementById("modal-alerta");
+      const submitBtn = form.querySelector('button[type="submit"]');
+
+      submitBtn.innerHTML = 'Salvando...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch("/api/" + tipoAtual, {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(dados),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alerta.innerHTML = '<div class="p-4 rounded-xl text-sm border border-emerald-500/50 bg-emerald-500/10 text-emerald-400">Salvo com sucesso</div>';
+          setTimeout(() => { closeModal(); carregarLista(); }, 1200);
+        } else {
+          alerta.innerHTML = `<div class="p-4 rounded-xl text-sm border border-rose-500/50 bg-rose-500/10 text-rose-400">${data.erro || 'Erro ao salvar'}</div>`;
+          submitBtn.innerHTML = 'Salvar';
+          submitBtn.disabled = false;
+        }
+      } catch (e) {
+        alerta.innerHTML = '<div class="p-4 rounded-xl text-sm border border-rose-500/50 bg-rose-500/10 text-rose-400">Erro de conexão</div>';
+        submitBtn.innerHTML = 'Salvar';
+        submitBtn.disabled = false;
+      }
     });
 
-    if (res.ok) {
-      modalAlerta.innerHTML = '<div class="p-4 rounded-xl text-sm border border-emerald-500/50 bg-emerald-500/10 text-emerald-400">Salvo com sucesso</div>';
-      setTimeout(() => { fecharModal(); carregarLista(); }, 1200);
-    } else {
-      modalAlerta.innerHTML = '<div class="p-4 rounded-xl text-sm border border-rose-500/50 bg-rose-500/10 text-rose-400">Erro ao salvar</div>';
-    }
-  } catch {
-    modalAlerta.innerHTML = '<div class="p-4 rounded-xl text-sm border border-rose-500/50 bg-rose-500/10 text-rose-400">Erro de conexão</div>';
+  } catch (err) {
+    console.error("Modal load error", err);
+  } finally {
+    btnCadastrar.innerHTML = originalText;
+    btnCadastrar.disabled = false;
   }
+}
 
-  btnSalvar.innerHTML = "Salvar Registro";
-  btnSalvar.disabled = false;
-});
+btnCadastrar.addEventListener("click", () => abrirModal());
 
 async function carregarLista(showLoading = false) {
   if (showLoading) {
@@ -173,26 +149,35 @@ async function carregarLista(showLoading = false) {
       return;
     }
 
+    if (dados[0] && dados[0].id !== undefined) {
+      dados.sort((a, b) => a.id - b.id);
+    }
+
     const table = document.createElement("table");
-    table.className = "w-full text-left border-collapse";
+    table.className = "w-full text-left text-sm";
     const colunas = Object.keys(dados[0]);
 
-    let theadHTML = `<thead class="bg-zinc-800/50 border-b border-zinc-800"><tr>`;
+    let theadHTML = `<thead class="text-xs uppercase text-zinc-400 border-b border-zinc-800"><tr class="table-header-row">`;
     colunas.forEach(col => {
-      theadHTML += `<th class="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-wider">${col.replace("_", " ")}</th>`;
+      const nomes = { 'created_at': 'Criado Em', 'updated_at': 'Atualizado Em', 'motorista_id': 'Cód Motorista', 'cpf_cnpj': 'CPF / CNPJ' };
+      theadHTML += `<th class="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/60">${nomes[col] || col.replace('_', ' ')}</th>`;
     });
     theadHTML += `</tr></thead>`;
-    
-    let tbodyHTML = `<tbody class="divide-y divide-zinc-800">`;
+
+    let tbodyHTML = `<tbody class="table-body divide-y divide-zinc-800">`;
     dados.forEach(row => {
-      tbodyHTML += `<tr class="hover:bg-zinc-800/30 transition-colors">`;
-      colunas.forEach(col => {
+      tbodyHTML += `<tr class="hover:bg-white/80 transition-colors duration-150 rounded-xl group">`;
+      colunas.forEach((col, i) => {
         let content = row[col] || "-";
         if (col.toLowerCase().includes("status")) {
-          const classes = STATUS_COLORS[content] || "bg-zinc-800 text-zinc-400 ring-zinc-700/50";
-          tbodyHTML += `<td class="px-6 py-4"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${classes}">${content}</span></td>`;
+          const classes = STATUS_COLORS[content] || "bg-slate-100 text-slate-600 ring-slate-500/10";
+          tbodyHTML += `<td class="px-4 py-3 text-sm"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${classes}">${content}</span></td>`;
         } else {
-          tbodyHTML += `<td class="px-6 py-4 text-sm text-zinc-300">${content}</td>`;
+          if (content && (col === 'created_at' || col === 'updated_at' || col === 'data')) {
+            const d = new Date(content);
+            if (!isNaN(d)) content = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          }
+          tbodyHTML += `<td class="px-4 py-3 text-sm ${i === 0 ? 'font-medium text-white' : 'text-zinc-300'}">${content}</td>`;
         }
       });
       tbodyHTML += `</tr>`;
@@ -207,10 +192,10 @@ async function carregarLista(showLoading = false) {
 }
 
 window.addEventListener('load', () => {
-    const firstBtn = document.querySelector('[data-tipo="usuarios"]');
-    if(firstBtn) {
-        updateTabsUI(firstBtn);
-        titutoLista.textContent = "Usuários";
-        carregarLista(true);
-    }
+  const firstBtn = document.querySelector('[data-tipo="usuarios"]');
+  if (firstBtn) {
+    updateTabsUI(firstBtn);
+    titutoLista.textContent = "Usuários";
+    carregarLista(true);
+  }
 });
