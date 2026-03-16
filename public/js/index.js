@@ -13,18 +13,14 @@ const sectionTemplate = document.getElementById('section-template');
 SECTIONS.forEach(sec => {
   const clone = sectionTemplate.content.cloneNode(true);
   
-  // Update icon path
   const svg = clone.querySelector('.section-icon');
   svg.innerHTML = sec.icon;
   
-  // Update title
   clone.querySelector('.section-title').textContent = sec.title;
   
-  // Update button data attribute
   const btnCadastrar = clone.querySelector('.btn-cadastrar');
   btnCadastrar.dataset.tipo = sec.id;
   
-  // Update list container ID
   const listaContainer = clone.querySelector('.lista-container');
   listaContainer.id = `lista-${sec.id}`;
   
@@ -45,7 +41,7 @@ async function carregarLista(tipo) {
     const res = await fetch("/api/" + tipo);
     const dados = await res.json();
     const container = document.getElementById("lista-" + tipo);
-    container.innerHTML = ''; // Clear loading state
+    container.innerHTML = ''; 
 
     if (!dados || dados.length === 0) {
       const emptyState = document.getElementById('empty-state-template').content.cloneNode(true);
@@ -58,7 +54,6 @@ async function carregarLista(tipo) {
     const tbody = tableClone.querySelector('.table-body');
     const colunas = Object.keys(dados[0]);
     
-    // Generate headers
     colunas.forEach((col) => {
       const nomesAmigaveis = {
         'created_at': 'Criado Em',
@@ -74,7 +69,6 @@ async function carregarLista(tipo) {
       theadTr.appendChild(th);
     });
 
-    // Generate rows
     dados.forEach((row, index) => {
       const tr = document.createElement('tr');
       tr.className = "hover:bg-white/80 transition-colors duration-150 rounded-xl group";
@@ -133,7 +127,6 @@ async function carregarLista(tipo) {
 async function abrirModal(tipo) {
   tipoAtual = tipo;
 
-  // Add a loading state to button
   const btn = document.querySelector(`button[data-tipo="${tipo}"]`);
   const originalText = btn.innerHTML;
   btn.innerHTML = `<svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
@@ -143,8 +136,6 @@ async function abrirModal(tipo) {
     const res = await fetch("components/" + tipo.slice(0, -1) + "-modal.html");
     let html = await res.text();
 
-    // Inject modern styling into existing modal HTML
-    // Because we don't want to re-write 6 modal htmls right now, we can just replace classes dynamically here to keep them looking fresh.
     html = html.replace('bg-white rounded max-w-md w-full', 'bg-white/95 backdrop-blur-xl rounded-[2rem] max-w-md w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-white/50 transform transition-all scale-95 opacity-0 duration-300 ease-out');
     html = html.replace('bg-black/50', 'bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 opacity-0');
     html = html.replace('sticky top-0 bg-white border-b border-gray-200 px-6 py-4', 'px-8 py-6 flex justify-between items-center border-b border-slate-100');
@@ -167,7 +158,6 @@ async function abrirModal(tipo) {
 
     modal.classList.remove("hidden");
 
-    // Animate in
     setTimeout(() => {
       modal.classList.remove('opacity-0');
       modalInner.classList.remove('scale-95', 'opacity-0');
@@ -234,7 +224,6 @@ async function abrirModal(tipo) {
   }
 }
 
-// Attach event listeners via delegation because buttons are dynamically added
 document.addEventListener('click', (e) => {
   if (e.target.closest('.btn-cadastrar')) {
     const btn = e.target.closest('.btn-cadastrar');
