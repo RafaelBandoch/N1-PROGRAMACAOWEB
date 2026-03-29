@@ -1,59 +1,54 @@
 # Sistema de Gestão de Caçambas
 
-Sistema web para gerenciamento de entregas, coletas e trocas de caçambas, permitindo controle operacional, rastreabilidade e organização de rotas e tarefas para empresas de locação de caçambas.
+Sistema web para gerenciamento de entregas, coletas e trocas de caçambas, com foco em controle operacional, rastreabilidade e organização de rotas para empresas de locação.
+
+---
+
+## Descrição
+
+A aplicação permite gerenciar toda a operação logística de caçambas, incluindo controle de tarefas, acompanhamento de status em tempo real e registro de histórico operacional.
 
 ---
 
 ## Objetivo do Sistema
+
 Criar uma plataforma que permita:
 
-- Gerenciar tarefas (entrega, coleta, troca)
+- Gerenciar tarefas (entrega, coleta e troca)
 - Acompanhar status em tempo real  
 - Registrar histórico operacional  
+- Organizar rotas por motorista e data  
 
 ---
 
-## 2. Modelagem do BD
+## Modelagem do Banco de Dados
 
 ### Veículo
-
 - id  
 - placa  
-- capacidade 
-
----
+- capacidade  
 
 ### Motorista
-
 - id  
-- nome
+- nome  
 - status (ativo/inativo)  
 
----
-
 ### Caçamba
-
-- id da caçamba
-- tamanho (Grande ou médio) 
+- id  
+- tamanho (grande ou médio)  
 - status:
   - DISPONÍVEL  
   - ENTREGUE  
   - EM MANUTENÇÃO  
   - RESERVADA  
 
----
-
 ### Cliente
-
 - id  
 - nome  
 - CPF/CNPJ  
 - endereço  
 
----
-
 ### Tarefa
-
 - id  
 - tipo (ENTREGA | COLETA | TROCA)  
 - cacamba_id  
@@ -70,79 +65,80 @@ Criar uma plataforma que permita:
   - JUSTIFICADO  
 - justificativa (opcional)  
 
----
-
 ### Rota
-
 - id  
 - data  
 - motorista  
 - lista de tarefas  
-- status (PLANEJADA | EM EXECUÇÃO | FINALIZADA)  
+- status:
+  - PLANEJADA  
+  - EM EXECUÇÃO  
+  - FINALIZADA  
 
 ---
 
-## 3. Requisitos Funcionais (RF)
+## Requisitos Funcionais (RF)
 
-### RF01 – Cadastro de Caçambas
-### RF02 – Cadastro de Motoristas  
-### RF03 – Cadastro de Veículos  
-### RF04 – Cadastro de Clientes  
-### RF05 – Criar Tarefa  
-Permitir criar tarefas de:
-- Entrega  
-- Coleta  
-- Troca
-### RF06 – Alterar Status da Tarefa  
-O motorista ou operador poderá atualizar:
-- EM ANDAMENTO  
-- ENTREGUE  
-- COLETADO  
-- CANCELADO  
-- JUSTIFICADO  
-### RF07 – Criar Rota Diária  
-Organizar tarefas por motorista e data.
-### RF08 – Histórico da Caçamba  
+- RF01 – Cadastro de caçambas  
+- RF02 – Cadastro de motoristas  
+- RF03 – Cadastro de veículos  
+- RF04 – Cadastro de clientes  
 
----
+- RF05 – Criar tarefa:
+  - Entrega  
+  - Coleta  
+  - Troca  
 
-## 4. Requisitos Não Funcionais (RNF)
-### RNF01 – Responsividade  
-### RNF02 – Segurança  
+- RF06 – Alterar status da tarefa:
+  - EM ANDAMENTO  
+  - ENTREGUE  
+  - COLETADO  
+  - CANCELADO  
+  - JUSTIFICADO  
+
+- RF07 – Criar rota diária  
+- RF08 – Histórico da caçamba  
 
 ---
 
-## 5. Arquiteturas
+## Requisitos Não Funcionais (RNF)
+
+- RNF01 – Responsividade  
+- RNF02 – Segurança  
+
+---
+
+## Arquitetura
+
 ### Backend
-**Node.js + Express**
-
----
+Node.js + Express  
 
 ### Banco de Dados
-**MySQL**
+MySQL  
+
+### Frontend
+HTML + TailwindCSS + JavaScript  
 
 ---
 
-### Frontend
-**HTML + TailwindCSS + JavaScript**
+## Organização do Projeto
 
-## 6. Organização Simples de Tarefas (Dupla)
+Desenvolvimento realizado em dupla utilizando:
 
-**Ferrametas**
-- Clickup
-
-<img width="1629" height="581" alt="image" src="https://github.com/user-attachments/assets/d7970e3b-165d-49a1-9a3b-69ad7bc3b20c" />
+- ClickUp  
 
 ---
 
 ## Modelo C4
-### Nível 1 - Contexto
 
+### Nível 1 - Contexto
 <img width="923" height="731" alt="contexto" src="https://github.com/user-attachments/assets/be72f0b3-61db-4397-9434-1fa39a895e25" />
 
-### Nível 2 - Conatiner
-
+### Nível 2 - Container
 <img width="569" height="1038" alt="container" src="https://github.com/user-attachments/assets/28669d18-24ef-42df-917b-92e04268501f" />
 
+---
 
+## Planejamento de Tarefas
 
+<img width="1629" height="581" alt="planejamento" src="https://github.com/user-attachments/assets/d7970e3b-165d-49a1-9a3b-69ad7bc3b20c" />
