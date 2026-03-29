@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aluguel de Caçambas | Gestão Inteligente</title>
+  <link rel="stylesheet" href="css/output.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .modal-enter {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: all 0.3s ease-out;
+    }
+    .modal-enter-active {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .modal-exit-active {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: all 0.2s ease-in;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(24, 24, 27, 0.5); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(82, 82, 91, 0.5); border-radius: 10px; }
+  </style>
+</head>
+<body class="bg-black text-zinc-300 min-h-screen relative selection:bg-white selection:text-black">
+
+  <!-- Navbar Minimalista -->
+  <nav class="fixed w-full z-40 bg-black/80 backdrop-blur-md border-b border-zinc-900 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded bg-white flex items-center justify-center text-black font-bold text-lg">
+          C
+        </div>
+        <span class="text-xl font-semibold tracking-tight text-white">Caçambas</span>
+      </div>
+      <div class="hidden md:flex items-center gap-4 text-sm font-medium">
+        <button onclick="openModal()" class="px-5 py-2.5 rounded text-zinc-400 hover:text-white transition-colors">
+          Falar Conosco
+        </button>
+        <button onclick="openModal()" class="px-5 py-2.5 rounded bg-white hover:bg-zinc-200 text-black font-semibold transition-colors">
+          Solicitar Caçamba
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <main class="pt-32 pb-20 lg:pt-40 lg:pb-32 px-6 relative z-10">
+    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+      <div class="space-y-8">
+        <h1 class="text-5xl lg:text-7xl font-bold text-white leading-tight tracking-tight">
+          Gestão e Aluguel de Caçambas.
+        </h1>
+        <p class="text-lg text-zinc-400 max-w-lg leading-relaxed font-light">
+          Solicite a remoção de entulhos de forma rápida e eficiente. Serviço especializado com destinação correta dos resíduos.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+          <button onclick="openModal()" class="px-8 py-3.5 rounded bg-white hover:bg-zinc-200 text-black font-semibold text-base transition-colors flex items-center justify-center gap-2">
+            Solicitar Agora
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+        
+        <!-- Stats -->
+        <div class="grid grid-cols-2 gap-8 pt-12 border-t border-zinc-900 mt-12">
+          <div>
+            <div class="text-3xl font-semibold text-white mb-1">Entregas Rápidas</div>
+            <div class="text-sm text-zinc-500 font-light">Atendimento ágil para sua obra não parar.</div>
+          </div>
+          <div>
+            <div class="text-3xl font-semibold text-white mb-1">Sustentável</div>
+            <div class="text-sm text-zinc-500 font-light">Destino correto para todos os resíduos.</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Side Functional Planner -->
+      <div class="hidden lg:block">
+        <div class="bg-zinc-950 p-8 rounded-2xl border border-zinc-900 relative">
+          <div class="mb-6 pb-6 border-b border-zinc-900">
+            <h3 class="text-lg text-white font-medium">Simulação de Pedido</h3>
+            <p class="text-sm text-zinc-500 font-light mt-1">Selecione o tamanho para agilizar seu atendimento.</p>
+          </div>
+          
+          <div class="space-y-6">
+            <div>
+              <label class="block text-sm text-zinc-400 mb-3">Tamanho da Caçamba</label>
+              <div class="grid grid-cols-2 gap-4">
+                 <div onclick="selectSize('MEDIO', this)" class="size-option h-24 bg-black rounded-xl border border-zinc-800 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-zinc-600 transition">
+                    <span class="text-white font-medium">Média</span>
+                 </div>
+                 <div onclick="selectSize('GRANDE', this)" class="size-option h-24 bg-black rounded-xl border border-zinc-800 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-zinc-600 transition">
+                    <span class="text-white font-medium">Grande</span>
+                 </div>
+              </div>
+            </div>
+            
+            <button onclick="requestSelectedSize()" class="w-full py-3.5 rounded bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition cursor-pointer mt-4">
+              Avançar Solicitação
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Container to inject the modal -->
+  <div id="modal-container"></div>
+
+  <script>
+    let selectedSize = null;
+
+    function selectSize(size, element) {
+      selectedSize = size;
+      const options = document.querySelectorAll('.size-option');
+      options.forEach(opt => {
+        opt.classList.remove('border-white', 'bg-zinc-900');
+        opt.classList.add('border-zinc-800', 'bg-black');
+      });
+      element.classList.remove('border-zinc-800', 'bg-black');
+      element.classList.add('border-white', 'bg-zinc-900');
+    }
+
+    function requestSelectedSize() {
+      openModal(selectedSize);
+    }
+
+    async function loadComponent() {
+      try {
+        const response = await fetch('components/solicitacao-modal.html');
+        const html = await response.text();
+        document.getElementById('modal-container').innerHTML = html;
+      } catch (error) {
+        console.error('Erro ao carregar componente:', error);
+      }
+    }
+
+    loadComponent();
+
+    function openModal(prefilledSize = null) {
+      const modal = document.getElementById('contactModal');
+      const overlay = document.getElementById('modalOverlay');
+      const content = document.getElementById('modalContent');
+      
+      if(!modal) return;
+
+      if(prefilledSize) {
+        const select = document.getElementById('modalSizeSelect');
+        if(select) select.value = prefilledSize;
+      }
+
+      modal.classList.remove('hidden');
+      void modal.offsetWidth; // trigger reflow
+      
+      overlay.classList.remove('opacity-0');
+      overlay.classList.add('opacity-100');
+      
+      content.classList.remove('modal-exit-active');
+      content.classList.add('modal-enter-active');
+    }
+    
+    function closeModal() {
+      const modal = document.getElementById('contactModal');
+      const overlay = document.getElementById('modalOverlay');
+      const content = document.getElementById('modalContent');
+      
+      if(!modal) return;
+
+      overlay.classList.remove('opacity-100');
+      overlay.classList.add('opacity-0');
+      
+      content.classList.remove('modal-enter-active');
+      content.classList.add('modal-exit-active');
+      
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    }
+
+    async function submitForm(e) {
+      e.preventDefault();
+      const form = e.target;
+      const btn = form.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      
+      btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-black inline-flex" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Enviando...`;
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/solicitacoes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) throw new Error('Falha ao enviar data');
+
+        btn.innerHTML = 'Recebemos seu pedido!';
+        btn.classList.replace('bg-white', 'bg-green-500');
+        btn.classList.replace('text-black', 'text-white');
+        
+        setTimeout(() => {
+          closeModal();
+          form.reset();
+          btn.innerHTML = originalText;
+          btn.classList.replace('bg-green-500', 'bg-white');
+          btn.classList.replace('text-white', 'text-black');
+          btn.disabled = false;
+        }, 2000);
+
+      } catch (err) {
+        console.error(err);
+        btn.innerHTML = 'Erro ao enviar. Tente novamente.';
+        btn.classList.replace('bg-white', 'bg-red-500');
+        btn.classList.replace('text-black', 'text-white');
+        
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.classList.replace('bg-red-500', 'bg-white');
+          btn.classList.replace('text-white', 'text-black');
+          btn.disabled = false;
+        }, 3000);
+      }
+    }
+  </script>
+</body>
+</html>
