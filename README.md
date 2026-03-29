@@ -132,7 +132,7 @@ Desenvolvimento realizado em dupla utilizando:
 ## Modelo C4
 
 ### Nível 1 - Contexto
-<img width="923" height="731" alt="contexto" src="https://github.com/user-attachments/assets/be72f0b3-61db-4397-9434-1fa39a895e25" />
+<[img width="923" height="731" alt="contexto" src="https://github.com/user-attachments/assets/be72f0b3-61db-4397-9434-1fa39a895e25" /](https://www.plantuml.com/plantuml/png/bLFThjj44BxtKmpX9X5fJAiAgYYAUf8SVghyc6Et5LVHsDxZBAntpUuwXvGYyH2y0E82WTIhYYVmc_0apDgrdGWTgXuTHUFP-RxPxvlPfyQYjcKkl8-uJ4IPCZXOMvYfxskycsJS7iguD4mdIbecxIHHkLy8b0xpmDXKyDXVFduGkDJppThFqLYcARLV4WAvP7fIE7vlVVNjxdcqZtR1VhLxkHsEFCzoAnYiE6OQSmHgte4C3BVLcoCJy6W4__poAuISY9kYBvcnrU-ghiVg3ynZD9uN44Z9eIgOnbJfCGnsxqAuIdCk2Q_HygCQqD4IKtJVG9fuYYapOqWqHo0xs2qQOA1qXfA_Gj3AefaCHcs7N5cbYGs9PzF6ZlG5DoMA5W8fhtvpb0pGliiRIw41wjqqkk1D16TaihjT4rrodc4fTK7WXITdpdwXIfcYFWrDbX3sFPODHl2J1m2zwSDRNOyv9V1L8NX2fGxraiNkBbz5cpLy0X5oSSTbkWn3-dg6Hmp9kiAwacjfDSiG43WHwLjC6A02YKVAqYWcG69pRXa8bN59fZU3g6zsEOkcD-LRfMCujcPqH_LiUeVxWyOjPywbGYou4nTy3JVNOUIkl5KfctndIChrZuLcnhXae5L28O9Lpd3wr-o7aXjE3VvcRWg0lK6Jka7rPzuKPXgfWe5aMVKsuMeCMBh7qvQJF2hNIh3-fcF8kX5rgWwSKcyrJnJKQqrS4iL_HAtYOHhJfHSeang_8gjh6PjJ-CtQ1Mx5t3RqUZgp8LLWcasPGhDvRWBTPbFyWbLlab8e2jljeJ3gdifD-q9-zhmR9ixUuFb2DOOUEVRhq6nL58I49M3_j3uOsJsU3yJrvSrcV86lBaVj0C_2tTO_HzMrjUVhwYzWKBJsfgtpvBiVBGFtE0NBg05edXsi1_0QPeaIIa_l3joo-Ip6vFkfLYSKiIZP7EXlvhlaVERNXNE21AH48Ro-3__nfqyUF_fySG-wsvJ_8NZuyBCdYzKz19URHImag97bFQMVCXV_0W00)>
 
 ### Nível 2 - Container
 <img width="569" height="1038" alt="container" src="https://github.com/user-attachments/assets/28669d18-24ef-42df-917b-92e04268501f" />
