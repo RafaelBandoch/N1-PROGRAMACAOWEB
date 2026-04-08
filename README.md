@@ -25,65 +25,9 @@ Criar uma aplicação web que permita:
 
 ## 2. Modelagem
 
-### Entidades
+### Diagrama Entidade-Relacionamento (DER)
 
-#### Veículo
-
-| Campo      | Tipo   |
-|------------|--------|
-| id         | uuid   |
-| placa      | string |
-| capacidade | string |
-
-#### Motorista
-
-| Campo  | Tipo                  |
-|--------|-----------------------|
-| id     | uuid                  |
-| nome   | string                |
-| status | `ATIVO` \| `INATIVO`  |
-
-#### Caçamba
-
-| Campo   | Tipo                                                        |
-|---------|-------------------------------------------------------------|
-| id      | uuid                                                        |
-| tamanho | `GRANDE` \| `MÉDIO`                                         |
-| status  | `DISPONÍVEL` \| `ENTREGUE` \| `EM MANUTENÇÃO` \| `RESERVADA` |
-
-#### Cliente
-
-| Campo     | Tipo   |
-|-----------|--------|
-| id        | uuid   |
-| nome      | string |
-| cpf_cnpj  | string |
-| endereco  | string |
-
-#### Tarefa
-
-| Campo             | Tipo                                                                          |
-|-------------------|-------------------------------------------------------------------------------|
-| id                | uuid                                                                          |
-| tipo              | `ENTREGA` \| `COLETA` \| `TROCA`                                              |
-| cacamba_id        | uuid (FK)                                                                     |
-| cliente_id        | uuid (FK)                                                                     |
-| motorista_id      | uuid (FK)                                                                     |
-| veiculo_id        | uuid (FK)                                                                     |
-| endereco_execucao | string                                                                        |
-| data_agendada     | date                                                                          |
-| status            | `EM ANDAMENTO` \| `ENTREGUE` \| `COLETADO` \| `CANCELADO` \| `JUSTIFICADO`   |
-| justificativa     | string (opcional)                                                             |
-
-#### Rota
-
-| Campo          | Tipo                                       |
-|----------------|--------------------------------------------|
-| id             | uuid                                       |
-| data           | date                                       |
-| motorista_id   | uuid (FK)                                  |
-| tarefas        | lista de Tarefa                            |
-| status         | `PLANEJADA` \| `EM EXECUÇÃO` \| `FINALIZADA` |
+<img width="800" height="370" alt="DER" src="https://github.com/user-attachments/assets/477c741e-ec62-4e5e-b49c-2a7ce3cd8d7f" />
 
 ---
 
@@ -95,8 +39,8 @@ Criar uma aplicação web que permita:
 | RF02 | Cadastro de motoristas |
 | RF03 | Cadastro de veículos |
 | RF04 | Cadastro de clientes |
-| RF05 | Criar tarefa — Entrega, Coleta ou Troca |
-| RF06 | Alterar status da tarefa — EM ANDAMENTO, ENTREGUE, COLETADO, CANCELADO, JUSTIFICADO |
+| RF05 | Criar tarefa - Entrega, Coleta ou Troca |
+| RF06 | Alterar status da tarefa - EM ANDAMENTO, ENTREGUE, COLETADO, CANCELADO, JUSTIFICADO |
 | RF07 | Criar rota diária |
 | RF08 | Histórico da caçamba |
 
@@ -106,8 +50,8 @@ Criar uma aplicação web que permita:
 
 | ID    | Descrição |
 |-------|-----------|
-| RNF01 | Responsividade — Interface adaptada para desktop e dispositivos móveis |
-| RNF02 | Segurança — Autenticação e controle de acesso |
+| RNF01 | Responsividade - Interface adaptada para desktop e dispositivos móveis |
+| RNF02 | Segurança - Autenticação e controle de acesso |
 
 ---
 
@@ -118,14 +62,6 @@ Criar uma aplicação web que permita:
 | Frontend      | HTML + TailwindCSS + JavaScript |
 | Backend       | Node.js + Express        |
 | Banco de Dados | MySQL                   |
-
----
-
-## Organização do Projeto
-
-Desenvolvimento realizado em dupla utilizando:
-
-- **ClickUp** — Gerenciamento de tarefas e planejamento do projeto
 
 ---
 
