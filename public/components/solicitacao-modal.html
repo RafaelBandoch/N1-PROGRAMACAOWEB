@@ -1,0 +1,77 @@
+<div id="contactModal" class="fixed inset-0 z-50 flex items-center justify-center px-4 hidden">
+  <!-- Overlay -->
+  <div id="modalOverlay" class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity opacity-0" onclick="closeModal()"></div>
+  
+  <!-- Modal Content -->
+  <div id="modalContent" class="relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden modal-enter flex flex-col max-h-[90vh]">
+    
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center p-6 border-b border-zinc-800 bg-zinc-900/50">
+      <div>
+        <h2 class="text-xl font-medium text-white">Solicitar Caçamba</h2>
+        <p class="text-sm text-zinc-400 mt-1">Preencha os dados abaixo e retornaremos com a confirmação.</p>
+      </div>
+      <button onclick="closeModal()" class="p-2 rounded-lg bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 border border-zinc-800 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    
+    <!-- Modal Body (Form) -->
+    <div class="p-6 overflow-y-auto custom-scrollbar">
+      <form id="requestForm" class="space-y-6" onsubmit="submitForm(event)">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-zinc-400">Nome Completo</label>
+            <input name="nome" type="text" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition text-sm" placeholder="João da Silva">
+          </div>
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-zinc-400">CPF / CNPJ</label>
+            <input name="cpf_cnpj" type="text" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition text-sm" placeholder="000.000.000-00">
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="block text-sm font-medium text-zinc-400">Telefone / WhatsApp</label>
+          <input name="telefone" type="tel" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition text-sm" placeholder="(00) 00000-0000">
+        </div>
+        
+        <div class="space-y-1">
+          <label class="block text-sm font-medium text-zinc-400">Endereço da Obra</label>
+          <input name="endereco" type="text" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition text-sm" placeholder="Rua, Número, Bairro, CEP">
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-zinc-400">Tamanho da Caçamba</label>
+            <select name="tamanho" id="modalSizeSelect" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition appearance-none text-sm">
+              <option value="" disabled selected>Selecione um tamanho</option>
+              <option value="MEDIO">Média</option>
+              <option value="GRANDE">Grande</option>
+            </select>
+          </div>
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-zinc-400">Data Agendada</label>
+            <input name="data_agendada" type="date" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition text-sm">
+          </div>
+        </div>
+        
+        <div class="space-y-1">
+          <label class="block text-sm font-medium text-zinc-400">Observações adicionais</label>
+          <textarea name="observacoes" rows="3" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition text-sm" placeholder="Opcional. Ex: Retirar entulho de alvenaria."></textarea>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="flex gap-3 pt-6 border-t border-zinc-800">
+          <button type="button" onclick="closeModal()" class="w-full md:w-auto py-2.5 px-6 rounded-lg border border-zinc-700 text-white font-medium hover:bg-zinc-800 transition text-sm">
+            Cancelar
+          </button>
+          <button type="submit" class="w-full md:w-auto flex-1 py-2.5 px-6 rounded-lg bg-white hover:bg-zinc-200 text-black font-semibold transition text-sm flex justify-center items-center gap-2">
+            Confirmar Solicitação
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
