@@ -41,14 +41,14 @@ async function carregarLista(tipo) {
 
     let tbodyHTML = `<tbody class="table-body divide-y divide-zinc-800">`;
     dados.forEach(row => {
-      tbodyHTML += `<tr class="hover:bg-white/80 transition-colors duration-150 rounded-xl group">`;
+      tbodyHTML += `<tr class="hover:bg-zinc-800/80 transition-colors duration-150 rounded-xl group">`;
       colunas.forEach((col, i) => {
         let content = row[col] || "-";
         if (col.toLowerCase().includes('status')) {
           const colorMap = {
             'ATIVO': 'bg-emerald-100 text-emerald-700 ring-emerald-600/20',
             'INATIVO': 'bg-slate-100 text-slate-700 ring-slate-600/20',
-            'DISPONIVEL': 'bg-indigo-50 text-indigo-700 ring-indigo-600/20',
+            'DISPONIVEL': 'bg-blue-50 text-blue-700 ring-blue-600/20',
             'ENTREGUE': 'bg-amber-50 text-amber-700 ring-amber-600/20',
             'FINALIZADA': 'bg-teal-50 text-teal-700 ring-teal-600/20',
             'PLANEJADA': 'bg-blue-50 text-blue-700 ring-blue-600/20',
