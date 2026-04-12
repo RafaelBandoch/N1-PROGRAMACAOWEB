@@ -8,6 +8,7 @@ const rotasRouter = require('./rotas');
 const usuariosRouter = require('./usuarios');
 const veiculosRouter = require('./veiculos');
 const solicitacoesRouter = require('./solicitacoes');
+const tarefasRouter = require('./tarefas');
 
 router.use('/cacambas', cacambasRouter);
 router.use('/clientes', clientesRouter);
@@ -16,5 +17,6 @@ router.use('/rotas', rotasRouter);
 router.use('/usuarios', usuariosRouter);
 router.use('/veiculos', veiculosRouter);
 router.use('/solicitacoes', solicitacoesRouter);
+router.use('/tarefas', tarefasRouter);
 
 module.exports = router;
