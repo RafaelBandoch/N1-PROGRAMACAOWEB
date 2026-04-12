@@ -430,21 +430,70 @@
       </tr>`).join('');
   }
 
-  function submitForm() {
+  async function submitForm() {
     capture();
-    // TODO: fetch('/api/tarefas', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ tipo:S.tipo, ... }) })
-    const t = document.getElementById('toast');
-    t.classList.remove('translate-y-20','opacity-0');
-    t.classList.add('translate-y-0','opacity-100');
-    setTimeout(() => { t.classList.add('translate-y-20','opacity-0'); t.classList.remove('translate-y-0','opacity-100'); }, 3500);
-    setTimeout(() => {
-      document.querySelectorAll('input,select,textarea').forEach(el=>el.value='');
-      // reset pickers
-      selTipo(document.querySelectorAll('.tipo-card')[0], 'ENTREGA');
-      selSize(document.querySelectorAll('.size-card')[0], 'MEDIO');
-      Object.keys(S).forEach(k=>S[k]=k==='tipo'?'ENTREGA':k==='tamanho'?'MEDIO':'');
-      goStep(1);
-    }, 3700);
+    
+    // Validação de campos obrigatórios antes do envio
+    if (!S.nome || !S.cpf || !S.tel || !S.rua || !S.numero || !S.bairro || !S.cidade || !S.cep || !S.data) {
+      alert('Por favor, preencha todos os campos obrigatórios (*) antes de confimar.');
+      // Adicional: volta automaticamente para qual etapa faltou
+      if (!S.rua || !S.numero || !S.bairro || !S.cidade || !S.cep) goStep(2);
+      else if (!S.data || !S.nome || !S.cpf || !S.tel) goStep(3);
+      return;
+    }
+
+    // Concatena endereço no formato que a API de solicitações entende
+    const enderecoFormatado = `${S.rua}, ${S.numero}${S.complemento ? ' - ' + S.complemento : ''}, ${S.bairro}, ${S.cidade} - CEP: ${S.cep}${S.referencia ? ' | Ref: ' + S.referencia : ''}`;
+    const obsFormatada = `[Tipo: ${S.tipo}] [Período: ${S.periodo || 'Qualquer'}] ${S.obs ? '- ' + S.obs : ''}`;
+
+    const payload = {
+      nome: S.nome,
+      cpf_cnpj: S.cpf,
+      telefone: S.tel,
+      endereco: enderecoFormatado,
+      tamanho: S.tamanho,
+      data_agendada: S.data,
+      observacoes: obsFormatada
+    };
+
+    try {
+      const btn = document.querySelector('button[onclick="submitForm()"]');
+      const textOrig = btn.innerHTML;
+      btn.innerHTML = 'Enviando...';
+      btn.disabled = true;
+
+      const res = await fetch('/api/solicitacoes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      btn.innerHTML = textOrig;
+      btn.disabled = false;
+
+      if (!res.ok) throw new Error('Erro ao enviar solicitação');
+      
+      const t = document.getElementById('toast');
+      t.classList.remove('translate-y-20','opacity-0');
+      t.classList.add('translate-y-0','opacity-100');
+      
+      setTimeout(() => { 
+        t.classList.add('translate-y-20','opacity-0'); 
+        t.classList.remove('translate-y-0','opacity-100'); 
+      }, 3500);
+      
+      setTimeout(() => {
+        document.querySelectorAll('input,select,textarea').forEach(el=>el.value='');
+        selTipo(document.querySelectorAll('.tipo-card')[0], 'ENTREGA');
+        selSize(document.querySelectorAll('.size-card')[0], 'MEDIO');
+        Object.keys(S).forEach(k => S[k] = k==='tipo' ? 'ENTREGA' : k==='tamanho' ? 'MEDIO' : '');
+        goStep(1);
+      }, 3700);
+      
+    } catch (err) {
+      alert('Falha ao enviar a solicitação. Verifique os dados e tente novamente.');
+      console.error(err);
+    }
   }
 
   function mCEP(el) { let v=el.value.replace(/\D/g,'').slice(0,8); if(v.length>5)v=v.slice(0,5)+'-'+v.slice(5); el.value=v; }
