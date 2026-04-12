@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitar Caçamba</title>
+  <link rel="stylesheet" href="css/output.css">
+  <!-- fallback CDN para preview sem build -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    span.inline-flex { color: inherit !important; }
+  </style>
+</head>
+
+<body class="bg-black text-zinc-200 min-h-screen font-sans">
+
+<div class="max-w-6xl mx-auto px-6 py-10">
+
+  <!-- Voltar -->
+  <a href="../index.html" class="text-zinc-500 hover:text-white text-sm flex items-center gap-2 mb-4 transition-colors">
+    ← Voltar ao Dashboard
+  </a>
+
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+      <h1 class="text-4xl font-bold text-white">Solicitar Caçamba</h1>
+      <p class="text-zinc-500 mt-1 text-sm">Preencha os dados para criar uma nova solicitação</p>
+    </div>
+    <span id="etapa-badge" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-zinc-900 border border-zinc-700 text-zinc-300">
+      Etapa 1 de 4
+    </span>
+  </div>
+
+  <!-- Progress -->
+  <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-8">
+    <div class="flex items-center">
+
+      <div class="step-item flex flex-col items-center flex-1 relative" id="stp-1">
+        <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold z-10 relative
+                    bg-white text-black">1</div>
+        <span class="text-xs mt-2 font-medium text-white">Tipo & Tamanho</span>
+      </div>
+
+      <div class="flex-1 h-px bg-zinc-800 mb-4" id="line-1-2"></div>
+
+      <div class="step-item flex flex-col items-center flex-1 relative" id="stp-2">
+        <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold z-10 relative
+                    bg-zinc-800 text-zinc-500">2</div>
+        <span class="text-xs mt-2 font-medium text-zinc-600">Endereço</span>
+      </div>
+
+      <div class="flex-1 h-px bg-zinc-800 mb-4" id="line-2-3"></div>
+
+      <div class="step-item flex flex-col items-center flex-1 relative" id="stp-3">
+        <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold z-10 relative
+                    bg-zinc-800 text-zinc-500">3</div>
+        <span class="text-xs mt-2 font-medium text-zinc-600">Agendamento</span>
+      </div>
+
+      <div class="flex-1 h-px bg-zinc-800 mb-4" id="line-3-4"></div>
+
+      <div class="step-item flex flex-col items-center flex-1 relative" id="stp-4">
+        <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold z-10 relative
+                    bg-zinc-800 text-zinc-500">4</div>
+        <span class="text-xs mt-2 font-medium text-zinc-600">Confirmação</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Layout: form + resumo -->
+  <div class="flex gap-6 items-start">
+
+    <!-- Form -->
+    <div class="flex-1 min-w-0">
+
+      <!-- ══ ETAPA 1 ══ -->
+      <div id="etapa-1">
+
+        <!-- Tipo -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
+          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Tipo de Serviço</h2>
+          <div class="grid grid-cols-3 gap-3">
+            <button onclick="selTipo(this,'ENTREGA')"
+              class="tipo-card sel-card border border-zinc-700 bg-zinc-800 hover:border-zinc-500 rounded-2xl p-5 text-center transition-all group">
+              <div class="text-3xl mb-3">🚚</div>
+              <div class="text-sm font-semibold text-zinc-200 group-hover:text-white">Entrega</div>
+            </button>
+            <button onclick="selTipo(this,'COLETA')"
+              class="tipo-card border border-zinc-700 bg-zinc-900 hover:border-zinc-500 rounded-2xl p-5 text-center transition-all group">
+              <div class="text-3xl mb-3">📦</div>
+              <div class="text-sm font-semibold text-zinc-500 group-hover:text-white">Coleta</div>
+            </button>
+            <button onclick="selTipo(this,'TROCA')"
+              class="tipo-card border border-zinc-700 bg-zinc-900 hover:border-zinc-500 rounded-2xl p-5 text-center transition-all group">
+              <div class="text-3xl mb-3">🔄</div>
+              <div class="text-sm font-semibold text-zinc-500 group-hover:text-white">Troca</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tamanho -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
+          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Tamanho da Caçamba</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <button onclick="selSize(this,'MEDIO')"
+              class="size-card sel-card border border-zinc-700 bg-zinc-800 hover:border-zinc-500 rounded-2xl p-6 text-left transition-all">
+              <div class="text-3xl mb-3">🗑️</div>
+              <div class="text-base font-bold text-white mb-1">Médio</div>
+              <div class="text-xs text-zinc-500 leading-relaxed">Reformas residenciais e pequenos entulhos.</div>
+              <span class="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-400">Até 3m³</span>
+            </button>
+            <button onclick="selSize(this,'GRANDE')"
+              class="size-card border border-zinc-700 bg-zinc-900 hover:border-zinc-500 rounded-2xl p-6 text-left transition-all">
+              <div class="text-3xl mb-3">🏗️</div>
+              <div class="text-base font-bold text-zinc-400 mb-1">Grande</div>
+              <div class="text-xs text-zinc-600 leading-relaxed">Obras maiores, demolições e grandes volumes.</div>
+              <span class="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-600">Até 5m³</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
+          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Observações <span class="text-zinc-600 text-lg font-normal">(opcional)</span></h2>
+          <textarea id="obs" rows="3"
+            class="w-full bg-zinc-950/50 border border-zinc-800 rounded-2xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all resize-none"
+            placeholder="Ex: portão estreito, material específico, horário preferencial..."></textarea>
+        </div>
+
+        <div class="flex justify-end">
+          <button onclick="goStep(2)"
+            class="bg-white text-black hover:bg-zinc-200 px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95">
+            Próximo: Endereço →
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ ETAPA 2 ══ -->
+      <div id="etapa-2" class="hidden">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
+          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Endereço de Execução</h2>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">CEP *</label>
+              <input type="text" id="cep" maxlength="9" oninput="mCEP(this)" placeholder="00000-000"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Cidade *</label>
+              <input type="text" id="cidade" placeholder="Joinville"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Rua / Avenida *</label>
+              <input type="text" id="rua" placeholder="Rua das Flores"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Número *</label>
+              <input type="text" id="numero" placeholder="123"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Bairro *</label>
+              <input type="text" id="bairro" placeholder="Centro"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Complemento</label>
+              <input type="text" id="complemento" placeholder="Galpão, fundos..."
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Ponto de Referência</label>
+            <input type="text" id="referencia" placeholder="Próximo ao mercado X, em frente à escola..."
+              class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <button onclick="goStep(1)" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition">← Voltar</button>
+          <button onclick="goStep(3)" class="bg-white text-black hover:bg-zinc-200 px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95">Próximo: Agendamento →</button>
+        </div>
+      </div>
+
+      <!-- ══ ETAPA 3 ══ -->
+      <div id="etapa-3" class="hidden">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
+          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Data e Horário</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Data Agendada *</label>
+              <input type="date" id="data"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Período Preferencial</label>
+              <select id="periodo"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all">
+                <option value="" class="bg-zinc-900">Sem preferência</option>
+                <option value="MANHA" class="bg-zinc-900">Manhã (08h – 12h)</option>
+                <option value="TARDE" class="bg-zinc-900">Tarde (13h – 17h)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
+          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Dados do Cliente</h2>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Nome / Razão Social *</label>
+              <input type="text" id="nome" placeholder="João da Silva"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">CPF / CNPJ *</label>
+              <input type="text" id="cpf" maxlength="18" oninput="mDoc(this)" placeholder="000.000.000-00"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Telefone *</label>
+              <input type="text" id="tel" maxlength="16" oninput="mTel(this)" placeholder="(47) 9 0000-0000"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">E-mail</label>
+              <input type="email" id="email" placeholder="joao@email.com"
+                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <button onclick="goStep(2)" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition">← Voltar</button>
+          <button onclick="goStep(4)" class="bg-white text-black hover:bg-zinc-200 px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95">Revisar Solicitação →</button>
+        </div>
+      </div>
+
+      <!-- ══ ETAPA 4 ══ -->
+      <div id="etapa-4" class="hidden">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
+          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Revisão da Solicitação</h2>
+
+          <div class="bg-zinc-950/50 border border-zinc-800 rounded-2xl overflow-hidden min-h-[200px] mb-6">
+            <table class="w-full text-left text-sm">
+              <thead class="text-xs uppercase text-zinc-400 border-b border-zinc-800">
+                <tr>
+                  <th class="px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Campo</th>
+                  <th class="px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Valor</th>
+                </tr>
+              </thead>
+              <tbody id="rv-body" class="divide-y divide-zinc-800"></tbody>
+            </table>
+          </div>
+
+          <div class="p-4 rounded-xl text-sm border border-zinc-800 bg-zinc-950/50 text-zinc-500">
+            ⚠ Após confirmar, sua solicitação será analisada pela equipe. Um motorista será atribuído e você receberá confirmação pelo telefone informado.
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center">
+          <button onclick="goStep(3)" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition">← Editar</button>
+          <button onclick="submitForm()" class="bg-white text-black hover:bg-zinc-200 px-8 py-3 rounded-xl text-sm font-bold transition-transform active:scale-95">
+            ✓ Confirmar Solicitação
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /form -->
+
+    <!-- Resumo lateral -->
+    <div class="w-64 flex-shrink-0 hidden md:block">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl sticky top-8">
+        <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-5">Resumo</h3>
+        <div id="sum-body">
+          <div class="text-zinc-600 text-xs text-center py-4">Preencha o formulário...</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /layout -->
+
+</div><!-- /max-w -->
+
+<!-- Toast -->
+<div id="toast"
+  class="fixed bottom-6 right-6 bg-zinc-900 border border-zinc-700 text-zinc-200 px-5 py-3.5 rounded-2xl text-sm font-semibold shadow-2xl flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-300 z-50">
+  <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+  Solicitação enviada com sucesso!
+</div>
+
+<style>
+  /* Selected state for pickers */
+  .sel-card { border-color: #fff !important; }
+  .sel-card .text-zinc-500, .sel-card .text-zinc-400 { color: #fff !important; }
+  .sel-card .text-zinc-600 { color: #a1a1aa !important; }
+
+  /* Date input color fix */
+  input[type="date"] { color-scheme: dark; }
+</style>
+
+<script>
+  const S = { tipo:'ENTREGA', tamanho:'MEDIO', obs:'', cep:'', cidade:'', rua:'', numero:'', bairro:'', complemento:'', referencia:'', data:'', periodo:'', nome:'', cpf:'', tel:'', email:'' };
+  const TIPO_LABEL = { ENTREGA:'🚚 Entrega', COLETA:'📦 Coleta', TROCA:'🔄 Troca' };
+  const PERIOD_LABEL = { MANHA:'Manhã (08h–12h)', TARDE:'Tarde (13h–17h)' };
+
+  function goStep(n) {
+    capture();
+    [1,2,3,4].forEach(i => {
+      document.getElementById('etapa-'+i).classList.toggle('hidden', i!==n);
+
+      const dot = document.getElementById('stp-'+i).querySelector('.step-dot');
+      const lbl = document.getElementById('stp-'+i).querySelector('span');
+
+      if (i < n) {
+        dot.className = dot.className.replace(/bg-\S+ text-\S+/g, '') + ' bg-zinc-700 text-emerald-400';
+        dot.textContent = '✓';
+        lbl.className = lbl.className.replace(/text-\S+/g, 'text-zinc-400');
+      } else if (i === n) {
+        dot.className = dot.className.replace(/bg-\S+ text-\S+/g, '') + ' bg-white text-black';
+        dot.textContent = i;
+        lbl.className = lbl.className.replace(/text-\S+/g, 'text-white');
+      } else {
+        dot.className = dot.className.replace(/bg-\S+ text-\S+/g, '') + ' bg-zinc-800 text-zinc-500';
+        dot.textContent = i;
+        lbl.className = lbl.className.replace(/text-\S+/g, 'text-zinc-600');
+      }
+    });
+    // connector lines
+    [1,2,3].forEach(i => {
+      const line = document.getElementById(`line-${i}-${i+1}`);
+      if (line) line.className = line.className.replace(/bg-\S+/g, i < n ? 'bg-zinc-600' : 'bg-zinc-800');
+    });
+
+    document.getElementById('etapa-badge').textContent = `Etapa ${n} de 4`;
+    if (n===4) buildReview();
+    updateSummary();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+
+  function capture() {
+    ['obs','cep','cidade','rua','numero','bairro','complemento','referencia','data','periodo','nome','cpf','tel','email']
+      .forEach(k => { const el=document.getElementById(k); if(el) S[k]=el.value; });
+  }
+
+  function selTipo(el, v) {
+    document.querySelectorAll('.tipo-card').forEach(c => {
+      c.classList.remove('sel-card','bg-zinc-800','border-white');
+      c.classList.add('bg-zinc-900','border-zinc-700');
+      c.querySelector('div:last-child').className = 'text-sm font-semibold text-zinc-500 group-hover:text-white';
+    });
+    el.classList.add('sel-card','bg-zinc-800'); el.classList.remove('bg-zinc-900');
+    el.querySelector('div:last-child').className = 'text-sm font-semibold text-white';
+    S.tipo = v; updateSummary();
+  }
+
+  function selSize(el, v) {
+    document.querySelectorAll('.size-card').forEach(c => {
+      c.classList.remove('sel-card','bg-zinc-800','border-white');
+      c.classList.add('bg-zinc-900','border-zinc-700');
+      c.querySelector('.text-base').className = 'text-base font-bold text-zinc-400 mb-1';
+      c.querySelector('.text-xs.leading-relaxed').className = 'text-xs text-zinc-600 leading-relaxed';
+    });
+    el.classList.add('sel-card','bg-zinc-800'); el.classList.remove('bg-zinc-900');
+    el.querySelector('.text-base').className = 'text-base font-bold text-white mb-1';
+    el.querySelector('.text-xs.leading-relaxed').className = 'text-xs text-zinc-500 leading-relaxed';
+    S.tamanho = v; updateSummary();
+  }
+
+  function updateSummary() {
+    capture();
+    const rows = [];
+    if(S.tipo)           rows.push(['Tipo', TIPO_LABEL[S.tipo]]);
+    if(S.tamanho)        rows.push(['Tamanho', S.tamanho==='MEDIO'?'Médio':'Grande']);
+    if(S.rua&&S.numero)  rows.push(['Endereço', S.rua+', '+S.numero]);
+    if(S.bairro)         rows.push(['Bairro', S.bairro]);
+    if(S.cidade)         rows.push(['Cidade', S.cidade]);
+    if(S.data)           rows.push(['Data', fmtDate(S.data)]);
+    if(S.nome)           rows.push(['Cliente', S.nome]);
+
+    const b = document.getElementById('sum-body');
+    if(!rows.length) { b.innerHTML='<div class="text-zinc-600 text-xs text-center py-4">Preencha o formulário...</div>'; return; }
+    b.innerHTML = rows.map(r=>`
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-xs text-zinc-500">${r[0]}</span>
+        <span class="text-xs font-semibold text-zinc-200 text-right ml-2 max-w-[120px] truncate">${r[1]}</span>
+      </div>`).join('')
+      + `<div class="border-t border-zinc-800 mt-4 pt-4">
+           <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-400">
+             <span class="w-1.5 h-1.5 rounded-full bg-zinc-500 inline-block"></span>Pendente
+           </span>
+         </div>`;
+  }
+
+  function buildReview() {
+    capture();
+    const per = PERIOD_LABEL[S.periodo] || 'Sem preferência';
+    const fields = [
+      ['Tipo de Serviço', TIPO_LABEL[S.tipo]||'—'],
+      ['Tamanho', S.tamanho==='MEDIO'?'Médio':'Grande'],
+      ['Endereço', `${S.rua||'—'}, ${S.numero||'—'}${S.complemento?' – '+S.complemento:''}`],
+      ['Bairro / Cidade', `${S.bairro||'—'} – ${S.cidade||'—'}`],
+      ['CEP', S.cep||'—'],
+      ['Data Agendada', S.data?fmtDate(S.data):'—'],
+      ['Período', per],
+      ['Cliente', S.nome||'—'],
+      ['CPF / CNPJ', S.cpf||'—'],
+      ['Telefone', S.tel||'—'],
+      ['E-mail', S.email||'—'],
+      ['Observações', S.obs||'—'],
+    ];
+    document.getElementById('rv-body').innerHTML = fields.map((f,i) => `
+      <tr class="hover:bg-zinc-800/50 transition-colors">
+        <td class="px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider whitespace-nowrap">${f[0]}</td>
+        <td class="px-4 py-3 text-sm ${i===0?'font-medium text-white':'text-zinc-300'}">${f[1]}</td>
+      </tr>`).join('');
+  }
+
+  function submitForm() {
+    capture();
+    // TODO: fetch('/api/tarefas', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ tipo:S.tipo, ... }) })
+    const t = document.getElementById('toast');
+    t.classList.remove('translate-y-20','opacity-0');
+    t.classList.add('translate-y-0','opacity-100');
+    setTimeout(() => { t.classList.add('translate-y-20','opacity-0'); t.classList.remove('translate-y-0','opacity-100'); }, 3500);
+    setTimeout(() => {
+      document.querySelectorAll('input,select,textarea').forEach(el=>el.value='');
+      // reset pickers
+      selTipo(document.querySelectorAll('.tipo-card')[0], 'ENTREGA');
+      selSize(document.querySelectorAll('.size-card')[0], 'MEDIO');
+      Object.keys(S).forEach(k=>S[k]=k==='tipo'?'ENTREGA':k==='tamanho'?'MEDIO':'');
+      goStep(1);
+    }, 3700);
+  }
+
+  function mCEP(el) { let v=el.value.replace(/\D/g,'').slice(0,8); if(v.length>5)v=v.slice(0,5)+'-'+v.slice(5); el.value=v; }
+  function mDoc(el) {
+    let v=el.value.replace(/\D/g,'');
+    if(v.length<=11) v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    else v=v.slice(0,14).replace(/^(\d{2})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1/$2').replace(/(\d{4})(\d{1,2})$/,'$1-$2');
+    el.value=v;
+  }
+  function mTel(el) {
+    let v=el.value.replace(/\D/g,'').slice(0,11);
+    if(v.length>=11)v=v.replace(/(\d{2})(\d{1})(\d{4})(\d{4})/,'($1) $2 $3-$4');
+    else if(v.length>=7)v=v.replace(/(\d{2})(\d{4,5})(\d{0,4})/,'($1) $2-$3');
+    el.value=v;
+  }
+  function fmtDate(d) { if(!d) return '—'; const[y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; }
+
+  document.getElementById('data').min = new Date().toISOString().split('T')[0];
+  updateSummary();
+</script>
+</body>
+</html>
