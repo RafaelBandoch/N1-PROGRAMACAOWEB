@@ -2,6 +2,8 @@
 node_modules/
 package-lock.json
 
+public/css/output.css
+
 # Env
 .env
 

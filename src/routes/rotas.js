@@ -4,5 +4,6 @@ const controller = require('../controllers/rotaController');
 
 router.get('/', controller.listar);
 router.post('/', controller.criar);
+router.patch('/:id/status', controller.updateStatus);
 
 module.exports = router;

@@ -20,7 +20,7 @@ exports.criar = async (req, res, next) => {
 
 exports.listar = async (req, res, next) => {
   try {
-    const tarefas = await db('tarefas')
+    let query = db('tarefas')
       .select(
         'tarefas.*',
         'clientes.nome as cliente_nome',
@@ -31,6 +31,12 @@ exports.listar = async (req, res, next) => {
       .leftJoin('motoristas', 'tarefas.motorista_id', 'motoristas.id')
       .leftJoin('veiculos', 'tarefas.veiculo_id', 'veiculos.id')
       .orderBy('data_agendada', 'asc');
+
+    if (req.user && req.user.role === 'motorista' && req.user.motorista_id) {
+      query = query.where('tarefas.motorista_id', req.user.motorista_id);
+    }
+
+    const tarefas = await query;
 
     res.json(tarefas);
   } catch (error) {
