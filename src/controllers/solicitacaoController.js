@@ -3,7 +3,21 @@ const db = require('../database/db');
 module.exports = {
   async index(req, res, next) {
     try {
-      const solicitacoes = await db('solicitacoes').orderBy('created_at', 'desc');
+      let query = db('solicitacoes').orderBy('created_at', 'desc');
+
+      if (req.user && req.user.role === 'cliente') {
+        if (!req.user.cliente_id) {
+          return res.json([]);
+        }
+        const cliente = await db('clientes').where({ id: req.user.cliente_id }).first();
+        if (cliente && cliente.cpf_cnpj) {
+          query = query.where('cpf_cnpj', cliente.cpf_cnpj);
+        } else {
+          return res.json([]);
+        }
+      }
+
+      const solicitacoes = await query;
       return res.json(solicitacoes);
     } catch (error) {
       next(error);
@@ -13,9 +27,18 @@ module.exports = {
   async create(req, res, next) {
     try {
       const { nome, cpf_cnpj, telefone, endereco, tamanho, data_agendada, observacoes } = req.body;
+      
+      let finalCpfCnpj = cpf_cnpj;
+      if (req.user && req.user.role === 'cliente' && req.user.cliente_id) {
+        const cliente = await db('clientes').where({ id: req.user.cliente_id }).first();
+        if (cliente && cliente.cpf_cnpj) {
+          finalCpfCnpj = cliente.cpf_cnpj;
+        }
+      }
+
       const [id] = await db('solicitacoes').insert({
         nome,
-        cpf_cnpj,
+        cpf_cnpj: finalCpfCnpj,
         telefone,
         endereco,
         tamanho,

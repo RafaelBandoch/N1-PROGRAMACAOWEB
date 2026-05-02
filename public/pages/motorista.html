@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Motorista | Facilita Caçambas</title>
+  <link rel="stylesheet" href="../css/output.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Outfit', sans-serif; }
+  </style>
+  <script>
+    // Verifica autenticação e role antes de renderizar a página
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    
+    if (!token || !userStr) {
+      window.location.href = 'login.html';
+    } else {
+      const user = JSON.parse(userStr);
+      if (user.role !== 'motorista' && user.role !== 'admin') {
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+</head>
+<body class="bg-zinc-950 text-zinc-300 min-h-screen relative overflow-x-hidden selection:bg-blue-500 selection:text-white">
+
+  <!-- Background Blur -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] opacity-10 pointer-events-none">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 blur-[120px] rounded-full mix-blend-screen"></div>
+  </div>
+
+  <nav class="fixed w-full z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-blue-500/20">
+          C
+        </div>
+        <span class="text-2xl font-bold tracking-tight text-white">Painel<span class="text-blue-500">Motorista</span></span>
+      </div>
+      <button onclick="logout()" class="text-zinc-400 hover:text-white transition-colors">Sair</button>
+    </div>
+  </nav>
+
+  <main class="pt-32 pb-24 px-6 relative z-10 max-w-7xl mx-auto">
+    <h1 class="text-4xl font-bold text-white mb-8">Minhas Rotas</h1>
+    
+    <div id="rotasList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <!-- As rotas serão carregadas aqui via JavaScript -->
+    </div>
+  </main>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+
+    async function loadRotas() {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('/api/rotas', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (res.ok) {
+          const rotas = await res.json();
+          renderRotas(rotas);
+        } else {
+          console.error('Falha ao carregar rotas');
+        }
+      } catch (err) {
+        console.error('Erro de rede', err);
+      }
+    }
+
+    function renderRotas(rotas) {
+      const list = document.getElementById('rotasList');
+      list.innerHTML = '';
+
+      if (rotas.length === 0) {
+        list.innerHTML = '<p class="text-zinc-500">Você não possui rotas designadas no momento.</p>';
+        return;
+      }
+
+      rotas.forEach(rota => {
+        const dataFormatada = new Date(rota.data).toLocaleDateString('pt-BR');
+        
+        let statusColor = 'text-zinc-400 bg-zinc-800';
+        if (rota.status === 'EM_EXECUCAO') statusColor = 'text-blue-400 bg-blue-500/20';
+        else if (rota.status === 'FINALIZADA') statusColor = 'text-green-400 bg-green-500/20';
+        else if (rota.status === 'PLANEJADA') statusColor = 'text-yellow-400 bg-yellow-500/20';
+
+        const card = document.createElement('div');
+        card.className = 'bg-zinc-900/80 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl';
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="text-lg font-bold text-white">Rota #${rota.id}</h3>
+              <p class="text-sm text-zinc-400">${dataFormatada}</p>
+            </div>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full ${statusColor}">${rota.status.replace('_', ' ')}</span>
+          </div>
+          
+          <div class="mt-6 border-t border-white/5 pt-4">
+            <label class="block text-sm text-zinc-400 mb-2">Atualizar Status:</label>
+            <div class="flex gap-2">
+              <select id="status-${rota.id}" class="flex-1 bg-zinc-950 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 text-sm">
+                <option value="PLANEJADA" ${rota.status === 'PLANEJADA' ? 'selected' : ''}>Planejada</option>
+                <option value="EM_EXECUCAO" ${rota.status === 'EM_EXECUCAO' ? 'selected' : ''}>Em Execução</option>
+                <option value="FINALIZADA" ${rota.status === 'FINALIZADA' ? 'selected' : ''}>Finalizada</option>
+              </select>
+              <button onclick="updateRotaStatus(${rota.id})" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                Salvar
+              </button>
+            </div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    async function updateRotaStatus(id) {
+      const token = localStorage.getItem('token');
+      const status = document.getElementById(`status-${id}`).value;
+      
+      try {
+        const res = await fetch(`/api/rotas/${id}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status })
+        });
+        
+        if (res.ok) {
+          alert('Status atualizado com sucesso!');
+          loadRotas(); // Recarrega as rotas
+        } else {
+          alert('Erro ao atualizar status');
+        }
+      } catch (err) {
+        alert('Erro de conexão');
+      }
+    }
+
+    loadRotas();
+  </script>
+</body>
+</html>

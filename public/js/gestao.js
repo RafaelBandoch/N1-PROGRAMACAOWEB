@@ -105,8 +105,14 @@ async function abrirModal() {
       submitBtn.disabled = true;
 
       try {
+        const token = localStorage.getItem('token');
         const res = await fetch("/api/" + tipoAtual, {
-          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(dados),
+          method: "POST", 
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }, 
+          body: JSON.stringify(dados),
         });
         const data = await res.json();
         if (res.ok) {
@@ -140,7 +146,10 @@ async function carregarLista(showLoading = false) {
   }
 
   try {
-    const res = await fetch("/api/" + tipoAtual);
+    const token = localStorage.getItem('token');
+    const res = await fetch("/api/" + tipoAtual, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
     const dados = await res.json();
     listaConteudo.innerHTML = "";
 
