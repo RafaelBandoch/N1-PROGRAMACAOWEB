@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -8,13 +8,14 @@ on:
 
 jobs:
   ci:
+    name: Build & Verificação
     runs-on: ubuntu-latest
 
     steps:
       - name: Baixar código
         uses: actions/checkout@v4
 
-      - name: Instalar Node
+      - name: Instalar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -22,5 +23,33 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
-      - name: Rodar projeto (verificação)
-        run: npm run build --if-present
+      - name: Build do Tailwind CSS
+        run: npm run tailwind:build
+
+      - name: Verificar estrutura do projeto
+        run: |
+          echo "=== Verificando arquivos essenciais ==="
+          test -f src/server.js && echo "✔ server.js encontrado" || (echo "✘ server.js não encontrado" && exit 1)
+          test -f src/database/db.js && echo "✔ db.js encontrado" || (echo "✘ db.js não encontrado" && exit 1)
+          test -f public/css/output.css && echo "✔ output.css gerado com sucesso" || (echo "✘ output.css não foi gerado" && exit 1)
+          test -f src/middlewares/authMiddleware.js && echo "✔ authMiddleware.js encontrado" || (echo "✘ authMiddleware.js não encontrado" && exit 1)
+          echo "=== Todos os arquivos essenciais estão presentes ==="
+
+      - name: Verificar sintaxe JavaScript
+        run: |
+          echo "=== Verificando sintaxe dos arquivos JS ==="
+          find src -name "*.js" | while read file; do
+            node --check "$file" && echo "✔ $file" || (echo "✘ Erro de sintaxe em $file" && exit 1)
+          done
+          find public/js -name "*.js" | while read file; do
+            node --check "$file" && echo "✔ $file" || (echo "✘ Erro de sintaxe em $file" && exit 1)
+          done
+          echo "=== Sintaxe OK ==="
+
+      - name: Verificar migrations
+        run: |
+          echo "=== Verificando sintaxe das migrations ==="
+          find migrations -name "*.js" | while read file; do
+            node --check "$file" && echo "✔ $file" || (echo "✘ Erro de sintaxe em $file" && exit 1)
+          done
+          echo "=== Migrations OK ==="
