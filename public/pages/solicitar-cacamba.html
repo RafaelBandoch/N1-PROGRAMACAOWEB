@@ -526,7 +526,37 @@
     }
   }
 
-  function mCEP(el) { let v=el.value.replace(/\D/g,'').slice(0,8); if(v.length>5)v=v.slice(0,5)+'-'+v.slice(5); el.value=v; }
+  function mCEP(el) { 
+    let v=el.value.replace(/\D/g,'').slice(0,8); 
+    if(v.length>5)v=v.slice(0,5)+'-'+v.slice(5); 
+    el.value=v; 
+    
+    if (v.length === 9) {
+      buscarCEP(v.replace('-', ''));
+    }
+  }
+
+  async function buscarCEP(cepStr) {
+    try {
+      const btnOrig = document.getElementById('cep').style.borderColor;
+      document.getElementById('cep').style.borderColor = '#10b981'; // visual feedback
+      
+      const res = await fetch(`https://viacep.com.br/ws/${cepStr}/json/`);
+      const data = await res.json();
+      
+      if (!data.erro) {
+        document.getElementById('cidade').value = data.localidade || '';
+        document.getElementById('rua').value = data.logradouro || '';
+        document.getElementById('bairro').value = data.bairro || '';
+        
+        document.getElementById('numero').focus();
+        updateSummary();
+      }
+      setTimeout(() => document.getElementById('cep').style.borderColor = btnOrig, 1000);
+    } catch (err) {
+      console.error('Erro ao buscar CEP:', err);
+    }
+  }
   function mDoc(el) {
     let v=el.value.replace(/\D/g,'');
     if(v.length<=11) v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');

@@ -5,6 +5,11 @@ const TIPOS = ['solicitacoes', 'usuarios', 'veiculos', 'motoristas', 'clientes',
 
 let tipoAtual = null;
 
+const token = localStorage.getItem('token');
+if (!token) {
+  window.location.href = 'pages/login.html';
+}
+
 async function carregarListas() {
   for (const tipo of TIPOS) {
     carregarLista(tipo);
@@ -13,7 +18,11 @@ async function carregarListas() {
 
 async function carregarLista(tipo) {
   try {
-    const res = await fetch("/api/" + tipo);
+    const res = await fetch("/api/" + tipo, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
     const dados = await res.json();
     const container = document.getElementById("lista-" + tipo);
     container.innerHTML = '';
@@ -148,7 +157,10 @@ async function abrirModal(tipo, btn) {
       try {
         const res = await fetch("/api/" + tipoAtual, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
           body: JSON.stringify(dados),
         });
 
@@ -194,7 +206,10 @@ async function atualizarStatusSolicitacao(id, status) {
   try {
     const res = await fetch(`/api/solicitacoes/${id}/status`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify({ status })
     });
     if(res.ok) {
@@ -228,17 +243,17 @@ async function abrirModalAprovacao(id) {
     document.getElementById('aprovar-solicitacao-id').value = id;
 
     // Load generic selects data
-    const resC = await fetch('/api/cacambas');
+    const resC = await fetch('/api/cacambas', { headers: { "Authorization": `Bearer ${token}` } });
     const cacambas = await resC.json();
     const selC = modal.querySelector('.select-cacambas');
     selC.innerHTML = '<option value="" disabled selected>Selecione uma caçamba</option>' + cacambas.filter(c => c.status === 'DISPONIVEL').map(c => `<option value="${c.id}">${c.tamanho} (ID: ${c.id})</option>`).join('');
 
-    const resM = await fetch('/api/motoristas');
+    const resM = await fetch('/api/motoristas', { headers: { "Authorization": `Bearer ${token}` } });
     const motoristas = await resM.json();
     const selM = modal.querySelector('.select-motoristas');
     selM.innerHTML = '<option value="" disabled selected>Selecione um motorista</option>' + motoristas.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
 
-    const resV = await fetch('/api/veiculos');
+    const resV = await fetch('/api/veiculos', { headers: { "Authorization": `Bearer ${token}` } });
     const veiculos = await resV.json();
     const selV = modal.querySelector('.select-veiculos');
     selV.innerHTML = '<option value="" disabled selected>Selecione um veículo</option>' + veiculos.map(v => `<option value="${v.id}">${v.placa} - ${v.modelo}</option>`).join('');
@@ -273,7 +288,10 @@ async function abrirModalAprovacao(id) {
       try {
         const fetchRes = await fetch(`/api/solicitacoes/${dados.solicitacao_id}/aprovar`, {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${token}`
+          },
           body: JSON.stringify(dados)
         });
         const respData = await fetchRes.json();
@@ -294,5 +312,25 @@ async function abrirModalAprovacao(id) {
 
   } catch(e) {
     console.error(e);
+  }
+}
+
+
+async function deleteItem(tipo, id) {
+  if (!confirm('Tem certeza que deseja apagar este item? Esta ação não pode ser desfeita.')) return;
+  const token = localStorage.getItem('token');
+  try {
+    const res = await fetch(`/api/${tipo}/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      alert(data.error || 'Erro ao apagar o registro.');
+    }
+  } catch (e) {
+    alert('Erro de conexão.');
   }
 }

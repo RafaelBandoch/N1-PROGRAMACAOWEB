@@ -98,7 +98,7 @@ module.exports = {
       }
 
       // 3. Create Tarefa
-      await db('tarefas').insert({
+      const [tarefa_id] = await db('tarefas').insert({
         tipo: 'ENTREGA',
         cacamba_id,
         cliente_id,
@@ -113,9 +113,43 @@ module.exports = {
       // 4. Update Solicitacao to ACEITO
       await db('solicitacoes').where({ id }).update({ status: 'ACEITO' });
 
-      return res.json({ mensagem: 'Solicitação aprovada e Tarefa criada com sucesso!' });
+      // 5. Vincular a Rota automaticamente (agrupar por motorista e data)
+      let rota = await db('rotas')
+        .where({ motorista_id, data: sol.data_agendada })
+        .whereIn('status', ['PLANEJADA', 'EM_EXECUCAO'])
+        .first();
+      
+      let rota_id;
+      if (rota) {
+        rota_id = rota.id;
+      } else {
+        const [newRotaId] = await db('rotas').insert({
+          data: sol.data_agendada,
+          motorista_id,
+          status: 'PLANEJADA'
+        });
+        rota_id = newRotaId;
+      }
+
+      // Adicionar na tabela rota_tarefas
+      await db('rota_tarefas').insert({
+        rota_id,
+        tarefa_id
+      });
+
+      return res.json({ mensagem: 'Solicitação aprovada, Tarefa criada e vinculada a Rota com sucesso!' });
     } catch (error) {
       next(error);
+    }
+  },
+
+  async delete(req, res, next) {
+    try {
+      const { id } = req.params;
+      await db('solicitacoes').where({ id }).delete();
+      res.json({ message: 'Registro removido com sucesso' });
+    } catch (error) {
+      return res.status(400).json({ error: 'Não foi possível excluir. O registro pode estar em uso.' });
     }
   }
 };

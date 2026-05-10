@@ -48,3 +48,13 @@ exports.listar = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.delete = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db('usuarios').where({ id }).delete();
+    res.json({ message: 'Registro removido com sucesso' });
+  } catch (error) {
+    return res.status(400).json({ error: 'Não foi possível excluir. O registro pode estar em uso.' });
+  }
+};
