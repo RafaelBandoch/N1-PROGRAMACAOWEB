@@ -5,4 +5,5 @@ const controller = require('../controllers/motoristaController');
 router.get('/', controller.listar);
 router.post('/', controller.criar);
 
+router.delete('/:id', controller.delete);
 module.exports = router;

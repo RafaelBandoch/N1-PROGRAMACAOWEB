@@ -7,4 +7,5 @@ router.post('/', solicitacaoController.create);
 router.patch('/:id/status', solicitacaoController.updateStatus);
 router.post('/:id/aprovar', solicitacaoController.aprovar);
 
+router.delete('/:id', solicitacaoController.delete);
 module.exports = router;

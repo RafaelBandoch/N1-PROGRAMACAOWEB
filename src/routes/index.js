@@ -11,6 +11,7 @@ const usuariosRouter = require('./usuarios');
 const veiculosRouter = require('./veiculos');
 const solicitacoesRouter = require('./solicitacoes');
 const tarefasRouter = require('./tarefas');
+const configRouter = require('./config');
 
 router.use('/auth', authRouter);
 
@@ -29,5 +30,7 @@ router.use('/tarefas', authenticateToken, checkRole(['admin', 'motorista']), tar
 // A verificacao de role mais fina ocorrera dentro do controller ou na propria definicao da rota se houver conflito.
 // Por hora, deixaremos aberto para logados (admin, cliente) acessarem, e o middleware la dentro restringe as acoes especificas.
 router.use('/solicitacoes', authenticateToken, solicitacoesRouter);
+
+router.use('/config', authenticateToken, configRouter);
 
 module.exports = router;

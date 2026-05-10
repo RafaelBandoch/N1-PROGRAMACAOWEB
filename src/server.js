@@ -6,7 +6,11 @@ const app = express();
 
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, '../public'), { extensions: ['html'] }));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/landing.html'));
+});
+
+app.use(express.static(path.join(__dirname, '../public'), { index: false, extensions: ['html'] }));
 
 const routes = require('./routes');
 app.use('/api', routes);

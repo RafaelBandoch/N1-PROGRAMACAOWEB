@@ -64,3 +64,34 @@ exports.updateStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getTarefas = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const rota = await db('rotas').where({ id }).first();
+    if (!rota) {
+      return res.status(404).json({ error: 'Rota não encontrada' });
+    }
+
+    const tarefas = await db('tarefas')
+      .join('rota_tarefas', 'tarefas.id', '=', 'rota_tarefas.tarefa_id')
+      .where('rota_tarefas.rota_id', id)
+      .select('tarefas.*')
+      .orderBy('tarefas.id', 'asc');
+
+    res.json(tarefas);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.delete = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db('rotas').where({ id }).delete();
+    res.json({ message: 'Registro removido com sucesso' });
+  } catch (error) {
+    return res.status(400).json({ error: 'Não foi possível excluir. O registro pode estar em uso.' });
+  }
+};
