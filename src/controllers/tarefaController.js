@@ -75,3 +75,4 @@ exports.delete = async (req, res, next) => {
     return res.status(400).json({ error: 'Não foi possível excluir. O registro pode estar em uso.' });
   }
 };
+
