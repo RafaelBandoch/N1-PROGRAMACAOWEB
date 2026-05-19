@@ -6,11 +6,17 @@ const app = express();
 
 app.use(express.json());
 
+const loggerMiddleware = require('./middlewares/loggerMiddleware');
+app.use(loggerMiddleware);
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/landing.html'));
 });
 
-app.use(express.static(path.join(__dirname, '../public'), { index: false, extensions: ['html'] }));
+app.use(express.static(path.join(__dirname, '../public'), {
+  index: false,
+  extensions: ['html']
+}));
 
 const routes = require('./routes');
 app.use('/api', routes);
