@@ -529,3 +529,4 @@ async function deleteItem(tipo, id) {
     alert('Erro de conexão.');
   }
 }
+
