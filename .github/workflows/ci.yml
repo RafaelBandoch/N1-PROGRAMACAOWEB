@@ -2,9 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [ "main", "ci-cd" ]
+    branches:
+      - main
+      - ci-cd
+      - Teste
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   ci:
@@ -17,10 +21,13 @@ jobs:
       - name: Instalar Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Instalar dependências
         run: npm install
 
-      - name: Rodar projeto (verificação)
+      - name: Rodar build se existir
         run: npm run build --if-present
+
+      - name: Rodar testes unitários
+        run: npm test
