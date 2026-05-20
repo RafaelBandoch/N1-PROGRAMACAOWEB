@@ -1,5 +1,3 @@
-
-
 const STATUS_COLORS = {
   ATIVO: "bg-zinc-800 text-emerald-400 ring-emerald-500/30",
   INATIVO: "bg-zinc-800 text-zinc-400 ring-zinc-500/30",
@@ -39,13 +37,21 @@ botoesTipo.forEach((btn) => {
 
 async function abrirModal() {
   const originalText = btnCadastrar.innerHTML;
-  btnCadastrar.innerHTML = `<svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+
+  btnCadastrar.innerHTML = `
+    <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  `;
+
   btnCadastrar.disabled = true;
 
   try {
     const res = await fetch("../components/" + tipoAtual.slice(0, -1) + "-modal.html");
     let html = await res.text();
 
+    // Ajusta o visual do modal para o tema escuro
     html = html.replace('bg-white/95 backdrop-blur-xl', 'bg-zinc-900 border border-zinc-800');
     html = html.replace('text-slate-900', 'text-white');
     html = html.replace('text-slate-700', 'text-zinc-300');
@@ -62,7 +68,8 @@ async function abrirModal() {
     html = html.replace(/shadow-blue-200/g, 'shadow-none');
     html = html.replace(/hover:shadow-blue-300/g, 'shadow-none');
 
-    html = html.replace(/text-black/g, 'text-black').replace(/text-slate-700/g, 'text-zinc-400');
+    html = html.replace(/text-black/g, 'text-black')
+               .replace(/text-slate-700/g, 'text-zinc-400');
 
     modalContainer.innerHTML = html;
 
@@ -72,11 +79,14 @@ async function abrirModal() {
     const btnCancelar = document.getElementById("btn-cancelar-modal");
     const form = document.getElementById("modal-form");
 
-    modal.querySelector('h2').className = "text-2xl font-bold tracking-tight text-white";
+    modal.querySelector('h2').className =
+      "text-2xl font-bold tracking-tight text-white";
 
     modal.classList.remove("hidden");
 
-    modal.querySelectorAll('input, select').forEach(el => el.classList.add('text-white'));
+    modal.querySelectorAll('input, select').forEach(el => {
+      el.classList.add('text-white');
+    });
 
     setTimeout(() => {
       modal.classList.remove('opacity-0');
@@ -84,19 +94,27 @@ async function abrirModal() {
       modalInner.classList.add('scale-100', 'opacity-100');
     }, 10);
 
+    // Fecha o modal com animação
     const closeModal = () => {
       modal.classList.add('opacity-0');
       modalInner.classList.remove('scale-100', 'opacity-100');
       modalInner.classList.add('scale-95', 'opacity-0');
-      setTimeout(() => { modal.classList.add("hidden"); }, 300);
+
+      setTimeout(() => {
+        modal.classList.add("hidden");
+      }, 300);
     };
 
     btnFechar.addEventListener("click", closeModal);
     btnCancelar.addEventListener("click", closeModal);
-    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const dados = Object.fromEntries(new FormData(form).entries());
       const alerta = document.getElementById("modal-alerta");
       const submitBtn = form.querySelector('button[type="submit"]');
@@ -106,32 +124,56 @@ async function abrirModal() {
 
       try {
         const token = localStorage.getItem('token');
+
         const res = await fetch("/api/" + tipoAtual, {
-          method: "POST", 
-          headers: { 
+          method: "POST",
+          headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
-          }, 
+          },
           body: JSON.stringify(dados),
         });
+
         const data = await res.json();
+
         if (res.ok) {
-          alerta.innerHTML = '<div class="p-4 rounded-xl text-sm border border-emerald-500/50 bg-emerald-500/10 text-emerald-400">Salvo com sucesso</div>';
-          setTimeout(() => { closeModal(); carregarLista(); }, 1200);
+          alerta.innerHTML = `
+            <div class="p-4 rounded-xl text-sm border border-emerald-500/50 bg-emerald-500/10 text-emerald-400">
+              Salvo com sucesso
+            </div>
+          `;
+
+          setTimeout(() => {
+            closeModal();
+            carregarLista();
+          }, 1200);
+
         } else {
-          alerta.innerHTML = `<div class="p-4 rounded-xl text-sm border border-rose-500/50 bg-rose-500/10 text-rose-400">${data.erro || 'Erro ao salvar'}</div>`;
+          alerta.innerHTML = `
+            <div class="p-4 rounded-xl text-sm border border-rose-500/50 bg-rose-500/10 text-rose-400">
+              ${data.erro || 'Erro ao salvar'}
+            </div>
+          `;
+
           submitBtn.innerHTML = 'Salvar';
           submitBtn.disabled = false;
         }
+
       } catch (e) {
-        alerta.innerHTML = '<div class="p-4 rounded-xl text-sm border border-rose-500/50 bg-rose-500/10 text-rose-400">Erro de conexão</div>';
+        alerta.innerHTML = `
+          <div class="p-4 rounded-xl text-sm border border-rose-500/50 bg-rose-500/10 text-rose-400">
+            Erro de conexão
+          </div>
+        `;
+
         submitBtn.innerHTML = 'Salvar';
         submitBtn.disabled = false;
       }
     });
 
   } catch (err) {
-    console.error("Modal load error", err);
+    console.error("Erro ao carregar modal", err);
+
   } finally {
     btnCadastrar.innerHTML = originalText;
     btnCadastrar.disabled = false;
@@ -140,24 +182,39 @@ async function abrirModal() {
 
 btnCadastrar.addEventListener("click", () => abrirModal());
 
+// Carrega os dados conforme a aba selecionada
 async function carregarLista(showLoading = false) {
   if (showLoading) {
-    listaConteudo.innerHTML = '<div class="text-zinc-500 py-12 text-center animate-pulse">Carregando...</div>';
+    listaConteudo.innerHTML = `
+      <div class="text-zinc-500 py-12 text-center animate-pulse">
+        Carregando...
+      </div>
+    `;
   }
 
   try {
     const token = localStorage.getItem('token');
+
     const res = await fetch("/api/" + tipoAtual, {
-      headers: { "Authorization": `Bearer ${token}` }
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
     });
+
     const dados = await res.json();
+
     listaConteudo.innerHTML = "";
 
     if (!dados || dados.length === 0) {
-      listaConteudo.innerHTML = '<div class="text-zinc-600 py-12 text-center">Nenhum registro encontrado</div>';
+      listaConteudo.innerHTML = `
+        <div class="text-zinc-600 py-12 text-center">
+          Nenhum registro encontrado
+        </div>
+      `;
       return;
     }
 
+    // Ordena pelo ID
     if (dados[0] && dados[0].id !== undefined) {
       dados.sort((a, b) => a.id - b.id);
     }
@@ -165,23 +222,33 @@ async function carregarLista(showLoading = false) {
     if (tipoAtual === 'cacambas') {
       return renderCacambas(dados);
     }
+
     if (tipoAtual === 'rotas') {
       return renderRotas(dados);
     }
+
     if (tipoAtual === 'clientes') {
       return renderClientes(dados);
     }
+
     if (tipoAtual === 'tarefas') {
       return renderTarefas(dados);
     }
 
     renderizarTabelaGenerica(dados);
+
   } catch (err) {
     console.error(err);
-    listaConteudo.innerHTML = '<div class="text-rose-400 py-12 text-center">Erro ao carregar dados da API</div>';
+
+    listaConteudo.innerHTML = `
+      <div class="text-rose-400 py-12 text-center">
+        Erro ao carregar dados da API
+      </div>
+    `;
   }
 }
 
+// Tabela padrão usada nas listas mais simples
 function renderizarTabelaGenerica(dados) {
   const table = document.createElement("table");
   table.className = "w-full text-left text-sm";
