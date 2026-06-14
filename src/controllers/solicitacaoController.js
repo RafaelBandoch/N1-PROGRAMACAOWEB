@@ -54,7 +54,11 @@ module.exports = {
         tipo: 'INFO'
       }));
       if (notificacoesAdmins.length > 0) {
-        await db('notificacoes').insert(notificacoesAdmins);
+        try {
+          await db('notificacoes').insert(notificacoesAdmins);
+        } catch (notifError) {
+          console.error('Falha ao criar notificações de admin:', notifError);
+        }
       }
       return res.status(201).json({ id, message: 'Solicitação criada com sucesso' });
     } catch (error) {
@@ -88,72 +92,105 @@ module.exports = {
         return res.status(400).json({ erro: 'Motorista, Veículo e Caçamba são obrigatórios' });
       }
 
-      // 1. Fetch Solicitacao
       const sol = await db('solicitacoes').where({ id }).first();
-      if (!sol) return res.status(404).json({ erro: 'Solicitação não encontrada' });
-      if (sol.status !== 'PENDENTE') return res.status(400).json({ erro: 'Solicitação já processada' });
-
-      // 2. Find or Create Cliente
-      let cliente = await db('clientes').where({ cpf_cnpj: sol.cpf_cnpj }).first();
-      let cliente_id;
-      if (cliente) {
-        cliente_id = cliente.id;
-      } else {
-        const [newClienteId] = await db('clientes').insert({
-          nome: sol.nome,
-          cpf_cnpj: sol.cpf_cnpj,
-          endereco: sol.telefone + ' - ' + sol.endereco // Temporary concat for phone if db lacks telefone
-        });
-        cliente_id = newClienteId;
+      if (!sol) {
+        return res.status(404).json({ erro: 'Solicitação não encontrada' });
+      }
+      if (sol.status !== 'PENDENTE') {
+        return res.status(400).json({ erro: 'Solicitação já processada' });
       }
 
-      // 3. Create Tarefa
-      const [tarefa_id] = await db('tarefas').insert({
-        tipo: 'ENTREGA',
-        cacamba_id,
-        cliente_id,
-        motorista_id,
-        veiculo_id,
-        endereco_execucao: sol.endereco,
-        data_agendada: sol.data_agendada,
-        status: 'EM_ANDAMENTO',
-        justificativa: sol.observacoes || ''
-      });
+      await db.transaction(async trx => {
+        const motorista = await trx('motoristas').where({ id: motorista_id }).first();
+        if (!motorista) {
+          throw new Error('Motorista selecionado não existe');
+        }
 
-      // 4. Update Solicitacao to ACEITO
-      await db('solicitacoes').where({ id }).update({ status: 'ACEITO' });
+        const veiculo = await trx('veiculos').where({ id: veiculo_id }).first();
+        if (!veiculo) {
+          throw new Error('Veículo selecionado não existe');
+        }
 
-      const usuarioCliente = await db('usuarios').where({ cliente_id, role: 'cliente' }).first();
-      if (usuarioCliente) {
-        await db('notificacoes').insert({
-          usuario_id: usuarioCliente.id,
-          mensagem: 'Seu pedido foi aprovado e a caçamba agendada!',
-          tipo: 'SUCCESS'
-        });
-      }
+        const cacamba = await trx('cacambas').where({ id: cacamba_id }).first();
+        if (!cacamba) {
+          throw new Error('Caçamba selecionada não existe');
+        }
 
-      // 5. Vincular a Rota automaticamente (agrupar por motorista e data)
-      let rota = await db('rotas')
-        .where({ motorista_id, data: sol.data_agendada })
-        .whereIn('status', ['PLANEJADA', 'EM_EXECUCAO'])
-        .first();
-      
-      let rota_id;
-      if (rota) {
-        rota_id = rota.id;
-      } else {
-        const [newRotaId] = await db('rotas').insert({
-          data: sol.data_agendada,
+        let cliente = await trx('clientes').where({ cpf_cnpj: sol.cpf_cnpj }).first();
+        let cliente_id;
+        if (cliente) {
+          cliente_id = cliente.id;
+        } else {
+          const [newClienteId] = await trx('clientes').insert({
+            nome: sol.nome,
+            cpf_cnpj: sol.cpf_cnpj,
+            endereco: sol.telefone + ' - ' + sol.endereco
+          });
+          cliente_id = newClienteId;
+        }
+
+        const [tarefa_id] = await trx('tarefas').insert({
+          tipo: 'ENTREGA',
+          cacamba_id,
+          cliente_id,
           motorista_id,
-          status: 'PLANEJADA'
+          veiculo_id,
+          endereco_execucao: sol.endereco,
+          data_agendada: sol.data_agendada,
+          status: 'EM_ANDAMENTO',
+          justificativa: sol.observacoes || ''
         });
-        rota_id = newRotaId;
-      }
 
-      // Adicionar na tabela rota_tarefas
-      await db('rota_tarefas').insert({
-        rota_id,
-        tarefa_id
+        let rota = await trx('rotas')
+          .where({ motorista_id, data: sol.data_agendada })
+          .whereIn('status', ['PLANEJADA', 'EM_EXECUCAO'])
+          .first();
+
+        let rota_id;
+        if (rota) {
+          rota_id = rota.id;
+        } else {
+          const [newRotaId] = await trx('rotas').insert({
+            data: sol.data_agendada,
+            motorista_id,
+            status: 'PLANEJADA'
+          });
+          rota_id = newRotaId;
+        }
+
+        await trx('rota_tarefas').insert({
+          rota_id,
+          tarefa_id
+        });
+
+        await trx('solicitacoes').where({ id }).update({ status: 'ACEITO' });
+
+        const notifications = [];
+        const usuarioCliente = await trx('usuarios').where({ cliente_id, role: 'cliente' }).first();
+        if (usuarioCliente) {
+          notifications.push({
+            usuario_id: usuarioCliente.id,
+            mensagem: 'Seu pedido foi aprovado e a caçamba agendada!',
+            tipo: 'SUCCESS'
+          });
+        }
+
+        const usuarioMotorista = await trx('usuarios').where({ motorista_id, role: 'motorista' }).first();
+        if (usuarioMotorista) {
+          notifications.push({
+            usuario_id: usuarioMotorista.id,
+            mensagem: `Você recebeu uma nova tarefa para ${sol.data_agendada}.`,
+            tipo: 'INFO'
+          });
+        }
+
+        if (notifications.length > 0) {
+          try {
+            await trx('notificacoes').insert(notifications);
+          } catch (notifError) {
+            console.error('Falha ao criar notificações na aprovação:', notifError);
+          }
+        }
       });
 
       return res.json({ mensagem: 'Solicitação aprovada, Tarefa criada e vinculada a Rota com sucesso!' });

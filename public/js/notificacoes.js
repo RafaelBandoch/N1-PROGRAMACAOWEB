@@ -27,14 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    // Localizar ou o menu direito ou apenas pendurar no header
-    const rightMenu = header.querySelector('.mt-6.md\\:mt-0') || header.querySelector('div:last-child');
-    if (rightMenu) {
-      rightMenu.classList.add('flex', 'items-center', 'gap-4');
-      rightMenu.prepend(notificationContainer);
-    } else {
-      header.appendChild(notificationContainer);
-    }
+    // Anexa o container no final do header para funcionar em todos os layouts
+    header.appendChild(notificationContainer);
 
     // Comportamento do Dropdown
     const btn = document.getElementById('btn-notificacoes');

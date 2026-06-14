@@ -507,7 +507,12 @@
       btn.innerHTML = textOrig;
       btn.disabled = false;
 
-      if (!res.ok) throw new Error('Erro ao enviar solicitação');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        const message = errData?.erro || errData?.error || 'Erro ao enviar a solicitação';
+        alert(message);
+        return;
+      }
       
       const t = document.getElementById('toast');
       t.classList.remove('translate-y-20','opacity-0');
