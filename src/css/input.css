@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-800 antialiased selection:bg-indigo-200 selection:text-indigo-900;
+    @apply bg-slate-50 text-slate-800 antialiased selection:bg-teal-100 selection:text-teal-900;
   }
 }
 
@@ -21,6 +21,6 @@
   }
   
   .glass {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
+    @apply bg-white/70 backdrop-blur-lg border border-white/40 shadow-xl;
   }
 }

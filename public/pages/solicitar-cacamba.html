@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="css/output.css">
   <!-- fallback CDN para preview sem build -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    span.inline-flex { color: inherit !important; }
+    body { font-family: 'Inter', sans-serif; }
   </style>
   <script>
     const token = localStorage.getItem('token');
@@ -25,26 +26,26 @@
   </script>
 </head>
 
-<body class="bg-black text-zinc-200 min-h-screen font-sans">
+<body class="bg-slate-50 text-slate-700 min-h-screen font-sans">
 
 <!-- Navbar -->
-<nav class="w-full bg-zinc-950/80 backdrop-blur-md border-b border-white/5 mb-8 sticky top-0 z-50">
+<nav class="w-full bg-white/80 backdrop-blur-lg border-b border-slate-200 mb-8 sticky top-0 z-50">
   <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
     <div class="flex items-center gap-6">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-extrabold text-sm shadow-lg shadow-blue-500/20">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-teal-500/20">
           C
         </div>
-        <span class="text-xl font-bold tracking-tight text-white">Caçambas<span class="text-blue-500">PRO</span></span>
+        <span class="text-xl font-bold tracking-tight text-slate-800">Caçambas<span class="text-teal-600">PRO</span></span>
       </div>
-      <div class="hidden md:block w-px h-6 bg-zinc-800"></div>
-      <a href="meus-pedidos.html" class="hidden md:flex items-center gap-2 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">
+      <div class="hidden md:block w-px h-6 bg-slate-200"></div>
+      <a href="meus-pedidos.html" class="hidden md:flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors">
         📋 Meus Pedidos
       </a>
     </div>
     <div class="flex items-center gap-4">
-      <span id="userEmailDisplay" class="text-sm font-medium text-zinc-400 hidden sm:block"></span>
-      <button onclick="logout()" class="text-sm font-semibold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 px-4 py-2 rounded-lg transition-colors">
+      <span id="userEmailDisplay" class="text-sm font-medium text-slate-500 hidden sm:block"></span>
+      <button onclick="logout()" class="text-sm font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors">
         Sair
       </button>
     </div>
@@ -56,46 +57,46 @@
   <!-- Header -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
-      <h1 class="text-4xl font-bold text-white">Solicitar Caçamba</h1>
-      <p class="text-zinc-500 mt-1 text-sm">Preencha os dados para criar uma nova solicitação</p>
+      <h1 class="text-4xl font-bold text-slate-800">Solicitar Caçamba</h1>
+      <p class="text-slate-400 mt-1 text-sm">Preencha os dados para criar uma nova solicitação</p>
     </div>
-    <span id="etapa-badge" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-zinc-900 border border-zinc-700 text-zinc-300">
+    <span id="etapa-badge" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-teal-50 border border-teal-200 text-teal-700">
       Etapa 1 de 4
     </span>
   </div>
 
   <!-- Progress -->
-  <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-8">
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 mb-8 shadow-sm">
     <div class="flex items-center">
 
       <div class="step-item flex flex-col items-center flex-1 relative" id="stp-1">
         <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold z-10 relative
-                    bg-white text-black">1</div>
-        <span class="text-xs mt-2 font-medium text-white">Tipo & Tamanho</span>
+                    bg-teal-600 text-white">1</div>
+        <span class="text-xs mt-2 font-medium text-slate-800">Tipo & Tamanho</span>
       </div>
 
-      <div class="flex-1 h-px bg-zinc-800 mb-4" id="line-1-2"></div>
+      <div class="flex-1 h-px bg-slate-200 mb-4" id="line-1-2"></div>
 
       <div class="step-item flex flex-col items-center flex-1 relative" id="stp-2">
         <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold z-10 relative
-                    bg-zinc-800 text-zinc-500">2</div>
-        <span class="text-xs mt-2 font-medium text-zinc-600">Endereço</span>
+                    bg-slate-200 text-slate-400">2</div>
+        <span class="text-xs mt-2 font-medium text-slate-400">Endereço</span>
       </div>
 
-      <div class="flex-1 h-px bg-zinc-800 mb-4" id="line-2-3"></div>
+      <div class="flex-1 h-px bg-slate-200 mb-4" id="line-2-3"></div>
 
       <div class="step-item flex flex-col items-center flex-1 relative" id="stp-3">
         <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold z-10 relative
-                    bg-zinc-800 text-zinc-500">3</div>
-        <span class="text-xs mt-2 font-medium text-zinc-600">Agendamento</span>
+                    bg-slate-200 text-slate-400">3</div>
+        <span class="text-xs mt-2 font-medium text-slate-400">Agendamento</span>
       </div>
 
-      <div class="flex-1 h-px bg-zinc-800 mb-4" id="line-3-4"></div>
+      <div class="flex-1 h-px bg-slate-200 mb-4" id="line-3-4"></div>
 
       <div class="step-item flex flex-col items-center flex-1 relative" id="stp-4">
         <div class="step-dot w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold z-10 relative
-                    bg-zinc-800 text-zinc-500">4</div>
-        <span class="text-xs mt-2 font-medium text-zinc-600">Confirmação</span>
+                    bg-slate-200 text-slate-400">4</div>
+        <span class="text-xs mt-2 font-medium text-slate-400">Confirmação</span>
       </div>
 
     </div>
@@ -111,59 +112,59 @@
       <div id="etapa-1">
 
         <!-- Tipo -->
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
-          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Tipo de Serviço</h2>
+        <div class="bg-white border border-slate-200 rounded-3xl p-8 mb-6 shadow-sm">
+          <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-6">Tipo de Serviço</h2>
           <div class="grid grid-cols-3 gap-3">
             <button onclick="selTipo(this,'ENTREGA')"
-              class="tipo-card sel-card border border-zinc-700 bg-zinc-800 hover:border-zinc-500 rounded-2xl p-5 text-center transition-all group">
+              class="tipo-card sel-card border border-teal-300 bg-teal-50 hover:border-teal-400 rounded-2xl p-5 text-center transition-all group">
               <div class="text-3xl mb-3">🚚</div>
-              <div class="text-sm font-semibold text-zinc-200 group-hover:text-white">Entrega</div>
+              <div class="text-sm font-semibold text-slate-800 group-hover:text-slate-900">Entrega</div>
             </button>
             <button onclick="selTipo(this,'COLETA')"
-              class="tipo-card border border-zinc-700 bg-zinc-900 hover:border-zinc-500 rounded-2xl p-5 text-center transition-all group">
+              class="tipo-card border border-slate-200 bg-white hover:border-slate-300 rounded-2xl p-5 text-center transition-all group">
               <div class="text-3xl mb-3">📦</div>
-              <div class="text-sm font-semibold text-zinc-500 group-hover:text-white">Coleta</div>
+              <div class="text-sm font-semibold text-slate-400 group-hover:text-slate-700">Coleta</div>
             </button>
             <button onclick="selTipo(this,'TROCA')"
-              class="tipo-card border border-zinc-700 bg-zinc-900 hover:border-zinc-500 rounded-2xl p-5 text-center transition-all group">
+              class="tipo-card border border-slate-200 bg-white hover:border-slate-300 rounded-2xl p-5 text-center transition-all group">
               <div class="text-3xl mb-3">🔄</div>
-              <div class="text-sm font-semibold text-zinc-500 group-hover:text-white">Troca</div>
+              <div class="text-sm font-semibold text-slate-400 group-hover:text-slate-700">Troca</div>
             </button>
           </div>
         </div>
 
         <!-- Tamanho -->
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
-          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Tamanho da Caçamba</h2>
+        <div class="bg-white border border-slate-200 rounded-3xl p-8 mb-6 shadow-sm">
+          <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-6">Tamanho da Caçamba</h2>
           <div class="grid grid-cols-2 gap-4">
             <button onclick="selSize(this,'MEDIO')"
-              class="size-card sel-card border border-zinc-700 bg-zinc-800 hover:border-zinc-500 rounded-2xl p-6 text-left transition-all">
+              class="size-card sel-card border border-teal-300 bg-teal-50 hover:border-teal-400 rounded-2xl p-6 text-left transition-all">
               <div class="text-3xl mb-3">🗑️</div>
-              <div class="text-base font-bold text-white mb-1">Médio</div>
-              <div class="text-xs text-zinc-500 leading-relaxed">Reformas residenciais e pequenos entulhos.</div>
-              <span class="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-400">Até 3m³</span>
+              <div class="text-base font-bold text-slate-800 mb-1">Médio</div>
+              <div class="text-xs text-slate-500 leading-relaxed">Reformas residenciais e pequenos entulhos.</div>
+              <span class="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-lg bg-white border border-teal-200 text-teal-700">Até 3m³</span>
             </button>
             <button onclick="selSize(this,'GRANDE')"
-              class="size-card border border-zinc-700 bg-zinc-900 hover:border-zinc-500 rounded-2xl p-6 text-left transition-all">
+              class="size-card border border-slate-200 bg-white hover:border-slate-300 rounded-2xl p-6 text-left transition-all">
               <div class="text-3xl mb-3">🏗️</div>
-              <div class="text-base font-bold text-zinc-400 mb-1">Grande</div>
-              <div class="text-xs text-zinc-600 leading-relaxed">Obras maiores, demolições e grandes volumes.</div>
-              <span class="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-600">Até 5m³</span>
+              <div class="text-base font-bold text-slate-400 mb-1">Grande</div>
+              <div class="text-xs text-slate-400 leading-relaxed">Obras maiores, demolições e grandes volumes.</div>
+              <span class="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-400">Até 5m³</span>
             </button>
           </div>
         </div>
 
         <!-- Observações -->
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
-          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Observações <span class="text-zinc-600 text-lg font-normal">(opcional)</span></h2>
+        <div class="bg-white border border-slate-200 rounded-3xl p-8 mb-6 shadow-sm">
+          <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-6">Observações <span class="text-slate-400 text-lg font-normal">(opcional)</span></h2>
           <textarea id="obs" rows="3"
-            class="w-full bg-zinc-950/50 border border-zinc-800 rounded-2xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all resize-none"
+            class="w-full bg-slate-50 border border-slate-300 rounded-2xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all resize-none"
             placeholder="Ex: portão estreito, material específico, horário preferencial..."></textarea>
         </div>
 
         <div class="flex justify-end">
           <button onclick="goStep(2)"
-            class="bg-white text-black hover:bg-zinc-200 px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95">
+            class="bg-teal-600 text-white hover:bg-teal-700 px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-md shadow-teal-600/20">
             Próximo: Endereço →
           </button>
         </div>
@@ -171,142 +172,142 @@
 
       <!-- ══ ETAPA 2 ══ -->
       <div id="etapa-2" class="hidden">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
-          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Endereço de Execução</h2>
+        <div class="bg-white border border-slate-200 rounded-3xl p-8 mb-6 shadow-sm">
+          <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-6">Endereço de Execução</h2>
 
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">CEP *</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">CEP *</label>
               <input type="text" id="cep" maxlength="9" oninput="mCEP(this)" placeholder="00000-000"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Cidade *</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cidade *</label>
               <input type="text" id="cidade" placeholder="Joinville"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Rua / Avenida *</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rua / Avenida *</label>
               <input type="text" id="rua" placeholder="Rua das Flores"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Número *</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Número *</label>
               <input type="text" id="numero" placeholder="123"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Bairro *</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Bairro *</label>
               <input type="text" id="bairro" placeholder="Centro"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Complemento</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Complemento</label>
               <input type="text" id="complemento" placeholder="Galpão, fundos..."
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Ponto de Referência</label>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Ponto de Referência</label>
             <input type="text" id="referencia" placeholder="Próximo ao mercado X, em frente à escola..."
-              class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+              class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
           </div>
         </div>
 
         <div class="flex justify-between">
-          <button onclick="goStep(1)" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition">← Voltar</button>
-          <button onclick="goStep(3)" class="bg-white text-black hover:bg-zinc-200 px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95">Próximo: Agendamento →</button>
+          <button onclick="goStep(1)" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shadow-sm">← Voltar</button>
+          <button onclick="goStep(3)" class="bg-teal-600 text-white hover:bg-teal-700 px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-md shadow-teal-600/20">Próximo: Agendamento →</button>
         </div>
       </div>
 
       <!-- ══ ETAPA 3 ══ -->
       <div id="etapa-3" class="hidden">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
-          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Data e Horário</h2>
+        <div class="bg-white border border-slate-200 rounded-3xl p-8 mb-6 shadow-sm">
+          <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-6">Data e Horário</h2>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Data Agendada *</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Data Agendada *</label>
               <input type="date" id="data"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Período Preferencial</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Período Preferencial</label>
               <select id="periodo"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all">
-                <option value="" class="bg-zinc-900">Sem preferência</option>
-                <option value="MANHA" class="bg-zinc-900">Manhã (08h – 12h)</option>
-                <option value="TARDE" class="bg-zinc-900">Tarde (13h – 17h)</option>
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all">
+                <option value="">Sem preferência</option>
+                <option value="MANHA">Manhã (08h – 12h)</option>
+                <option value="TARDE">Tarde (13h – 17h)</option>
               </select>
             </div>
           </div>
         </div>
 
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
-          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Dados do Cliente</h2>
+        <div class="bg-white border border-slate-200 rounded-3xl p-8 mb-6 shadow-sm">
+          <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-6">Dados do Cliente</h2>
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Nome / Razão Social *</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nome / Razão Social *</label>
               <input type="text" id="nome" placeholder="João da Silva"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">CPF / CNPJ *</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">CPF / CNPJ *</label>
               <input type="text" id="cpf" maxlength="18" oninput="mDoc(this)" placeholder="000.000.000-00"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Telefone *</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Telefone *</label>
               <input type="text" id="tel" maxlength="16" oninput="mTel(this)" placeholder="(47) 9 0000-0000"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">E-mail</label>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">E-mail</label>
               <input type="email" id="email" placeholder="joao@email.com"
-                class="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600 transition-all" />
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
             </div>
           </div>
         </div>
 
         <div class="flex justify-between">
-          <button onclick="goStep(2)" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition">← Voltar</button>
-          <button onclick="goStep(4)" class="bg-white text-black hover:bg-zinc-200 px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95">Revisar Solicitação →</button>
+          <button onclick="goStep(2)" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shadow-sm">← Voltar</button>
+          <button onclick="goStep(4)" class="bg-teal-600 text-white hover:bg-teal-700 px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-md shadow-teal-600/20">Revisar Solicitação →</button>
         </div>
       </div>
 
       <!-- ══ ETAPA 4 ══ -->
       <div id="etapa-4" class="hidden">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-6 shadow-xl">
-          <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Revisão da Solicitação</h2>
+        <div class="bg-white border border-slate-200 rounded-3xl p-8 mb-6 shadow-sm">
+          <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-6">Revisão da Solicitação</h2>
 
-          <div class="bg-zinc-950/50 border border-zinc-800 rounded-2xl overflow-hidden min-h-[200px] mb-6">
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden min-h-[200px] mb-6">
             <table class="w-full text-left text-sm">
-              <thead class="text-xs uppercase text-zinc-400 border-b border-zinc-800">
+              <thead class="text-xs uppercase text-slate-400 border-b border-slate-200">
                 <tr>
-                  <th class="px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Campo</th>
-                  <th class="px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Valor</th>
+                  <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-200">Campo</th>
+                  <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-200">Valor</th>
                 </tr>
               </thead>
-              <tbody id="rv-body" class="divide-y divide-zinc-800"></tbody>
+              <tbody id="rv-body" class="divide-y divide-slate-200"></tbody>
             </table>
           </div>
 
-          <div class="p-4 rounded-xl text-sm border border-zinc-800 bg-zinc-950/50 text-zinc-500">
+          <div class="p-4 rounded-xl text-sm border border-amber-200 bg-amber-50 text-amber-700">
             ⚠ Após confirmar, sua solicitação será analisada pela equipe. Um motorista será atribuído e você receberá confirmação pelo telefone informado.
           </div>
         </div>
 
         <div class="flex justify-between items-center">
-          <button onclick="goStep(3)" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-black border border-zinc-700 text-white hover:bg-zinc-800 transition">← Editar</button>
-          <button onclick="submitForm()" class="bg-white text-black hover:bg-zinc-200 px-8 py-3 rounded-xl text-sm font-bold transition-transform active:scale-95">
+          <button onclick="goStep(3)" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shadow-sm">← Editar</button>
+          <button onclick="submitForm()" class="bg-teal-600 text-white hover:bg-teal-700 px-8 py-3 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-md shadow-teal-600/20">
             ✓ Confirmar Solicitação
           </button>
         </div>
@@ -316,10 +317,10 @@
 
     <!-- Resumo lateral -->
     <div class="w-64 flex-shrink-0 hidden md:block">
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl sticky top-8">
-        <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-5">Resumo</h3>
+      <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm sticky top-8">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-5">Resumo</h3>
         <div id="sum-body">
-          <div class="text-zinc-600 text-xs text-center py-4">Preencha o formulário...</div>
+          <div class="text-slate-400 text-xs text-center py-4">Preencha o formulário...</div>
         </div>
       </div>
     </div>
@@ -330,19 +331,18 @@
 
 <!-- Toast -->
 <div id="toast"
-  class="fixed bottom-6 right-6 bg-zinc-900 border border-zinc-700 text-zinc-200 px-5 py-3.5 rounded-2xl text-sm font-semibold shadow-2xl flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-300 z-50">
-  <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+  class="fixed bottom-6 right-6 bg-white border border-slate-200 text-slate-700 px-5 py-3.5 rounded-2xl text-sm font-semibold shadow-2xl flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-300 z-50">
+  <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
   Solicitação enviada com sucesso!
 </div>
 
 <style>
   /* Selected state for pickers */
-  .sel-card { border-color: #fff !important; }
-  .sel-card .text-zinc-500, .sel-card .text-zinc-400 { color: #fff !important; }
-  .sel-card .text-zinc-600 { color: #a1a1aa !important; }
+  .sel-card { border-color: #0d9488 !important; background-color: #f0fdfa !important; }
+  .sel-card .text-slate-400 { color: #334155 !important; }
 
   /* Date input color fix */
-  input[type="date"] { color-scheme: dark; }
+  input[type="date"] { color-scheme: light; }
 </style>
 
 <script>
@@ -359,23 +359,23 @@
       const lbl = document.getElementById('stp-'+i).querySelector('span');
 
       if (i < n) {
-        dot.className = dot.className.replace(/bg-\S+ text-\S+/g, '') + ' bg-zinc-700 text-emerald-400';
+        dot.className = dot.className.replace(/bg-\S+ text-\S+/g, '') + ' bg-teal-100 text-teal-600';
         dot.textContent = '✓';
-        lbl.className = lbl.className.replace(/text-\S+/g, 'text-zinc-400');
+        lbl.className = lbl.className.replace(/text-\S+/g, 'text-slate-500');
       } else if (i === n) {
-        dot.className = dot.className.replace(/bg-\S+ text-\S+/g, '') + ' bg-white text-black';
+        dot.className = dot.className.replace(/bg-\S+ text-\S+/g, '') + ' bg-teal-600 text-white';
         dot.textContent = i;
-        lbl.className = lbl.className.replace(/text-\S+/g, 'text-white');
+        lbl.className = lbl.className.replace(/text-\S+/g, 'text-slate-800');
       } else {
-        dot.className = dot.className.replace(/bg-\S+ text-\S+/g, '') + ' bg-zinc-800 text-zinc-500';
+        dot.className = dot.className.replace(/bg-\S+ text-\S+/g, '') + ' bg-slate-200 text-slate-400';
         dot.textContent = i;
-        lbl.className = lbl.className.replace(/text-\S+/g, 'text-zinc-600');
+        lbl.className = lbl.className.replace(/text-\S+/g, 'text-slate-400');
       }
     });
     // connector lines
     [1,2,3].forEach(i => {
       const line = document.getElementById(`line-${i}-${i+1}`);
-      if (line) line.className = line.className.replace(/bg-\S+/g, i < n ? 'bg-zinc-600' : 'bg-zinc-800');
+      if (line) line.className = line.className.replace(/bg-\S+/g, i < n ? 'bg-teal-300' : 'bg-slate-200');
     });
 
     document.getElementById('etapa-badge').textContent = `Etapa ${n} de 4`;
@@ -391,25 +391,25 @@
 
   function selTipo(el, v) {
     document.querySelectorAll('.tipo-card').forEach(c => {
-      c.classList.remove('sel-card','bg-zinc-800','border-white');
-      c.classList.add('bg-zinc-900','border-zinc-700');
-      c.querySelector('div:last-child').className = 'text-sm font-semibold text-zinc-500 group-hover:text-white';
+      c.classList.remove('sel-card');
+      c.classList.add('bg-white','border-slate-200');
+      c.querySelector('div:last-child').className = 'text-sm font-semibold text-slate-400 group-hover:text-slate-700';
     });
-    el.classList.add('sel-card','bg-zinc-800'); el.classList.remove('bg-zinc-900');
-    el.querySelector('div:last-child').className = 'text-sm font-semibold text-white';
+    el.classList.add('sel-card'); el.classList.remove('bg-white','border-slate-200');
+    el.querySelector('div:last-child').className = 'text-sm font-semibold text-slate-800';
     S.tipo = v; updateSummary();
   }
 
   function selSize(el, v) {
     document.querySelectorAll('.size-card').forEach(c => {
-      c.classList.remove('sel-card','bg-zinc-800','border-white');
-      c.classList.add('bg-zinc-900','border-zinc-700');
-      c.querySelector('.text-base').className = 'text-base font-bold text-zinc-400 mb-1';
-      c.querySelector('.text-xs.leading-relaxed').className = 'text-xs text-zinc-600 leading-relaxed';
+      c.classList.remove('sel-card');
+      c.classList.add('bg-white','border-slate-200');
+      c.querySelector('.text-base').className = 'text-base font-bold text-slate-400 mb-1';
+      c.querySelector('.text-xs.leading-relaxed').className = 'text-xs text-slate-400 leading-relaxed';
     });
-    el.classList.add('sel-card','bg-zinc-800'); el.classList.remove('bg-zinc-900');
-    el.querySelector('.text-base').className = 'text-base font-bold text-white mb-1';
-    el.querySelector('.text-xs.leading-relaxed').className = 'text-xs text-zinc-500 leading-relaxed';
+    el.classList.add('sel-card'); el.classList.remove('bg-white','border-slate-200');
+    el.querySelector('.text-base').className = 'text-base font-bold text-slate-800 mb-1';
+    el.querySelector('.text-xs.leading-relaxed').className = 'text-xs text-slate-500 leading-relaxed';
     S.tamanho = v; updateSummary();
   }
 
@@ -425,15 +425,15 @@
     if(S.nome)           rows.push(['Cliente', S.nome]);
 
     const b = document.getElementById('sum-body');
-    if(!rows.length) { b.innerHTML='<div class="text-zinc-600 text-xs text-center py-4">Preencha o formulário...</div>'; return; }
+    if(!rows.length) { b.innerHTML='<div class="text-slate-400 text-xs text-center py-4">Preencha o formulário...</div>'; return; }
     b.innerHTML = rows.map(r=>`
       <div class="flex justify-between items-center mb-3">
-        <span class="text-xs text-zinc-500">${r[0]}</span>
-        <span class="text-xs font-semibold text-zinc-200 text-right ml-2 max-w-[120px] truncate">${r[1]}</span>
+        <span class="text-xs text-slate-400">${r[0]}</span>
+        <span class="text-xs font-semibold text-slate-700 text-right ml-2 max-w-[120px] truncate">${r[1]}</span>
       </div>`).join('')
-      + `<div class="border-t border-zinc-800 mt-4 pt-4">
-           <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-400">
-             <span class="w-1.5 h-1.5 rounded-full bg-zinc-500 inline-block"></span>Pendente
+      + `<div class="border-t border-slate-200 mt-4 pt-4">
+           <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-700">
+             <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>Pendente
            </span>
          </div>`;
   }
@@ -456,9 +456,9 @@
       ['Observações', S.obs||'—'],
     ];
     document.getElementById('rv-body').innerHTML = fields.map((f,i) => `
-      <tr class="hover:bg-zinc-800/50 transition-colors">
-        <td class="px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider whitespace-nowrap">${f[0]}</td>
-        <td class="px-4 py-3 text-sm ${i===0?'font-medium text-white':'text-zinc-300'}">${f[1]}</td>
+      <tr class="hover:bg-slate-100 transition-colors">
+        <td class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">${f[0]}</td>
+        <td class="px-4 py-3 text-sm ${i===0?'font-medium text-slate-800':'text-slate-600'}">${f[1]}</td>
       </tr>`).join('');
   }
 
@@ -539,7 +539,7 @@
   async function buscarCEP(cepStr) {
     try {
       const btnOrig = document.getElementById('cep').style.borderColor;
-      document.getElementById('cep').style.borderColor = '#10b981'; // visual feedback
+      document.getElementById('cep').style.borderColor = '#0d9488'; // visual feedback
       
       const res = await fetch(`https://viacep.com.br/ws/${cepStr}/json/`);
       const data = await res.json();
