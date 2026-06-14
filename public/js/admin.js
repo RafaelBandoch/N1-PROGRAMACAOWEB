@@ -9,7 +9,10 @@ const STATUS_COLORS = {
   RESERVADA: "bg-purple-50 text-purple-700 ring-purple-200",
   PLANEJADA: "bg-sky-50 text-sky-700 ring-sky-200",
   EM_EXECUCAO: "bg-cyan-50 text-cyan-700 ring-cyan-200",
-  FINALIZADA: "bg-teal-50 text-teal-700 ring-teal-200"
+  FINALIZADA: "bg-teal-50 text-teal-700 ring-teal-200",
+  PENDENTE: "bg-orange-50 text-orange-700 ring-orange-200",
+  ACEITO: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  REJEITADO: "bg-red-50 text-red-700 ring-red-200"
 };
 
 const botoesTipo = document.querySelectorAll(".tipo-btn");
@@ -158,6 +161,7 @@ async function carregarLista(showLoading = false) {
     if (tipoAtual === 'usuarios') return renderUsuarios(dados);
     if (tipoAtual === 'motoristas') return renderMotoristas(dados);
     if (tipoAtual === 'veiculos') return renderVeiculos(dados);
+    if (tipoAtual === 'solicitacoes') return renderSolicitacoes(dados);
 
     renderizarTabelaGenerica(dados);
   } catch (err) {
@@ -564,13 +568,21 @@ function renderDashboard(dados) {
           <div class="flex items-center gap-4">
             <div class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-teal-600 font-bold">#${r.id}</div>
             <div>
-              <p class="text-sm font-bold text-slate-800">${r.cliente_nome}</p>
-              <p class="text-xs text-slate-500 line-clamp-1">${r.endereco_entrega}</p>
+              <p class="text-sm font-bold text-slate-800">${r.nome}</p>
+              <p class="text-xs text-slate-500 line-clamp-1">${r.endereco}</p>
             </div>
           </div>
-          <div class="text-right">
-            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-600 uppercase">${r.status || 'NOVO'}</span>
-            <p class="text-[10px] text-slate-400 mt-1">${dataStr}</p>
+          <div class="text-right flex items-center gap-4">
+            <div class="flex flex-col items-end">
+              <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-600 uppercase ${STATUS_COLORS[r.status] || ''}">${r.status || 'NOVO'}</span>
+              <p class="text-[10px] text-slate-400 mt-1">${dataStr}</p>
+            </div>
+            ${r.status === 'PENDENTE' ? `
+              <div class="flex gap-2 shrink-0">
+                <button onclick="abrirModalAprovacao(${r.id})" class="text-xs bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 px-3 rounded-xl transition shadow-sm">Aceitar</button>
+                <button onclick="atualizarStatusSolicitacao(${r.id}, 'REJEITADO')" class="text-xs bg-red-100 hover:bg-red-200 text-red-600 font-bold py-1.5 px-3 rounded-xl transition">Rejeitar</button>
+              </div>
+            ` : ''}
           </div>
         </div>
       `;
@@ -697,5 +709,187 @@ async function deleteItem(tipo, id) {
     }
   } catch (e) {
     alert('Erro de conexão.');
+  }
+}
+
+function renderSolicitacoes(dados) {
+  let listHtml = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-2">';
+  dados.forEach(s => {
+    const statusColor = STATUS_COLORS[s.status] || "bg-slate-100 text-slate-500 ring-slate-200";
+    const d = new Date(s.data_agendada);
+    const dataAgendadaStr = !isNaN(d) ? d.toLocaleDateString('pt-BR') : s.data_agendada;
+    const c = new Date(s.created_at);
+    const dataCriacaoStr = !isNaN(c) ? c.toLocaleDateString('pt-BR') : '-';
+    
+    listHtml += `
+      <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-lg hover:border-teal-300 transition duration-300 relative flex flex-col justify-between gap-4">
+        <div>
+          <div class="flex justify-between items-start mb-4">
+             <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${statusColor}">
+               <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span> ${s.status || 'PENDENTE'}
+             </span>
+             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">#${s.id}</span>
+          </div>
+          
+          <h3 class="text-lg font-bold text-slate-800 mb-2 truncate" title="${s.nome}">${s.nome}</h3>
+          
+          <div class="flex flex-col gap-2 text-sm text-slate-600 mt-3">
+             <div class="flex items-start gap-2">
+               <span class="text-slate-400 font-medium w-20 shrink-0">📍 Endereço:</span>
+               <span class="break-words">${s.endereco}</span>
+             </div>
+             <div class="flex items-center gap-2">
+               <span class="text-slate-400 font-medium w-20 shrink-0">📞 Telefone:</span>
+               <span>${s.telefone}</span>
+             </div>
+             <div class="flex items-center gap-2">
+               <span class="text-slate-400 font-medium w-20 shrink-0">🗄️ Tamanho:</span>
+               <span class="font-bold text-teal-600">${s.tamanho}</span>
+             </div>
+             <div class="flex items-center gap-2">
+               <span class="text-slate-400 font-medium w-20 shrink-0">📅 Agendado:</span>
+               <span class="font-semibold">${dataAgendadaStr}</span>
+             </div>
+             ${s.observacoes ? `
+               <div class="flex items-start gap-2 mt-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs">
+                 <span class="text-slate-400 font-medium shrink-0">💬 Obs:</span>
+                 <span class="italic text-slate-500 break-words">${s.observacoes}</span>
+               </div>
+             ` : ''}
+          </div>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+          <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Criado em ${dataCriacaoStr}</span>
+          
+          <div class="flex gap-2">
+             ${s.status === 'PENDENTE' ? `
+               <button onclick="abrirModalAprovacao(${s.id})" class="text-xs bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 px-3 rounded-xl transition shadow-sm" title="Aprovar Solicitação">Aceitar</button>
+               <button onclick="atualizarStatusSolicitacao(${s.id}, 'REJEITADO')" class="text-xs bg-red-100 hover:bg-red-200 text-red-600 font-bold py-1.5 px-3 rounded-xl transition" title="Rejeitar Solicitação">Rejeitar</button>
+             ` : ''}
+             <button onclick="deleteItem('solicitacoes', ${s.id})" class="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-xl transition-colors" title="Excluir Registro">
+               <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+             </button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  listHtml += '</div>';
+  listaConteudo.innerHTML = listHtml;
+}
+
+async function atualizarStatusSolicitacao(id, status) {
+  if(!confirm(`Deseja marcar essa solicitação como ${status}?`)) return;
+  const token = localStorage.getItem('token');
+  try {
+    const res = await fetch(`/api/solicitacoes/${id}/status`, {
+      method: "PATCH",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ status })
+    });
+    if(res.ok) {
+      carregarLista();
+    } else {
+      alert("Erro ao atualizar!");
+    }
+  } catch(e) {
+    alert("Erro de conexão!");
+  }
+}
+
+async function abrirModalAprovacao(id) {
+  const token = localStorage.getItem('token');
+  try {
+    const res = await fetch("../components/aprovar-solicitacao-modal.html");
+    const html = await res.text();
+    
+    const container = document.getElementById("modal-container");
+    container.innerHTML = `<div id="modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm hidden transition-all duration-300 opacity-0">
+      <div class="relative bg-white w-full max-w-md rounded-3xl border border-slate-200 shadow-2xl transition-all duration-300 transform scale-95 opacity-0 mx-auto">
+        ${html}
+        <button id="btn-fechar-modal" class="absolute top-6 right-6 p-1.5 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+    </div>`;
+
+    const modal = document.getElementById("modal");
+    const modalInner = modal.querySelector('.max-w-md');
+    document.getElementById('aprovar-solicitacao-id').value = id;
+
+    // Load generic selects data
+    const resC = await fetch('/api/cacambas', { headers: { "Authorization": `Bearer ${token}` } });
+    const cacambas = await resC.json();
+    const selC = modal.querySelector('.select-cacambas');
+    selC.innerHTML = '<option value="" disabled selected>Selecione uma caçamba</option>' + cacambas.filter(c => c.status === 'DISPONIVEL').map(c => `<option value="${c.id}">${c.tamanho} (ID: ${c.id})</option>`).join('');
+
+    const resM = await fetch('/api/motoristas', { headers: { "Authorization": `Bearer ${token}` } });
+    const motoristas = await resM.json();
+    const selM = modal.querySelector('.select-motoristas');
+    selM.innerHTML = '<option value="" disabled selected>Selecione um motorista</option>' + motoristas.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+
+    const resV = await fetch('/api/veiculos', { headers: { "Authorization": `Bearer ${token}` } });
+    const veiculos = await resV.json();
+    const selV = modal.querySelector('.select-veiculos');
+    selV.innerHTML = '<option value="" disabled selected>Selecione um veículo</option>' + veiculos.map(v => `<option value="${v.id}">${v.placa} - ${v.modelo}</option>`).join('');
+
+    modal.classList.remove("hidden");
+    setTimeout(() => {
+      modal.classList.remove('opacity-0');
+      modalInner.classList.remove('scale-95', 'opacity-0');
+      modalInner.classList.add('scale-100', 'opacity-100');
+    }, 10);
+
+    const closeModal = () => {
+      modal.classList.add('opacity-0');
+      modalInner.classList.remove('scale-100', 'opacity-100');
+      modalInner.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => modal.classList.add("hidden"), 300);
+    };
+
+    document.getElementById("btn-fechar-modal").addEventListener("click", closeModal);
+    document.getElementById("btn-cancelar-modal").addEventListener("click", closeModal);
+
+    const form = document.getElementById("modal-form");
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const dados = Object.fromEntries(formData.entries());
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const alerta = document.getElementById("modal-alerta");
+      submitBtn.innerHTML = 'Aprovando...';
+      submitBtn.disabled = true;
+
+      try {
+        const fetchRes = await fetch(`/api/solicitacoes/${dados.solicitacao_id}/aprovar`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(dados)
+        });
+        const respData = await fetchRes.json();
+        
+        if (fetchRes.ok) {
+          alerta.innerHTML = `<div class="p-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg">${respData.mensagem}</div>`;
+          setTimeout(() => { closeModal(); carregarLista(); }, 1500);
+        } else {
+          alerta.innerHTML = `<div class="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">${respData.erro}</div>`;
+          submitBtn.innerHTML = 'Aprovar e Criar Tarefa';
+          submitBtn.disabled = false;
+        }
+      } catch(err) {
+        alerta.innerHTML = `<div class="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">Erro de conexão</div>`;
+        submitBtn.disabled = false;
+      }
+    });
+
+  } catch(e) {
+    console.error(e);
   }
 }
