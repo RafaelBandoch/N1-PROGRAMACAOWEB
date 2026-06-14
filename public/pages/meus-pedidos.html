@@ -5,9 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meus Pedidos | Facilita Caçambas</title>
   <link rel="stylesheet" href="../css/output.css">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
-    body { font-family: 'Outfit', sans-serif; }
+    body { font-family: 'Inter', sans-serif; }
+    .leaflet-marker-icon { transition: transform 0.5s linear !important; }
   </style>
   <script>
     const token = localStorage.getItem('token');
@@ -23,25 +26,25 @@
     }
   </script>
 </head>
-<body class="bg-black text-zinc-200 min-h-screen font-sans relative overflow-x-hidden">
+<body class="bg-slate-50 text-slate-700 min-h-screen font-sans relative overflow-x-hidden">
 
   <!-- Background Blur -->
-  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] opacity-10 pointer-events-none">
-    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 blur-[120px] rounded-full mix-blend-screen"></div>
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] opacity-20 pointer-events-none">
+    <div class="absolute inset-0 bg-gradient-to-r from-teal-100 to-emerald-50 blur-[120px] rounded-full"></div>
   </div>
 
   <!-- Navbar -->
-  <nav class="w-full bg-zinc-950/80 backdrop-blur-md border-b border-white/5 mb-8 sticky top-0 z-50">
+  <nav class="w-full bg-white/80 backdrop-blur-lg border-b border-slate-200 mb-8 sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-extrabold text-sm shadow-lg shadow-blue-500/20">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-teal-500/20">
           C
         </div>
-        <span class="text-xl font-bold tracking-tight text-white">Caçambas<span class="text-blue-500">PRO</span></span>
+        <span class="text-xl font-bold tracking-tight text-slate-800">Caçambas<span class="text-teal-600">PRO</span></span>
       </div>
       <div class="flex items-center gap-4">
-        <span id="userEmailDisplay" class="text-sm font-medium text-zinc-400 hidden sm:block"></span>
-        <button onclick="logout()" class="text-sm font-semibold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 px-4 py-2 rounded-lg transition-colors">
+        <span id="userEmailDisplay" class="text-sm font-medium text-slate-500 hidden sm:block"></span>
+        <button onclick="logout()" class="text-sm font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors">
           Sair
         </button>
       </div>
@@ -51,15 +54,15 @@
   <main class="max-w-6xl mx-auto px-6 pb-10 relative z-10">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
       <div>
-        <h1 class="text-4xl font-bold text-white mb-1">Meus Pedidos</h1>
-        <p class="text-zinc-500 text-sm">Acompanhe o status das suas solicitações de caçambas</p>
+        <h1 class="text-4xl font-bold text-slate-800 mb-1">Meus Pedidos</h1>
+        <p class="text-slate-400 text-sm">Acompanhe o status das suas solicitações de caçambas</p>
       </div>
-      <a href="solicitar-cacamba.html" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-lg shadow-blue-500/20">
+      <a href="solicitar-cacamba.html" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-md shadow-teal-600/20">
         + Nova Solicitação
       </a>
     </div>
 
-    <div id="loading" class="text-zinc-500 py-12 text-center animate-pulse">
+    <div id="loading" class="text-slate-400 py-12 text-center animate-pulse">
       Carregando suas solicitações...
     </div>
 
@@ -67,11 +70,11 @@
       <!-- Pedidos renderizados aqui -->
     </div>
     
-    <div id="emptyState" class="hidden bg-zinc-900 border border-zinc-800 rounded-3xl p-12 text-center shadow-xl">
+    <div id="emptyState" class="hidden bg-white border border-slate-200 rounded-3xl p-12 text-center shadow-sm">
       <div class="text-6xl mb-6">🗑️</div>
-      <h3 class="text-xl font-bold text-white mb-2">Nenhum pedido encontrado</h3>
-      <p class="text-zinc-400 mb-6 max-w-md mx-auto">Você ainda não realizou nenhuma solicitação de caçamba. Clique no botão abaixo para fazer seu primeiro pedido.</p>
-      <a href="solicitar-cacamba.html" class="inline-block bg-white text-black hover:bg-zinc-200 px-8 py-3 rounded-xl text-sm font-bold transition-transform active:scale-95">
+      <h3 class="text-xl font-bold text-slate-800 mb-2">Nenhum pedido encontrado</h3>
+      <p class="text-slate-500 mb-6 max-w-md mx-auto">Você ainda não realizou nenhuma solicitação de caçamba. Clique no botão abaixo para fazer seu primeiro pedido.</p>
+      <a href="solicitar-cacamba.html" class="inline-block bg-teal-600 text-white hover:bg-teal-700 px-8 py-3 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-md shadow-teal-600/20">
         Solicitar Caçamba
       </a>
     </div>
@@ -124,6 +127,83 @@
       }
     }
 
+    // Lógica do Modal de Rastreamento (Leaflet)
+    let map = null;
+    let marker = null;
+    let rastreioInterval = null;
+
+    async function abrirRastreamento(id) {
+      document.getElementById('map-modal').classList.remove('hidden');
+      if (!map) {
+        map = L.map('map-container').setView([-26.3045, -48.8487], 14); // Centro de Joinville
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+      }
+
+      // Evita o bug da tela cinza
+      setTimeout(() => { if(map) map.invalidateSize() }, 100);
+      setTimeout(() => { if(map) map.invalidateSize() }, 500);
+
+      const token = localStorage.getItem('token');
+      async function fetchLocalizacao() {
+        try {
+          const res = await fetch(`/api/solicitacoes/${id}/rastreamento?_t=${Date.now()}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (res.ok) {
+            const { latitude, longitude, motorista_nome } = data;
+            const latLng = [Number(latitude), Number(longitude)];
+            map.setView(latLng, 16);
+            if (!marker) {
+              const driverIcon = L.divIcon({
+                className: 'custom-driver-icon',
+                html: '<div style="background-color: #0d9488; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+              });
+              marker = L.marker(latLng, { icon: driverIcon }).addTo(map).bindPopup(`<b>Caminhão</b><br>Motorista: ${motorista_nome}`).openPopup();
+            } else {
+              marker.setLatLng(latLng);
+            }
+          } else {
+            console.warn(data.erro || data.error);
+            if (!marker) {
+               // Adiciona no mapa um aviso em vez do pino
+               map.setView([-26.3045, -48.8487], 14);
+               L.popup().setLatLng([-26.3045, -48.8487]).setContent(`<b>Aviso:</b><br>${data.erro || data.error || 'Aguardando motorista...'}`).openOn(map);
+            }
+          }
+        } catch(e) {}
+      }
+
+      fetchLocalizacao();
+      rastreioInterval = setInterval(fetchLocalizacao, 500);
+    }
+
+    function fecharRastreamento() {
+      document.getElementById('map-modal').classList.add('hidden');
+      if (rastreioInterval) clearInterval(rastreioInterval);
+    }
+  </script>
+  
+  <!-- Modal Rastreamento -->
+  <div id="map-modal" class="hidden fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200">
+      <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Rastreamento ao Vivo
+        </h3>
+        <button onclick="fecharRastreamento()" class="text-slate-400 hover:text-slate-700 p-2 bg-white rounded-lg border border-slate-200">✕ Fechar</button>
+      </div>
+      <div id="map-container" class="flex-1 w-full min-h-[400px] z-0"></div>
+    </div>
+  </div>
+
+  <script>
     function renderPedidos(pedidos) {
       const list = document.getElementById('pedidosList');
       list.innerHTML = '';
@@ -134,27 +214,27 @@
         const dataFormatada = !isNaN(dAgendada) ? dAgendada.toLocaleDateString('pt-BR') : pedido.data_agendada;
         const dataCriadaFormatada = !isNaN(dCriada) ? dCriada.toLocaleDateString('pt-BR') : '-';
         
-        let statusColor = 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
+        let statusColor = 'text-amber-700 bg-amber-50 border-amber-200';
         let statusIcon = '⏳';
         let statusText = 'Em Análise';
         
         if (pedido.status === 'ACEITO') {
-          statusColor = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+          statusColor = 'text-teal-700 bg-teal-50 border-teal-200';
           statusIcon = '✅';
           statusText = 'Aprovado / Em andamento';
         } else if (pedido.status === 'REJEITADO') {
-          statusColor = 'text-red-400 bg-red-500/10 border-red-500/20';
+          statusColor = 'text-red-600 bg-red-50 border-red-200';
           statusIcon = '❌';
           statusText = 'Cancelado';
         }
 
         const card = document.createElement('div');
-        card.className = 'bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl flex flex-col hover:border-zinc-700 transition-colors relative group';
+        card.className = 'bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col hover:border-teal-300 hover:shadow-md transition-all relative group';
         card.innerHTML = `
           <div class="flex justify-between items-start mb-4">
             <div>
-              <span class="text-[10px] uppercase tracking-widest font-bold text-zinc-500 block mb-1">Pedido #${pedido.id}</span>
-              <h3 class="text-lg font-bold text-white uppercase">${pedido.tamanho}</h3>
+              <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Pedido #${pedido.id}</span>
+              <h3 class="text-lg font-bold text-slate-800 uppercase">${pedido.tamanho}</h3>
             </div>
             <div class="px-3 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 ${statusColor}">
               <span>${statusIcon}</span> ${statusText}
@@ -165,26 +245,28 @@
             <div class="flex gap-3 text-sm">
               <span class="w-5 text-center shrink-0">📅</span>
               <div>
-                <span class="block text-zinc-500 text-xs uppercase">Data Agendada</span>
-                <span class="text-zinc-300 font-medium">${dataFormatada}</span>
+                <span class="block text-slate-400 text-xs uppercase">Data Agendada</span>
+                <span class="text-slate-700 font-medium">${dataFormatada}</span>
               </div>
             </div>
             <div class="flex gap-3 text-sm">
               <span class="w-5 text-center shrink-0">📍</span>
               <div>
-                <span class="block text-zinc-500 text-xs uppercase">Endereço</span>
-                <span class="text-zinc-300 font-medium line-clamp-2" title="${pedido.endereco}">${pedido.endereco}</span>
+                <span class="block text-slate-400 text-xs uppercase">Endereço</span>
+                <span class="text-slate-700 font-medium line-clamp-2" title="${pedido.endereco}">${pedido.endereco}</span>
               </div>
             </div>
           </div>
           
-          <div class="pt-4 border-t border-zinc-800 flex justify-between items-center text-xs text-zinc-500">
+          <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400">
             <span>Solicitado em: ${dataCriadaFormatada}</span>
+            ${pedido.status === 'ACEITO' ? `<button onclick="abrirRastreamento(${pedido.id})" class="bg-teal-50 text-teal-700 font-semibold px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-100 transition">Acompanhar Pedido</button>` : ''}
           </div>
         `;
         list.appendChild(card);
       });
     }
   </script>
+  <script src="../js/notificacoes.js"></script>
 </body>
 </html>

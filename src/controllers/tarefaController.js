@@ -60,6 +60,18 @@ exports.updateStatus = async (req, res, next) => {
     }
 
     await db('tarefas').where({ id }).update({ status });
+
+    if (status === 'ENTREGUE' && tarefa.cliente_id) {
+      const usuarioCliente = await db('usuarios').where({ cliente_id: tarefa.cliente_id, role: 'cliente' }).first();
+      if (usuarioCliente) {
+        await db('notificacoes').insert({
+          usuario_id: usuarioCliente.id,
+          mensagem: 'Sua caçamba chegou no local!',
+          tipo: 'SUCCESS'
+        });
+      }
+    }
+
     res.json({ mensagem: 'Status da tarefa atualizado com sucesso' });
   } catch (error) {
     next(error);

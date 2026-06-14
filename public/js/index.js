@@ -2,7 +2,6 @@ const dashboardGrid = document.getElementById('dashboard-grid');
 
 const TIPOS = ['solicitacoes', 'usuarios', 'veiculos', 'motoristas', 'clientes', 'cacambas', 'rotas'];
 
-
 let tipoAtual = null;
 
 const token = localStorage.getItem('token');
@@ -15,6 +14,21 @@ async function carregarListas() {
     carregarLista(tipo);
   }
 }
+
+const STATUS_COLORS = {
+  ATIVO: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  INATIVO: "bg-slate-100 text-slate-500 ring-slate-200",
+  DISPONIVEL: "bg-sky-50 text-sky-700 ring-sky-200",
+  ENTREGUE: "bg-amber-50 text-amber-700 ring-amber-200",
+  EM_MANUTENCAO: "bg-yellow-50 text-yellow-700 ring-yellow-200",
+  RESERVADA: "bg-purple-50 text-purple-700 ring-purple-200",
+  PLANEJADA: "bg-sky-50 text-sky-700 ring-sky-200",
+  EM_EXECUCAO: "bg-cyan-50 text-cyan-700 ring-cyan-200",
+  FINALIZADA: "bg-teal-50 text-teal-700 ring-teal-200",
+  PENDENTE: "bg-orange-50 text-orange-700 ring-orange-200",
+  ACEITO: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  REJEITADO: "bg-red-50 text-red-700 ring-red-200"
+};
 
 async function carregarLista(tipo) {
   try {
@@ -38,51 +52,40 @@ async function carregarLista(tipo) {
     }
 
     const colunas = Object.keys(dados[0]);
-    let theadHTML = `<thead class="text-xs uppercase text-zinc-400 border-b border-zinc-800"><tr class="table-header-row">`;
+    let theadHTML = `<thead class="text-xs uppercase text-slate-400 border-b border-slate-200"><tr class="table-header-row">`;
     colunas.forEach(col => {
       const nomes = { 'created_at': 'Criado Em', 'updated_at': 'Atualizado Em', 'motorista_id': 'Cód Motorista', 'cpf_cnpj': 'CPF / CNPJ' };
-      theadHTML += `<th class="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/60">${nomes[col] || col.replace('_', ' ')}</th>`;
+      theadHTML += `<th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">${nomes[col] || col.replace('_', ' ')}</th>`;
     });
     if(tipo === 'solicitacoes') {
-      theadHTML += `<th class="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/60 text-right">Ações</th>`;
+      theadHTML += `<th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Ações</th>`;
     }
     theadHTML += `</tr></thead>`;
 
-    let tbodyHTML = `<tbody class="table-body divide-y divide-zinc-800">`;
+    let tbodyHTML = `<tbody class="table-body divide-y divide-slate-100">`;
     dados.forEach(row => {
-      tbodyHTML += `<tr class="hover:bg-zinc-800/80 transition-colors duration-150 rounded-xl group">`;
+      tbodyHTML += `<tr class="hover:bg-slate-50 transition-colors duration-150 group">`;
       colunas.forEach((col, i) => {
         let content = row[col] || "-";
         if (col.toLowerCase().includes('status')) {
-          const colorMap = {
-            'ATIVO': 'bg-emerald-100 text-emerald-700 ring-emerald-600/20',
-            'INATIVO': 'bg-slate-100 text-slate-700 ring-slate-600/20',
-            'DISPONIVEL': 'bg-blue-50 text-blue-700 ring-blue-600/20',
-            'ENTREGUE': 'bg-amber-50 text-amber-700 ring-amber-600/20',
-            'FINALIZADA': 'bg-teal-50 text-teal-700 ring-teal-600/20',
-            'PLANEJADA': 'bg-blue-50 text-blue-700 ring-blue-600/20',
-            'PENDENTE': 'bg-amber-100 text-amber-800 ring-amber-600/20',
-            'ACEITO': 'bg-emerald-100 text-emerald-800 ring-emerald-600/20',
-            'REJEITADO': 'bg-rose-100 text-rose-800 ring-rose-600/20'
-          };
-          const classes = colorMap[content] || 'bg-slate-100 text-slate-600 ring-slate-500/10';
+          const classes = STATUS_COLORS[content] || 'bg-slate-100 text-slate-500 ring-slate-200';
           tbodyHTML += `<td class="px-4 py-3 text-sm"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${classes}">${content}</span></td>`;
         } else {
           if (content && (col === 'created_at' || col === 'updated_at' || col === 'data' || col === 'data_agendada')) {
             const d = new Date(content);
             if (!isNaN(d)) content = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
           }
-          tbodyHTML += `<td class="px-4 py-3 text-sm flex-wrap max-w-[200px] whitespace-pre-wrap ${i === 0 ? 'font-medium text-white' : 'text-zinc-300'}">${content}</td>`;
+          tbodyHTML += `<td class="px-4 py-3 text-sm flex-wrap max-w-[200px] whitespace-pre-wrap ${i === 0 ? 'font-medium text-slate-800' : 'text-slate-600'}">${content}</td>`;
         }
       });
       if(tipo === 'solicitacoes') {
         if(row.status === 'PENDENTE') {
           tbodyHTML += `<td class="px-4 py-3 text-sm text-right whitespace-nowrap">
-            <button onclick="abrirModalAprovacao(${row.id})" class="mr-3 text-emerald-500 font-medium hover:text-emerald-400 transition">Aceitar</button>
-            <button onclick="atualizarStatusSolicitacao(${row.id}, 'REJEITADO')" class="text-rose-500 font-medium hover:text-rose-400 transition">Rejeitar</button>
+            <button onclick="abrirModalAprovacao(${row.id})" class="mr-3 text-teal-600 font-medium hover:text-teal-700 transition">Aceitar</button>
+            <button onclick="atualizarStatusSolicitacao(${row.id}, 'REJEITADO')" class="text-red-500 font-medium hover:text-red-600 transition">Rejeitar</button>
           </td>`;
         } else {
-          tbodyHTML += `<td class="px-4 py-3 text-sm text-zinc-500 text-right">-</td>`;
+          tbodyHTML += `<td class="px-4 py-3 text-sm text-slate-400 text-right">-</td>`;
         }
       }
       tbodyHTML += `</tr>`;
@@ -103,7 +106,7 @@ async function abrirModal(tipo, btn) {
   tipoAtual = tipo;
 
   const originalText = btn.innerHTML;
-  btn.innerHTML = `<svg class="animate-spin h-4 w-4 text-white inline flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+  btn.innerHTML = `<svg class="animate-spin h-4 w-4 text-slate-500 inline flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
   btn.disabled = true;
 
   try {
@@ -167,18 +170,18 @@ async function abrirModal(tipo, btn) {
         const data = await res.json();
 
         if (res.ok) {
-          alerta.innerHTML = `<div class="p-4 rounded-xl text-sm border border-emerald-500/50 bg-emerald-500/10 text-emerald-400 mb-6 flex items-center gap-2"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="font-medium">${data.mensagem}</span></div>`;
+          alerta.innerHTML = `<div class="p-4 rounded-xl text-sm border border-emerald-200 bg-emerald-50 text-emerald-700 mb-6 flex items-center gap-2"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="font-medium">${data.mensagem || 'Salvo com sucesso'}</span></div>`;
           setTimeout(() => {
             closeModal();
             carregarLista(tipoAtual);
           }, 1500);
         } else {
-          alerta.innerHTML = `<div class="p-4 rounded-xl text-sm border border-rose-500/50 bg-rose-500/10 text-rose-400 mb-6 flex items-center gap-2"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="font-medium">${data.erro}</span></div>`;
+          alerta.innerHTML = `<div class="p-4 rounded-xl text-sm border border-red-200 bg-red-50 text-red-600 mb-6 flex items-center gap-2"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="font-medium">${data.erro || 'Erro ao salvar'}</span></div>`;
           submitBtn.innerHTML = 'Salvar';
           submitBtn.disabled = false;
         }
       } catch (e) {
-        alerta.innerHTML = `<div class="p-4 rounded-xl text-sm border border-rose-500/50 bg-rose-500/10 text-rose-400 mb-6 flex items-center gap-2"><span class="font-medium">Erro ao conectar com o servidor.</span></div>`;
+        alerta.innerHTML = `<div class="p-4 rounded-xl text-sm border border-red-200 bg-red-50 text-red-600 mb-6 flex items-center gap-2"><span class="font-medium">Erro ao conectar com o servidor.</span></div>`;
         submitBtn.innerHTML = 'Salvar';
         submitBtn.disabled = false;
       }
@@ -213,7 +216,6 @@ async function atualizarStatusSolicitacao(id, status) {
       body: JSON.stringify({ status })
     });
     if(res.ok) {
-      alert("Status atualizado!");
       carregarLista('solicitacoes');
     } else {
       alert("Erro ao atualizar!");
@@ -229,10 +231,10 @@ async function abrirModalAprovacao(id) {
     const html = await res.text();
     
     const container = document.getElementById("modal-container");
-    container.innerHTML = `<div id="modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden transition-all duration-300 opacity-0">
-      <div class="relative bg-zinc-950 w-full max-w-md rounded-2xl border border-zinc-800 shadow-2xl transition-all duration-300 transform scale-95 opacity-0 mx-auto">
+    container.innerHTML = `<div id="modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm hidden transition-all duration-300 opacity-0">
+      <div class="relative bg-white w-full max-w-md rounded-3xl border border-slate-200 shadow-2xl transition-all duration-300 transform scale-95 opacity-0 mx-auto">
         ${html}
-        <button id="btn-fechar-modal" class="absolute top-4 right-4 p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition-colors">
+        <button id="btn-fechar-modal" class="absolute top-6 right-6 p-1.5 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
@@ -297,15 +299,15 @@ async function abrirModalAprovacao(id) {
         const respData = await fetchRes.json();
         
         if (fetchRes.ok) {
-          alerta.innerHTML = `<div class="p-3 text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/50 rounded">${respData.mensagem}</div>`;
+          alerta.innerHTML = `<div class="p-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg">${respData.mensagem}</div>`;
           setTimeout(() => { closeModal(); carregarLista('solicitacoes'); }, 1500);
         } else {
-          alerta.innerHTML = `<div class="p-3 text-sm text-rose-400 bg-rose-500/10 border border-rose-500/50 rounded">${respData.erro}</div>`;
+          alerta.innerHTML = `<div class="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">${respData.erro}</div>`;
           submitBtn.innerHTML = 'Aprovar e Criar Tarefa';
           submitBtn.disabled = false;
         }
       } catch(err) {
-        alerta.innerHTML = `<div class="p-3 text-sm text-rose-400 bg-rose-500/10 border border-rose-500/50 rounded">Erro de conexão</div>`;
+        alerta.innerHTML = `<div class="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">Erro de conexão</div>`;
         submitBtn.disabled = false;
       }
     });
@@ -314,7 +316,6 @@ async function abrirModalAprovacao(id) {
     console.error(e);
   }
 }
-
 
 async function deleteItem(tipo, id) {
   if (!confirm('Tem certeza que deseja apagar este item? Esta ação não pode ser desfeita.')) return;
@@ -326,7 +327,7 @@ async function deleteItem(tipo, id) {
     });
     const data = await res.json();
     if (res.ok) {
-      window.location.reload();
+      carregarLista(tipo);
     } else {
       alert(data.error || 'Erro ao apagar o registro.');
     }

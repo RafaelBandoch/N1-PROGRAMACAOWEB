@@ -46,6 +46,16 @@ module.exports = {
         observacoes,
         status: 'PENDENTE'
       });
+
+      const admins = await db('usuarios').where({ role: 'admin' });
+      const notificacoesAdmins = admins.map(admin => ({
+        usuario_id: admin.id,
+        mensagem: `Novo pedido recebido de ${nome} (${tamanho})`,
+        tipo: 'INFO'
+      }));
+      if (notificacoesAdmins.length > 0) {
+        await db('notificacoes').insert(notificacoesAdmins);
+      }
       return res.status(201).json({ id, message: 'Solicitação criada com sucesso' });
     } catch (error) {
       next(error);
@@ -113,6 +123,15 @@ module.exports = {
       // 4. Update Solicitacao to ACEITO
       await db('solicitacoes').where({ id }).update({ status: 'ACEITO' });
 
+      const usuarioCliente = await db('usuarios').where({ cliente_id, role: 'cliente' }).first();
+      if (usuarioCliente) {
+        await db('notificacoes').insert({
+          usuario_id: usuarioCliente.id,
+          mensagem: 'Seu pedido foi aprovado e a caçamba agendada!',
+          tipo: 'SUCCESS'
+        });
+      }
+
       // 5. Vincular a Rota automaticamente (agrupar por motorista e data)
       let rota = await db('rotas')
         .where({ motorista_id, data: sol.data_agendada })
@@ -150,6 +169,35 @@ module.exports = {
       res.json({ message: 'Registro removido com sucesso' });
     } catch (error) {
       return res.status(400).json({ error: 'Não foi possível excluir. O registro pode estar em uso.' });
+    }
+  },
+
+  async rastrear(req, res, next) {
+    try {
+      const { id } = req.params;
+      const sol = await db('solicitacoes').where({ id }).first();
+      if (!sol) return res.status(404).json({ erro: 'Solicitação não encontrada' });
+      
+      const usuarioLogado = await db('usuarios').where({ id: req.user.id }).first();
+      if (!usuarioLogado) return res.status(403).json({ erro: 'Acesso negado' });
+
+      const motorista = await db('motoristas').first(); // Pega o primeiro motorista para o Mock rápido
+
+      if (!motorista) {
+        return res.status(404).json({ erro: 'Nenhum motorista cadastrado no sistema.' });
+      }
+
+      const lat = motorista.latitude || -26.3012;
+      const lng = motorista.longitude || -48.8490;
+
+      return res.json({ 
+        latitude: lat, 
+        longitude: lng,
+        motorista_nome: motorista.nome,
+        ultima_atualizacao: motorista.ultima_atualizacao_gps || new Date()
+      });
+    } catch(error) {
+      next(error);
     }
   }
 };
