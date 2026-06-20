@@ -15,26 +15,39 @@ document.addEventListener('DOMContentLoaded', () => {
         </svg>
         <span id="notificacoes-badge" class="hidden absolute top-1 right-1 flex items-center justify-center w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white">0</span>
       </button>
-
-      <div id="notificacoes-dropdown" class="hidden absolute right-0 top-full mt-2 w-80 bg-white border border-slate-200 shadow-xl rounded-2xl z-50 overflow-hidden transform opacity-0 scale-95 transition-all duration-200">
-        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-          <h3 class="font-bold text-slate-800">Notificações</h3>
-          <button id="btn-ler-todas" class="text-xs text-teal-600 hover:text-teal-700 font-medium">Ler todas</button>
-        </div>
-        <div id="notificacoes-lista" class="max-h-80 overflow-y-auto divide-y divide-slate-100">
-          <!-- Lista carregada via JS -->
-        </div>
-      </div>
     `;
-
-    // Anexa o container no final do header para funcionar em todos os layouts
     header.appendChild(notificationContainer);
+  }
 
-    // Comportamento do Dropdown
-    const btn = document.getElementById('btn-notificacoes');
-    const dropdown = document.getElementById('notificacoes-dropdown');
-    
+  // 2. Criar o Dropdown de notificações no body para evitar empilhamento com elementos do layout
+  const dropdown = document.createElement('div');
+  dropdown.id = 'notificacoes-dropdown';
+  dropdown.className = 'hidden fixed right-4 mt-2 w-80 bg-white border border-slate-200 shadow-xl rounded-2xl overflow-hidden transform opacity-0 scale-95 transition-all duration-200';
+  dropdown.style.zIndex = '1100';
+  dropdown.innerHTML = `
+    <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+      <h3 class="font-bold text-slate-800">Notificações</h3>
+      <button id="btn-ler-todas" class="text-xs text-teal-600 hover:text-teal-700 font-medium">Ler todas</button>
+    </div>
+    <div id="notificacoes-lista" class="max-h-80 overflow-y-auto divide-y divide-slate-100"></div>
+  `;
+  document.body.appendChild(dropdown);
+
+  const btn = document.getElementById('btn-notificacoes');
+  if (btn) {
     btn.addEventListener('click', () => {
+      const rect = btn.getBoundingClientRect();
+      const dropdownWidth = 320;
+      const viewportWidth = window.innerWidth;
+      let left = rect.right - dropdownWidth;
+      if (rect.right + dropdownWidth > viewportWidth) {
+        left = rect.left + btn.offsetWidth - dropdownWidth;
+      }
+      if (left < 8) {
+        left = 8;
+      }
+      dropdown.style.top = `${rect.bottom + 8}px`;
+      dropdown.style.left = `${left}px`;
       if (dropdown.classList.contains('hidden')) {
         dropdown.classList.remove('hidden');
         setTimeout(() => dropdown.classList.remove('opacity-0', 'scale-95'), 10);
@@ -43,16 +56,19 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => dropdown.classList.add('hidden'), 200);
       }
     });
+  }
 
-    // Fechar ao clicar fora
-    document.addEventListener('click', (e) => {
-      if (!notificationContainer.contains(e.target)) {
-        dropdown.classList.add('opacity-0', 'scale-95');
-        setTimeout(() => dropdown.classList.add('hidden'), 200);
-      }
-    });
+  // Fechar ao clicar fora
+  document.addEventListener('click', (e) => {
+    if (btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.add('opacity-0', 'scale-95');
+      setTimeout(() => dropdown.classList.add('hidden'), 200);
+    }
+  });
 
-    document.getElementById('btn-ler-todas').addEventListener('click', async () => {
+  const btnLerTodas = document.getElementById('btn-ler-todas');
+  if (btnLerTodas) {
+    btnLerTodas.addEventListener('click', async () => {
       await fetch('/api/notificacoes/ler-todas', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -61,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. Injetar o Container de Toasts
+  // 3. Injetar o Container de Toasts
   const toastContainer = document.createElement('div');
   toastContainer.id = 'toast-container';
   toastContainer.className = 'fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none';
@@ -129,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.lida ? 'bg-teal-500' : 'bg-transparent'}"></div>
               <div>
                 <p class="text-sm text-slate-800 ${!n.lida ? 'font-medium' : ''}">${n.mensagem}</p>
-                <span class="text-xs text-slate-400 mt-1 block">${new Date(n.created_at).toLocaleString('pt-BR')}</span>
+                <span class="text-xs text-slate-400 mt-1 block">${new Date(n.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</span>
               </div>
             </div>
           `).join('');
