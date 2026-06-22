@@ -5,12 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meus Pedidos | Facilita Caçambas</title>
   <link rel="stylesheet" href="../css/output.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
     body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, h4, h5, h6, .outfit { font-family: 'Outfit', sans-serif; }
     .leaflet-marker-icon { transition: transform 0.5s linear !important; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05);
+    }
   </style>
   <script>
     const token = localStorage.getItem('token');
@@ -26,59 +34,96 @@
     }
   </script>
 </head>
-<body class="bg-slate-50 text-slate-700 min-h-screen font-sans relative overflow-x-hidden">
+<body class="bg-[#F8FAFC] text-slate-700 min-h-screen relative overflow-x-hidden">
 
-  <!-- Background Blur -->
-  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] opacity-20 pointer-events-none">
-    <div class="absolute inset-0 bg-gradient-to-r from-teal-100 to-emerald-50 blur-[120px] rounded-full"></div>
+  <!-- Background Animated Blobs -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-teal-300/30 rounded-full mix-blend-multiply filter blur-[80px] animate-blob"></div>
+    <div class="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-emerald-200/30 rounded-full mix-blend-multiply filter blur-[100px] animate-blob animation-delay-2000"></div>
+    <div class="absolute bottom-[-20%] left-[20%] w-[700px] h-[700px] bg-cyan-200/30 rounded-full mix-blend-multiply filter blur-[120px] animate-blob animation-delay-4000"></div>
   </div>
 
   <!-- Navbar -->
-  <nav class="w-full bg-white/80 backdrop-blur-lg border-b border-slate-200 mb-8 sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-teal-500/20">
+  <nav class="w-full bg-white/70 backdrop-blur-xl border-b border-white/50 mb-10 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-white font-extrabold text-lg shadow-lg shadow-teal-500/30">
           C
         </div>
-        <span class="text-xl font-bold tracking-tight text-slate-800">Caçambas<span class="text-teal-600">PRO</span></span>
+        <span class="text-2xl font-bold tracking-tight text-slate-800 outfit">Caçambas<span class="text-teal-500">PRO</span></span>
       </div>
-      <div class="flex items-center gap-4">
-        <span id="userEmailDisplay" class="text-sm font-medium text-slate-500 hidden sm:block"></span>
-        <button onclick="logout()" class="text-sm font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors">
-          Sair
+      <div id="nav-actions" class="flex items-center gap-6">
+        <div class="hidden sm:flex items-center gap-3 px-4 py-2 bg-slate-100/50 rounded-full border border-slate-200/50">
+          <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+          <span id="userEmailDisplay" class="text-sm font-medium text-slate-600"></span>
+        </div>
+        <button onclick="logout()" class="text-sm font-bold text-slate-500 hover:text-red-500 transition-colors flex items-center gap-2">
+          Sair do App
         </button>
       </div>
     </div>
   </nav>
 
-  <main class="max-w-6xl mx-auto px-6 pb-10 relative z-10">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  <main class="max-w-7xl mx-auto px-6 pb-20 relative z-10">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
       <div>
-        <h1 class="text-4xl font-bold text-slate-800 mb-1">Meus Pedidos</h1>
-        <p class="text-slate-400 text-sm">Acompanhe o status das suas solicitações de caçambas</p>
+        <h1 class="text-5xl font-bold text-slate-900 mb-2 tracking-tight">Meus Pedidos</h1>
+        <p class="text-slate-500 text-lg">Acompanhe e gerencie as suas caçambas solicitadas.</p>
       </div>
-      <a href="solicitar-cacamba.html" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-md shadow-teal-600/20">
-        + Nova Solicitação
+      <a href="solicitar-cacamba.html" class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-xl shadow-slate-900/20 flex items-center gap-2 hover:-translate-y-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        Nova Solicitação
       </a>
     </div>
 
-    <div id="loading" class="text-slate-400 py-12 text-center animate-pulse">
-      Carregando suas solicitações...
+    <div id="loading" class="w-full flex flex-col items-center justify-center py-24 text-teal-600">
+      <svg class="animate-spin h-10 w-10 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <p class="font-medium animate-pulse text-lg">Sincronizando dados...</p>
     </div>
 
-    <div id="pedidosList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 hidden">
+    <div id="pedidosList" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 hidden">
       <!-- Pedidos renderizados aqui -->
     </div>
     
-    <div id="emptyState" class="hidden bg-white border border-slate-200 rounded-3xl p-12 text-center shadow-sm">
-      <div class="text-6xl mb-6">🗑️</div>
-      <h3 class="text-xl font-bold text-slate-800 mb-2">Nenhum pedido encontrado</h3>
-      <p class="text-slate-500 mb-6 max-w-md mx-auto">Você ainda não realizou nenhuma solicitação de caçamba. Clique no botão abaixo para fazer seu primeiro pedido.</p>
-      <a href="solicitar-cacamba.html" class="inline-block bg-teal-600 text-white hover:bg-teal-700 px-8 py-3 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-md shadow-teal-600/20">
-        Solicitar Caçamba
+    <div id="emptyState" class="hidden max-w-2xl mx-auto glass-card rounded-[40px] p-16 text-center transform hover:scale-[1.01] transition-transform duration-500">
+      <div class="w-32 h-32 mx-auto mb-8 bg-gradient-to-tr from-teal-100 to-emerald-50 rounded-full flex items-center justify-center shadow-inner">
+        <span class="text-6xl">✨</span>
+      </div>
+      <h3 class="text-3xl font-bold text-slate-800 mb-4 tracking-tight">Nenhum pedido ainda</h3>
+      <p class="text-slate-500 mb-10 text-lg">Parece que você ainda não solicitou nenhuma caçamba. Peça agora e acompanhe a entrega em tempo real.</p>
+      <a href="solicitar-cacamba.html" class="inline-flex items-center gap-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white hover:from-teal-600 hover:to-emerald-600 px-10 py-4 rounded-2xl text-lg font-bold transition-all shadow-xl shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-1">
+        Fazer meu Primeiro Pedido
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
       </a>
     </div>
   </main>
+
+  <!-- Modal Rastreamento -->
+  <div id="map-modal" class="hidden fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 transition-opacity duration-300">
+    <div class="bg-white rounded-[40px] w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-white/20 transform scale-100 transition-transform duration-300">
+      <div class="p-6 sm:p-8 border-b border-slate-100 flex justify-between items-center bg-white/80 backdrop-blur-md z-10">
+        <div>
+          <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-3 tracking-tight outfit">
+            <span class="relative flex h-4 w-4">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
+            </span>
+            Rastreamento Ao Vivo
+          </h3>
+          <p class="text-sm text-slate-500 mt-1">Acompanhe o trajeto do caminhão no mapa interativo.</p>
+        </div>
+        <button onclick="fecharRastreamento()" class="group bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 w-12 h-12 rounded-full flex items-center justify-center transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:scale-110 transition-transform"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="relative flex-1 bg-slate-50">
+        <div id="map-container" class="absolute inset-0 z-0"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
     function logout() {
@@ -127,7 +172,6 @@
       }
     }
 
-    // Lógica do Modal de Rastreamento (Leaflet)
     let map = null;
     let marker = null;
     let rastreioInterval = null;
@@ -135,14 +179,14 @@
     async function abrirRastreamento(id) {
       document.getElementById('map-modal').classList.remove('hidden');
       if (!map) {
-        map = L.map('map-container').setView([-26.3045, -48.8487], 14); // Centro de Joinville
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
+        map = L.map('map-container', { zoomControl: false }).setView([-26.3045, -48.8487], 14); 
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20,
+            attribution: '© OpenStreetMap © CARTO'
         }).addTo(map);
       }
 
-      // Evita o bug da tela cinza
       setTimeout(() => { if(map) map.invalidateSize() }, 100);
       setTimeout(() => { if(map) map.invalidateSize() }, 500);
 
@@ -156,25 +200,33 @@
           if (res.ok) {
             const { latitude, longitude, motorista_nome } = data;
             const latLng = [Number(latitude), Number(longitude)];
-            map.setView(latLng, 16);
+            
             if (!marker) {
+              map.setView(latLng, 14);
+              
               const driverIcon = L.divIcon({
                 className: 'custom-driver-icon',
-                html: '<div style="background-color: #0d9488; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
+                html: '<div style="background-color: #10b981; width: 24px; height: 24px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 14px rgba(16,185,129,0.6);"></div>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
               });
-              marker = L.marker(latLng, { icon: driverIcon }).addTo(map).bindPopup(`<b>Caminhão</b><br>Motorista: ${motorista_nome}`).openPopup();
+              
+              marker = L.marker(latLng, { icon: driverIcon }).addTo(map);
+              
+              // Custom Popup
+              const popupContent = `
+                <div class="p-1 font-sans">
+                  <span class="text-[10px] font-bold text-teal-600 uppercase tracking-widest block mb-1">Status: Em Rota</span>
+                  <p class="font-bold text-slate-800 text-sm m-0">Motorista: ${motorista_nome || 'N/A'}</p>
+                </div>
+              `;
+              marker.bindPopup(popupContent).openPopup();
+              
             } else {
               marker.setLatLng(latLng);
             }
           } else {
             console.warn(data.erro || data.error);
-            if (!marker) {
-               // Adiciona no mapa um aviso em vez do pino
-               map.setView([-26.3045, -48.8487], 14);
-               L.popup().setLatLng([-26.3045, -48.8487]).setContent(`<b>Aviso:</b><br>${data.erro || data.error || 'Aguardando motorista...'}`).openOn(map);
-            }
           }
         } catch(e) {}
       }
@@ -186,81 +238,78 @@
     function fecharRastreamento() {
       document.getElementById('map-modal').classList.add('hidden');
       if (rastreioInterval) clearInterval(rastreioInterval);
+      // Clean up marker so next time it resets view
+      if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+      }
     }
-  </script>
-  
-  <!-- Modal Rastreamento -->
-  <div id="map-modal" class="hidden fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200">
-      <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Rastreamento ao Vivo
-        </h3>
-        <button onclick="fecharRastreamento()" class="text-slate-400 hover:text-slate-700 p-2 bg-white rounded-lg border border-slate-200">✕ Fechar</button>
-      </div>
-      <div id="map-container" class="flex-1 w-full min-h-[400px] z-0"></div>
-    </div>
-  </div>
 
-  <script>
     function renderPedidos(pedidos) {
       const list = document.getElementById('pedidosList');
       list.innerHTML = '';
 
       pedidos.forEach(pedido => {
         const dAgendada = new Date(pedido.data_agendada);
-        const dCriada = new Date(pedido.created_at);
         const dataFormatada = !isNaN(dAgendada) ? dAgendada.toLocaleDateString('pt-BR') : pedido.data_agendada;
-        const dataCriadaFormatada = !isNaN(dCriada) ? dCriada.toLocaleDateString('pt-BR') : '-';
         
-        let statusColor = 'text-amber-700 bg-amber-50 border-amber-200';
-        let statusIcon = '⏳';
-        let statusText = 'Em Análise';
+        let statusBadge = '';
+        let trackButton = '';
         
-        if (pedido.status === 'ACEITO') {
-          statusColor = 'text-teal-700 bg-teal-50 border-teal-200';
-          statusIcon = '✅';
-          statusText = 'Aprovado / Em andamento';
-        } else if (pedido.status === 'REJEITADO') {
-          statusColor = 'text-red-600 bg-red-50 border-red-200';
-          statusIcon = '❌';
-          statusText = 'Cancelado';
+        if (pedido.status === 'ACEITO' || pedido.status === 'EM_ANDAMENTO') {
+          statusBadge = `<div class="px-4 py-1.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200/60 font-bold text-xs uppercase tracking-wide flex items-center gap-2 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span> Em Rota</div>`;
+          trackButton = `
+            <button onclick="abrirRastreamento(${pedido.id})" class="w-full mt-6 bg-slate-900 text-white hover:bg-teal-600 py-4 rounded-2xl flex justify-center items-center gap-3 transition-all font-bold text-sm shadow-xl shadow-slate-900/10 hover:shadow-teal-600/30 group/btn">
+              <span class="relative flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              Acompanhar Entrega
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 group-hover/btn:translate-x-1 transition-transform"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          `;
+        } else if (pedido.status === 'PENDENTE') {
+          statusBadge = `<div class="px-4 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 font-bold text-xs uppercase tracking-wide shadow-sm">⏳ Em Análise</div>`;
+        } else if (pedido.status === 'REJEITADO' || pedido.status === 'CANCELADO') {
+          statusBadge = `<div class="px-4 py-1.5 rounded-full bg-red-50 text-red-700 border border-red-200/60 font-bold text-xs uppercase tracking-wide shadow-sm">❌ Cancelado</div>`;
+        } else if (pedido.status === 'FINALIZADA' || pedido.status === 'ENTREGUE') {
+          statusBadge = `<div class="px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-bold text-xs uppercase tracking-wide shadow-sm">✅ Finalizado</div>`;
         }
 
         const card = document.createElement('div');
-        card.className = 'bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col hover:border-teal-300 hover:shadow-md transition-all relative group';
+        card.className = 'glass-card rounded-[32px] p-8 flex flex-col hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-300 group relative overflow-hidden';
+        
+        // Gradient overlay for visual flair
         card.innerHTML = `
-          <div class="flex justify-between items-start mb-4">
+          <div class="absolute -right-10 -top-10 w-32 h-32 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+          
+          <div class="flex justify-between items-start mb-8 relative z-10">
             <div>
-              <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Pedido #${pedido.id}</span>
-              <h3 class="text-lg font-bold text-slate-800 uppercase">${pedido.tamanho}</h3>
+              <span class="text-[11px] uppercase tracking-widest font-black text-slate-400/80 block mb-2">Pedido #${pedido.id}</span>
+              <h3 class="text-2xl font-bold text-slate-900 tracking-tight outfit uppercase">${pedido.tamanho}</h3>
             </div>
-            <div class="px-3 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 ${statusColor}">
-              <span>${statusIcon}</span> ${statusText}
+            ${statusBadge}
+          </div>
+          
+          <div class="space-y-5 mb-auto relative z-10 flex-1">
+            <div class="flex gap-4">
+              <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">📅</div>
+              <div>
+                <span class="block text-slate-400 text-[10px] uppercase font-bold tracking-widest mb-0.5">Agendamento</span>
+                <span class="text-slate-800 font-semibold text-sm">${dataFormatada}</span>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">📍</div>
+              <div>
+                <span class="block text-slate-400 text-[10px] uppercase font-bold tracking-widest mb-0.5">Endereço</span>
+                <span class="text-slate-800 font-medium text-sm line-clamp-2 leading-relaxed" title="${pedido.endereco}">${pedido.endereco}</span>
+              </div>
             </div>
           </div>
           
-          <div class="space-y-3 mb-6 flex-1">
-            <div class="flex gap-3 text-sm">
-              <span class="w-5 text-center shrink-0">📅</span>
-              <div>
-                <span class="block text-slate-400 text-xs uppercase">Data Agendada</span>
-                <span class="text-slate-700 font-medium">${dataFormatada}</span>
-              </div>
-            </div>
-            <div class="flex gap-3 text-sm">
-              <span class="w-5 text-center shrink-0">📍</span>
-              <div>
-                <span class="block text-slate-400 text-xs uppercase">Endereço</span>
-                <span class="text-slate-700 font-medium line-clamp-2" title="${pedido.endereco}">${pedido.endereco}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400">
-            <span>Solicitado em: ${dataCriadaFormatada}</span>
-            ${pedido.status === 'ACEITO' ? `<button onclick="abrirRastreamento(${pedido.id})" class="bg-teal-50 text-teal-700 font-semibold px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-100 transition">Acompanhar Pedido</button>` : ''}
+          <div class="relative z-10 mt-6">
+            ${trackButton}
           </div>
         `;
         list.appendChild(card);

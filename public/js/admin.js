@@ -162,6 +162,7 @@ async function carregarLista(showLoading = false) {
     if (tipoAtual === 'motoristas') return renderMotoristas(dados);
     if (tipoAtual === 'veiculos') return renderVeiculos(dados);
     if (tipoAtual === 'solicitacoes') return renderSolicitacoes(dados);
+    if (tipoAtual === 'logs') return renderLogs(dados);
 
     renderizarTabelaGenerica(dados);
   } catch (err) {
@@ -204,6 +205,33 @@ function renderizarTabelaGenerica(dados) {
 
   table.innerHTML = theadHTML + tbodyHTML;
   listaConteudo.appendChild(table);
+}
+
+function renderLogs(dados) {
+  let html = '<div class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">';
+  html += '<table class="w-full text-left text-sm">';
+  html += '<thead class="bg-slate-50 text-slate-500 uppercase text-xs"><tr>';
+  html += '<th class="px-6 py-4">Data/Hora</th><th class="px-6 py-4">Método</th><th class="px-6 py-4">Rota</th><th class="px-6 py-4">IP</th>';
+  html += '</tr></thead><tbody class="divide-y divide-slate-100">';
+  
+  dados.forEach(log => {
+    const date = new Date(log.data).toLocaleString('pt-BR');
+    let methodClass = 'bg-slate-100 text-slate-600';
+    if (log.metodo === 'GET') methodClass = 'bg-sky-100 text-sky-700';
+    if (log.metodo === 'POST') methodClass = 'bg-emerald-100 text-emerald-700';
+    if (log.metodo === 'PATCH' || log.metodo === 'PUT') methodClass = 'bg-amber-100 text-amber-700';
+    if (log.metodo === 'DELETE') methodClass = 'bg-red-100 text-red-700';
+
+    html += `<tr class="hover:bg-slate-50">
+      <td class="px-6 py-3 font-mono text-xs text-slate-500">${date}</td>
+      <td class="px-6 py-3"><span class="px-2 py-1 rounded text-[10px] font-bold ${methodClass}">${log.metodo}</span></td>
+      <td class="px-6 py-3 font-mono text-xs text-slate-700 break-all">${log.rota}</td>
+      <td class="px-6 py-3 font-mono text-xs text-slate-400">${log.ip}</td>
+    </tr>`;
+  });
+  
+  html += '</tbody></table></div>';
+  listaConteudo.innerHTML = html;
 }
 
 function renderUsuarios(dados) {
@@ -262,13 +290,7 @@ function renderMotoristas(dados) {
         
         <h3 class="text-xl font-bold text-slate-800 mb-1 tracking-tight">${m.nome}</h3>
         
-        <div class="flex items-center gap-3 mt-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
-           <div class="p-1.5 bg-white rounded shadow-sm text-xs">🪪</div>
-           <div>
-             <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-0.5">Nº Registro CNH</div>
-             <div class="font-mono tracking-wider font-semibold">${m.cnh || 'Não informada'}</div>
-           </div>
-        </div>
+
         
         <div class="mt-6 flex justify-between items-center pt-5 border-t border-slate-100">
            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Cód. Motorista #${m.id}</span>

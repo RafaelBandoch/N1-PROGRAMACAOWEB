@@ -81,6 +81,12 @@
       <span class="w-5 text-center text-lg opacity-70 group-hover:opacity-100">📋</span>
       Tarefas
     </button>
+    
+    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2 mt-4 mb-2">Sistema</span>
+    <button class="tipo-btn flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl font-semibold transition-all duration-300 group" data-tipo="logs">
+      <span class="w-5 text-center text-lg opacity-70 group-hover:opacity-100">💻</span>
+      Logs de Acesso
+    </button>
   </div>
   
   <div class="p-4 border-t border-slate-800">
@@ -111,10 +117,12 @@
       <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Painel Central</span>
       <h1 class="text-2xl font-bold text-slate-800 tracking-tight leading-none" id="titulo-lista">Dashboard</h1>
     </div>
-    <button id="btn-cadastrar" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-md shadow-teal-600/20 flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
-      Novo Registro
-    </button>
+    <div id="nav-actions" class="flex items-center gap-4">
+      <button id="btn-cadastrar" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-md shadow-teal-600/20 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
+        Novo Registro
+      </button>
+    </div>
   </header>
 
   <div class="flex-1 overflow-y-auto p-8 z-10 w-full max-w-[1600px] mx-auto">

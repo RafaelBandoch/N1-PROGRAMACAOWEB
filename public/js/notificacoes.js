@@ -3,11 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
   if (!token) return;
 
-  // 1. Injetar o Sino de Notificação no Header
-  const header = document.querySelector('header');
+  // 1. Injetar o Sino de Notificação no Header ou Navbar
+  const header = document.getElementById('nav-actions') || document.querySelector('header') || document.querySelector('nav > div');
   if (header) {
     const notificationContainer = document.createElement('div');
-    notificationContainer.className = 'relative flex items-center ml-4';
+    notificationContainer.className = 'relative flex items-center ml-2';
     notificationContainer.innerHTML = `
       <button id="btn-notificacoes" class="p-2 relative text-slate-500 hover:text-slate-800 transition rounded-full hover:bg-slate-100">
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span id="notificacoes-badge" class="hidden absolute top-1 right-1 flex items-center justify-center w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white">0</span>
       </button>
     `;
+    // Se for nav-actions (novo layout), adiciona no começo ou fim
     header.appendChild(notificationContainer);
   }
 

@@ -16,10 +16,16 @@ const notificacoesRouter = require('./notificacoes');
 const localizacaoRouter = require('./localizacao');
 const dashboardRouter = require('./dashboard');
 
+const logsStore = require('../utils/logsStore');
+
 router.use('/auth', authRouter);
 router.use('/notificacoes', authenticateToken, notificacoesRouter);
 router.use('/localizacao', authenticateToken, localizacaoRouter);
 router.use('/dashboard', authenticateToken, checkRole(['admin']), dashboardRouter);
+router.get('/logs', authenticateToken, checkRole(['admin']), (req, res) => {
+  res.json(logsStore.getLogs());
+});
+
 
 // Rotas restritas para admin
 router.use('/cacambas', authenticateToken, checkRole(['admin']), cacambasRouter);

@@ -1,14 +1,51 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="scroll-smooth">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel do Motorista | Facilita Caçambas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>App do Motorista | Facilita Caçambas</title>
   <link rel="stylesheet" href="../css/output.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    .outfit {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Esconder scrollbar para manter design mobile limpo */
+    ::-webkit-scrollbar {
+      width: 0px;
+      background: transparent;
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 23px;
+      top: 40px;
+      bottom: -10px;
+      width: 2px;
+      background: #e2e8f0;
+      z-index: 0;
+    }
+
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
   </style>
 
   <script>
@@ -26,79 +63,87 @@
   </script>
 </head>
 
-<body class="bg-slate-50 text-slate-700 min-h-screen relative overflow-x-hidden selection:bg-teal-100 selection:text-teal-900">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen relative pb-32">
 
-  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] opacity-20 pointer-events-none">
-    <div class="absolute inset-0 bg-gradient-to-r from-teal-100 to-emerald-50 blur-[120px] rounded-full"></div>
-  </div>
-
-  <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+  <!-- Navbar Mobile -->
+  <nav class="sticky top-0 z-40 glass-nav border-b border-slate-200/50 shadow-sm">
+    <div class="px-5 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-teal-500/20">
+        <div
+          class="w-9 h-9 rounded-[10px] bg-slate-900 flex items-center justify-center text-white font-black text-sm shadow-md">
           C
         </div>
-        <span class="text-2xl font-bold tracking-tight text-slate-800">Painel<span class="text-teal-600">Motorista</span></span>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Bem-vindo</p>
+          <span id="motorista-nome"
+            class="text-base font-bold tracking-tight text-slate-800 outfit line-clamp-1">Motorista</span>
+        </div>
       </div>
-
-      <button onclick="logout()" class="text-slate-500 hover:text-slate-800 transition-colors">
-        Sair
-      </button>
+      <div id="nav-actions" class="flex items-center gap-2">
+        <button onclick="logout()"
+          class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center active:scale-95 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" x2="9" y1="12" y2="12" />
+          </svg>
+        </button>
+      </div>
     </div>
   </nav>
 
-  <main class="pt-32 pb-24 px-6 relative z-10 max-w-7xl mx-auto">
-
-    <header class="mb-8 flex flex-col md:flex-row justify-between items-center bg-white border border-slate-200 p-8 rounded-3xl shadow-sm">
-      <div>
-        <h1 class="text-3xl font-bold text-slate-800">Painel do Motorista</h1>
-        <p class="text-slate-500 mt-1">Bem-vindo, <span id="motorista-nome" class="font-medium">Carregando...</span></p>
-      </div>
-      <div class="mt-4 md:mt-0 flex gap-4">
-        <button id="btn-simular-gps" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-emerald-100 border border-emerald-200 text-emerald-700 hover:bg-emerald-200 transition flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-          Iniciar Sinal GPS
-        </button>
-      </div>
-    </header>
-
-    <div class="bg-white border border-slate-200 rounded-2xl p-2 mb-8 shadow-sm">
-      <div class="flex flex-wrap gap-2">
-        <button id="btnRotas" onclick="trocarAba('rotas')" class="tipo-btn flex-1 px-4 py-3 rounded-xl bg-teal-600 text-white font-semibold shadow-md">
-          Rotas
-        </button>
-
-        <button id="btnTarefas" onclick="trocarAba('tarefas')" class="tipo-btn flex-1 px-4 py-3 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 font-semibold">
-          Tarefas / Kanban
-        </button>
-      </div>
+  <main class="p-5 max-w-lg mx-auto">
+    <div class="mb-8">
+      <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight outfit mb-1">Minhas Rotas</h1>
+      <p class="text-sm text-slate-500 font-medium">Acompanhe e finalize suas paradas.</p>
     </div>
 
-    <section class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-      <div class="flex justify-between items-center mb-6">
-        <h2 id="tituloPainel" class="text-2xl font-bold text-slate-800">Minhas Rotas</h2>
+    <div id="conteudoPainel" class="min-h-[300px]">
+      <div class="flex flex-col items-center justify-center py-20 text-teal-600">
+        <svg class="animate-spin h-10 w-10 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        <p class="font-bold text-sm animate-pulse">Sincronizando paradas...</p>
       </div>
-
-      <div id="conteudoPainel" class="min-h-[400px]">
-        <div class="text-slate-400 py-12 text-center animate-pulse">Carregando...</div>
-      </div>
-    </section>
-
+    </div>
   </main>
+
+  <!-- Bottom Floating Bar para o GPS -->
+  <div
+    class="fixed bottom-0 left-0 right-0 glass-nav border-t border-slate-200/50 p-4 pb-8 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+    <div class="max-w-lg mx-auto">
+      <button id="btn-simular-gps"
+        class="w-full bg-slate-900 text-white rounded-[20px] py-4 px-6 flex items-center justify-center gap-3 font-bold text-lg active:scale-95 transition-all shadow-xl shadow-slate-900/20">
+        <div class="relative flex h-3 w-3">
+          <span class="absolute inline-flex h-full w-full rounded-full bg-slate-500 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-slate-400"></span>
+        </div>
+        Ficar Online (Desligado)
+      </button>
+    </div>
+  </div>
 
   <script>
     const STATUS_COLORS = {
-      PLANEJADA: "bg-sky-50 text-sky-700 ring-sky-200",
-      EM_EXECUCAO: "bg-cyan-50 text-cyan-700 ring-cyan-200",
-      FINALIZADA: "bg-teal-50 text-teal-700 ring-teal-200",
-      EM_ANDAMENTO: "bg-sky-50 text-sky-700 ring-sky-200",
-      ENTREGUE: "bg-amber-50 text-amber-700 ring-amber-200",
-      COLETADO: "bg-red-50 text-red-600 ring-red-200",
-      CANCELADO: "bg-slate-100 text-slate-500 ring-slate-200",
-      JUSTIFICADO: "bg-purple-50 text-purple-700 ring-purple-200"
+      PLANEJADA: "bg-slate-100 text-slate-500",
+      EM_EXECUCAO: "bg-teal-50 text-teal-700 ring-1 ring-inset ring-teal-200",
+      FINALIZADA: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
+      EM_ANDAMENTO: "bg-slate-100 text-slate-600",
+      ENTREGUE: "bg-emerald-100 text-emerald-700",
+      COLETADO: "bg-emerald-100 text-emerald-700"
     };
 
-    let abaAtual = 'rotas';
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.email) {
+        document.getElementById('motorista-nome').textContent = user.email.split('@')[0];
+      }
+      carregarDados();
+    });
 
     function logout() {
       localStorage.removeItem('token');
@@ -106,428 +151,236 @@
       window.location.href = 'login.html';
     }
 
-    function limparEnderecoParaMaps(endereco) {
-      if (!endereco) return '';
-
-      let enderecoLimpo = endereco;
-
-      enderecoLimpo = enderecoLimpo
-        .replace(/\s*-\s*Ref:.*$/i, '')
-        .replace(/\s*\|\s*Ref:.*$/i, '')
-        .replace(/\s*Referência:.*$/i, '')
-        .replace(/\s*Referencia:.*$/i, '')
-        .replace(/\s*-\s*Referência:.*$/i, '')
-        .replace(/\s*-\s*Referencia:.*$/i, '');
-
-      enderecoLimpo = enderecoLimpo.replace(
-        /(,\s*\d+)\s*-\s*[^,]+(,)/i,
-        '$1$2'
-      );
-
-      enderecoLimpo = enderecoLimpo
-        .replace(/\s+/g, ' ')
-        .replace(/\s+,/g, ',')
-        .replace(/,\s+/g, ', ')
-        .trim();
-
-      if (!/Joinville/i.test(enderecoLimpo)) {
-        enderecoLimpo += ', Joinville, SC';
-      }
-
-      return enderecoLimpo;
-    }
-
-    function trocarAba(aba) {
-      abaAtual = aba;
-
-      const btnRotas = document.getElementById('btnRotas');
-      const btnTarefas = document.getElementById('btnTarefas');
-
-      btnRotas.className = "tipo-btn flex-1 px-4 py-3 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 font-semibold";
-      btnTarefas.className = "tipo-btn flex-1 px-4 py-3 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 font-semibold";
-
-      if (aba === 'rotas') {
-        btnRotas.className = "tipo-btn flex-1 px-4 py-3 rounded-xl bg-teal-600 text-white font-semibold shadow-md";
-        document.getElementById('tituloPainel').textContent = 'Minhas Rotas';
-        carregarRotas();
-      }
-
-      if (aba === 'tarefas') {
-        btnTarefas.className = "tipo-btn flex-1 px-4 py-3 rounded-xl bg-teal-600 text-white font-semibold shadow-md";
-        document.getElementById('tituloPainel').textContent = 'Minhas Tarefas';
-        carregarTarefas();
-      }
-    }
-
-    async function carregarRotas() {
+    async function carregarDados() {
       const conteudo = document.getElementById('conteudoPainel');
-      conteudo.innerHTML = '<div class="text-slate-400 py-12 text-center animate-pulse">Carregando rotas...</div>';
-
       const token = localStorage.getItem('token');
 
       try {
-        const res = await fetch('/api/rotas', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        const resRotas = await fetch('/api/rotas', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rotas = await resRotas.json();
+
+        if (!rotas || rotas.length === 0) {
+          conteudo.innerHTML = `
+            <div class="bg-white rounded-[32px] p-8 text-center border border-slate-200 shadow-sm mt-8 flex flex-col items-center">
+              <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-4xl mb-6">☕</div>
+              <h3 class="text-2xl font-bold text-slate-800 outfit mb-2">Tudo limpo por aqui</h3>
+              <p class="text-slate-500">Você não possui entregas ou coletas designadas para hoje.</p>
+            </div>`;
+          return;
+        }
+
+        const rotasComTarefas = await Promise.all(rotas.map(async (rota) => {
+          const res = await fetch(`/api/rotas/${rota.id}/tarefas`, { headers: { 'Authorization': `Bearer ${token}` } });
+          const tarefas = await res.json();
+          return { ...rota, tarefas };
+        }));
+
+        conteudo.innerHTML = '';
+        rotasComTarefas.forEach(rota => {
+          conteudo.innerHTML += renderTimeline(rota, rota.tarefas);
         });
 
-        const rotas = await res.json();
-
-        if (res.ok) {
-          renderRotas(rotas);
-        } else {
-          conteudo.innerHTML = '<div class="text-red-500 py-12 text-center">Erro ao carregar rotas.</div>';
-        }
       } catch (err) {
-        conteudo.innerHTML = '<div class="text-red-500 py-12 text-center">Erro de conexão.</div>';
+        conteudo.innerHTML = '<div class="bg-red-50 text-red-600 p-6 rounded-3xl text-center font-bold">Falha ao carregar as rotas.</div>';
       }
     }
 
-    function renderRotas(rotas) {
-      const conteudo = document.getElementById('conteudoPainel');
+    function renderTimeline(rota, tarefas) {
+      const dataRota = new Date(rota.data).toLocaleDateString('pt-BR');
 
-      if (!rotas || rotas.length === 0) {
-        conteudo.innerHTML = '<p class="text-slate-400 py-12 text-center">Você não possui rotas designadas no momento.</p>';
-        return;
-      }
-
-      let html = '<div class="flex flex-col gap-5">';
-
-      rotas.forEach(rota => {
-        const d = new Date(rota.data);
-        const dateStr = !isNaN(d) ? d.toLocaleDateString('pt-BR') : rota.data;
-        const statusClass = STATUS_COLORS[rota.status] || "bg-slate-100 text-slate-500";
-
-        html += `
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:border-teal-300 transition-all">
-
-            <div>
-              <p class="text-[11px] font-bold tracking-widest text-slate-400 uppercase mb-1">Rota Operacional #${rota.id}</p>
-              <h3 class="text-xl font-semibold text-slate-800">${dateStr}</h3>
-              <p class="text-sm text-slate-400 mt-1">
-                Motorista: ${rota.motorista_nome || rota.motorista_id || 'Não definido'}
-              </p>
+      let html = `
+        <div class="mb-12">
+          <!-- Card Rota Head -->
+          <div class="bg-white border border-slate-200 rounded-[28px] p-6 mb-8 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1.5 h-full ${rota.status === 'EM_EXECUCAO' ? 'bg-teal-500' : (rota.status === 'FINALIZADA' ? 'bg-emerald-500' : 'bg-slate-300')}"></div>
+            <div class="flex justify-between items-center mb-4 pl-2">
+              <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Rota #${rota.id}</p>
+                <h2 class="text-2xl font-bold text-slate-800 outfit">${dataRota}</h2>
+              </div>
+              <div class="text-right">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${STATUS_COLORS[rota.status] || ''}">${rota.status}</span>
+              </div>
             </div>
-
-            <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-              <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${statusClass}">
-                ${rota.status}
-              </span>
-
-              <select id="status-${rota.id}" class="bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-700 text-sm">
-                <option value="PLANEJADA" ${rota.status === 'PLANEJADA' ? 'selected' : ''}>Planejada</option>
-                <option value="EM_EXECUCAO" ${rota.status === 'EM_EXECUCAO' ? 'selected' : ''}>Em Execução</option>
-                <option value="FINALIZADA" ${rota.status === 'FINALIZADA' ? 'selected' : ''}>Finalizada</option>
-              </select>
-
-              <button onclick="updateRotaStatus(${rota.id})" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm">
-                Salvar
-              </button>
-
-              <button onclick="viewRouteMap(${rota.id})" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm">
-                Ver Melhor Rota
-              </button>
+            <div class="pl-2">
+              ${renderBotaoStatusRota(rota)}
             </div>
           </div>
-        `;
-      });
+      `;
+
+      if (!tarefas || tarefas.length === 0) {
+        html += '<div class="bg-slate-50 rounded-2xl p-6 text-center text-slate-500 text-sm font-medium">Nenhuma parada configurada nesta rota.</div>';
+      } else {
+        html += '<div class="relative pl-2">';
+        html += '<div class="timeline-line"></div>';
+        html += '<div class="space-y-6">';
+
+        tarefas.forEach((tarefa, index) => {
+          html += renderCardTarefa(tarefa, index, rota.status);
+        });
+
+        html += '</div></div>';
+      }
 
       html += '</div>';
-      conteudo.innerHTML = html;
+      return html;
     }
 
-    async function updateRotaStatus(id) {
-      const token = localStorage.getItem('token');
-      const status = document.getElementById(`status-${id}`).value;
+    function renderBotaoStatusRota(rota) {
+      if (rota.status === 'PLANEJADA') {
+        return `<button onclick="updateRotaStatus(${rota.id}, 'EM_EXECUCAO')" class="w-full bg-slate-900 text-white hover:bg-slate-800 py-3.5 rounded-xl font-bold text-sm transition-transform active:scale-95">Iniciar Rota</button>`;
+      } else if (rota.status === 'EM_EXECUCAO') {
+        return `<button onclick="updateRotaStatus(${rota.id}, 'FINALIZADA')" class="w-full bg-teal-100 text-teal-800 hover:bg-teal-200 py-3.5 rounded-xl font-bold text-sm transition-transform active:scale-95">Finalizar Expediente</button>`;
+      }
+      return '';
+    }
 
+    function renderCardTarefa(tarefa, index, rotaStatus) {
+      const isConcluido = ['ENTREGUE', 'COLETADO', 'JUSTIFICADO', 'CANCELADO'].includes(tarefa.status);
+      const dotColor = isConcluido ? 'bg-emerald-500 border-emerald-100' : 'bg-white border-slate-300';
+      const opacity = isConcluido ? 'opacity-60' : 'opacity-100';
+
+      let icon = '📦';
+      let titlePrefix = 'Entrega';
+      let nextStatus = 'ENTREGUE';
+
+      if (tarefa.tipo === 'COLETA') { icon = '🏗️'; titlePrefix = 'Coleta'; nextStatus = 'COLETADO'; }
+      if (tarefa.tipo === 'TROCA') { icon = '🔄'; titlePrefix = 'Troca'; nextStatus = 'ENTREGUE'; } // Simplificado
+
+      const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tarefa.endereco_execucao || '')}`;
+
+      let btnConcluir = '';
+      if (!isConcluido && rotaStatus === 'EM_EXECUCAO') {
+        btnConcluir = `
+          <div class="mt-5 pt-5 border-t border-slate-100">
+            <button onclick="updateTarefaStatus(${tarefa.id}, '${nextStatus}')" class="w-full bg-teal-500 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-teal-500/20 active:scale-95 transition-all flex justify-center items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Confirmar ${titlePrefix}
+            </button>
+          </div>
+        `;
+      } else if (isConcluido) {
+        btnConcluir = `
+          <div class="mt-4 flex items-center gap-2 text-emerald-600 font-bold text-xs bg-emerald-50 px-3 py-2 rounded-lg w-fit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Finalizado
+          </div>
+         `;
+      }
+
+      return `
+        <div class="relative pl-12 ${opacity} transition-opacity">
+          <!-- Timeline Dot -->
+          <div class="absolute left-0 top-6 w-12 flex justify-center z-10">
+            <div class="w-5 h-5 rounded-full border-[4px] ${dotColor} shadow-sm bg-white"></div>
+          </div>
+          
+          <!-- Task Card -->
+          <div class="bg-white border border-slate-200 rounded-[24px] p-5 shadow-sm relative">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">${icon}</span>
+                <span class="text-xs font-bold text-slate-800 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded-md">${tarefa.tipo}</span>
+              </div>
+              <span class="text-[10px] text-slate-400 font-mono font-bold">#${tarefa.id}</span>
+            </div>
+            
+            <h3 class="text-lg font-bold text-slate-800 outfit leading-tight mb-2">${tarefa.cliente_nome || 'Cliente não identificado'}</h3>
+            
+            <div class="flex items-start gap-3 text-sm text-slate-500 mb-2">
+              <span class="shrink-0 mt-0.5">📍</span>
+              <span class="leading-snug">${tarefa.endereco_execucao || 'Endereço não informado'}</span>
+            </div>
+            
+            <div class="flex gap-2 mt-4">
+              <a href="${mapsLink}" target="_blank" class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 py-2.5 rounded-xl font-bold text-xs flex justify-center items-center gap-2 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                Navegar
+              </a>
+              <button class="w-12 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </button>
+            </div>
+            
+            ${btnConcluir}
+          </div>
+        </div>
+      `;
+    }
+
+    async function updateRotaStatus(id, status) {
+      const token = localStorage.getItem('token');
       try {
         const res = await fetch(`/api/rotas/${id}/status`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ status })
         });
-
-        if (res.ok) {
-          alert('Status atualizado com sucesso!');
-          carregarRotas();
-        } else {
-          alert('Erro ao atualizar status.');
-        }
-      } catch (err) {
-        alert('Erro de conexão.');
-      }
+        if (res.ok) { carregarDados(); } else { alert('Erro ao atualizar status.'); }
+      } catch (err) { alert('Erro de conexão.'); }
     }
 
-    async function carregarTarefas() {
-      const conteudo = document.getElementById('conteudoPainel');
-      conteudo.innerHTML = '<div class="text-slate-400 py-12 text-center animate-pulse">Carregando tarefas...</div>';
-
+    async function updateTarefaStatus(id, status) {
       const token = localStorage.getItem('token');
-
       try {
-        const res = await fetch('/api/tarefas', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        const tarefas = await res.json();
-
-        if (res.ok) {
-          renderTarefas(tarefas);
-        } else {
-          conteudo.innerHTML = '<div class="text-red-500 py-12 text-center">Erro ao carregar tarefas.</div>';
-        }
-      } catch (err) {
-        conteudo.innerHTML = '<div class="text-red-500 py-12 text-center">Erro de conexão.</div>';
-      }
-    }
-
-    function renderTarefas(tarefas) {
-      const conteudo = document.getElementById('conteudoPainel');
-
-      if (!tarefas || tarefas.length === 0) {
-        conteudo.innerHTML = '<p class="text-slate-400 py-12 text-center">Você não possui tarefas designadas no momento.</p>';
-        return;
-      }
-
-      const statusCols = {
-        'EM_ANDAMENTO': { title: 'A Fazer', border: 'border-sky-200' },
-        'ENTREGUE': { title: 'Entregue', border: 'border-amber-200' },
-        'COLETADO': { title: 'Coletado', border: 'border-red-200' },
-        'CANCELADO': { title: 'Cancelado', border: 'border-slate-200' },
-        'JUSTIFICADO': { title: 'Justificado', border: 'border-purple-200' }
-      };
-
-      let html = '<div class="flex gap-4 overflow-x-auto pb-4 h-full min-h-[600px] p-2">';
-
-      Object.keys(statusCols).forEach(statusKey => {
-        const col = statusCols[statusKey];
-        const tarefasStatus = tarefas.filter(t => t.status === statusKey);
-
-        html += `
-          <div class="flex flex-col min-w-[320px] max-w-[320px] bg-slate-50 border border-slate-200 rounded-2xl flex-shrink-0"
-               ondragover="allowDrop(event)" ondrop="dropTask(event, '${statusKey}')">
-
-            <div class="p-4 border-b border-slate-200 flex justify-between items-center">
-              <h3 class="text-slate-800 font-bold tracking-wide">${col.title}</h3>
-              <span class="bg-white text-slate-500 text-xs px-2 py-1 rounded-md font-bold border border-slate-200">${tarefasStatus.length}</span>
-            </div>
-
-            <div class="p-3 flex flex-col gap-3 flex-1 overflow-y-auto min-h-[100px]">
-        `;
-
-        tarefasStatus.forEach(tarefa => {
-          const d = new Date(tarefa.data_agendada);
-          const dateStr = !isNaN(d)
-            ? d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-            : tarefa.data_agendada;
-
-          const enderecoLimpo = limparEnderecoParaMaps(tarefa.endereco_execucao || '');
-
-          let icon = '';
-          let textColor = '';
-
-          if (tarefa.tipo === 'ENTREGA') {
-            icon = '⬇️';
-            textColor = 'text-emerald-600';
-          }
-
-          if (tarefa.tipo === 'COLETA') {
-            icon = '⬆️';
-            textColor = 'text-red-500';
-          }
-
-          if (tarefa.tipo === 'TROCA') {
-            icon = '🔄';
-            textColor = 'text-sky-600';
-          }
-
-          html += `
-            <div id="task-${tarefa.id}" draggable="true" ondragstart="dragTask(event, ${tarefa.id})"
-                 class="bg-white border ${col.border} rounded-xl p-4 cursor-grab active:cursor-grabbing hover:border-teal-300 transition-colors shadow-sm group">
-
-              <div class="flex justify-between items-start mb-3">
-                <span class="text-[10px] font-bold ${textColor} tracking-widest uppercase flex items-center gap-1">
-                  ${icon} ${tarefa.tipo}
-                </span>
-                <span class="text-slate-400 text-xs font-mono">#${tarefa.id}</span>
-              </div>
-
-              <h4 class="text-slate-800 font-semibold text-sm mb-2 line-clamp-2">
-                ${tarefa.cliente_nome || 'Cliente não definido'}
-              </h4>
-
-              <div class="flex items-start gap-2 mb-3">
-                <span class="text-slate-500 text-xs line-clamp-2 flex-1">
-                  📍 ${tarefa.endereco_execucao || 'Endereço não informado'}
-                </span>
-
-                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoLimpo)}" target="_blank"
-                   class="p-1.5 bg-slate-100 hover:bg-teal-600 rounded-lg text-slate-400 hover:text-white transition-all">
-                  Mapa
-                </a>
-              </div>
-
-              <div class="flex justify-between items-center text-[10px] text-slate-400 font-medium">
-                <span>Caçamba: #${tarefa.cacamba_id || '-'}</span>
-                <span>${dateStr || '-'}</span>
-              </div>
-
-            </div>
-          `;
-        });
-
-        html += `
-            </div>
-          </div>
-        `;
-      });
-
-      html += '</div>';
-      conteudo.innerHTML = html;
-    }
-
-    function allowDrop(ev) {
-      ev.preventDefault();
-    }
-
-    function dragTask(ev, taskId) {
-      ev.dataTransfer.setData("taskId", taskId);
-    }
-
-    async function dropTask(ev, newStatus) {
-      ev.preventDefault();
-
-      const taskId = ev.dataTransfer.getData("taskId");
-      if (!taskId) return;
-
-      const token = localStorage.getItem('token');
-
-      try {
-        const res = await fetch(`/api/tarefas/${taskId}/status`, {
+        const res = await fetch(`/api/tarefas/${id}/status`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ status: newStatus })
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ status })
         });
-
-        if (res.ok) {
-          carregarTarefas();
-        } else {
-          alert('Erro ao atualizar status da tarefa.');
-        }
-      } catch (err) {
-        alert('Erro de conexão ao atualizar tarefa.');
-      }
+        if (res.ok) { carregarDados(); } else { alert('Erro ao concluir tarefa.'); }
+      } catch (err) { alert('Erro de conexão.'); }
     }
 
-    async function viewRouteMap(rotaId) {
-      const token = localStorage.getItem('token');
-
-      try {
-        const res = await fetch(`/api/rotas/${rotaId}/tarefas`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (res.ok) {
-          const tarefas = await res.json();
-
-          if (tarefas.length === 0) {
-            alert('Esta rota não possui tarefas cadastradas.');
-            return;
-          }
-
-          const tarefasComEndereco = tarefas
-            .map(tarefa => ({
-              ...tarefa,
-              endereco_maps: limparEnderecoParaMaps(tarefa.endereco_execucao)
-            }))
-            .filter(tarefa => tarefa.endereco_maps);
-
-          if (tarefasComEndereco.length === 0) {
-            alert('Nenhuma tarefa possui endereço válido para abrir no Maps.');
-            return;
-          }
-
-          const origin = encodeURIComponent("Rua Visconde de Taunay, Joinville, SC");
-
-          const destination = encodeURIComponent(
-            tarefasComEndereco[tarefasComEndereco.length - 1].endereco_maps
-          );
-
-          let waypointsStr = '';
-
-          if (tarefasComEndereco.length > 1) {
-            const wpArr = tarefasComEndereco
-              .slice(0, -1)
-              .map(tarefa => encodeURIComponent(tarefa.endereco_maps));
-
-            waypointsStr = `&waypoints=${wpArr.join('|')}`;
-          }
-
-          const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsStr}&travelmode=driving`;
-
-          window.open(mapsUrl, '_blank');
-        } else {
-          alert('Erro ao buscar tarefas da rota.');
-        }
-      } catch (err) {
-        alert('Erro de conexão ao buscar tarefas.');
-      }
-    }
-
-    carregarRotas();
-
-    // Lógica do Mock GPS
+    // Mock GPS
     let gpsInterval = null;
-    let currentLat = -26.3045;
-    let currentLng = -48.8487;
+    let currentLat = -26.3012;
+    let currentLng = -48.8490;
 
     const btnGps = document.getElementById('btn-simular-gps');
-    if(btnGps) {
+    if (btnGps) {
       btnGps.addEventListener('click', () => {
         if (gpsInterval) {
           clearInterval(gpsInterval);
           gpsInterval = null;
-          gpsAtivo = false;
-          btnGps.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg> Iniciar Sinal GPS';
-          btnGps.classList.replace('text-red-700', 'text-emerald-700');
+
+          btnGps.innerHTML = `
+            <div class="relative flex h-3 w-3">
+              <span class="absolute inline-flex h-full w-full rounded-full bg-slate-500 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-slate-400"></span>
+            </div>
+            Ficar Online (Desligado)
+          `;
+          btnGps.classList.remove('bg-teal-500', 'shadow-teal-500/30');
+          btnGps.classList.add('bg-slate-900', 'shadow-slate-900/20');
         } else {
-          gpsAtivo = true;
-          btnGps.innerHTML = '🔴 Parar Sinal GPS';
-          btnGps.classList.replace('text-emerald-700', 'text-red-700');
-          
-          let currentLat = -26.3012; // R. Visconde de Taunay
-          let currentLng = -48.8490;
-          
+          btnGps.innerHTML = `
+            <div class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+            </div>
+            Você está Online!
+          `;
+          btnGps.classList.remove('bg-slate-900', 'shadow-slate-900/20');
+          btnGps.classList.add('bg-teal-500', 'shadow-teal-500/30');
+
           gpsInterval = setInterval(async () => {
-            currentLat += 0.005;
-            currentLng += 0.005;
-            
+            currentLat -= 0.00006;
+            currentLng += 0.00002;
+
             try {
               await fetch('/api/localizacao/atualizar', {
                 method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ latitude: currentLat, longitude: currentLng })
               });
-            } catch(e) {}
-          }, 500); // Atualiza a cada meio segundo
+            } catch (e) { }
+          }, 500);
         }
       });
     }
   </script>
   <script src="../js/notificacoes.js"></script>
 </body>
+
 </html>
