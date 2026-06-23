@@ -62,6 +62,42 @@
       </a>
     </div>
 
+    <!-- Resumo Financeiro -->
+    <div id="resumoFinanceiro" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 hidden">
+      <div class="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-3xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-teal-600 uppercase tracking-wider">Total Gasto</span>
+          <span class="text-2xl">💰</span>
+        </div>
+        <div class="flex items-end gap-2">
+          <h3 id="totalGasto" class="text-3xl font-bold text-teal-700">R$ 0,00</h3>
+        </div>
+        <p class="text-xs text-teal-600 mt-2">Soma de todos os pedidos aprovados</p>
+      </div>
+
+      <div class="bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-200 rounded-3xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-sky-600 uppercase tracking-wider">Total de Pedidos</span>
+          <span class="text-2xl">📋</span>
+        </div>
+        <div class="flex items-end gap-2">
+          <h3 id="totalPedidos" class="text-3xl font-bold text-sky-700">0</h3>
+        </div>
+        <p class="text-xs text-sky-600 mt-2">Solicitações aprovadas</p>
+      </div>
+
+      <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-3xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-purple-600 uppercase tracking-wider">Gasto Médio</span>
+          <span class="text-2xl">📊</span>
+        </div>
+        <div class="flex items-end gap-2">
+          <h3 id="gastoMedio" class="text-3xl font-bold text-purple-700">R$ 0,00</h3>
+        </div>
+        <p class="text-xs text-purple-600 mt-2">Valor médio por pedido</p>
+      </div>
+    </div>
+
     <div id="loading" class="text-slate-400 py-12 text-center animate-pulse">
       Carregando suas solicitações...
     </div>
@@ -93,7 +129,33 @@
         document.getElementById('userEmailDisplay').textContent = user.email;
       }
       loadPedidos();
+      loadResumoFinanceiro();
     });
+
+    async function loadResumoFinanceiro() {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('/api/solicitacoes/gastos/cliente', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const resumo = document.getElementById('resumoFinanceiro');
+          resumo.classList.remove('hidden');
+
+          document.getElementById('totalGasto').textContent = `R$ ${data.totalGasto.toFixed(2).replace('.', ',')}`;
+          document.getElementById('totalPedidos').textContent = data.totalPedidos;
+          
+          const gastoMedio = data.totalPedidos > 0 ? data.totalGasto / data.totalPedidos : 0;
+          document.getElementById('gastoMedio').textContent = `R$ ${gastoMedio.toFixed(2).replace('.', ',')}`;
+        }
+      } catch (err) {
+        console.error('Erro ao carregar resumo financeiro:', err);
+      }
+    }
 
     async function loadPedidos() {
       const token = localStorage.getItem('token');
@@ -256,6 +318,15 @@
                 <span class="text-slate-700 font-medium line-clamp-2" title="${pedido.endereco}">${pedido.endereco}</span>
               </div>
             </div>
+            ${pedido.preco ? `
+            <div class="flex gap-3 text-sm">
+              <span class="w-5 text-center shrink-0">💰</span>
+              <div>
+                <span class="block text-slate-400 text-xs uppercase">Valor</span>
+                <span class="text-teal-700 font-bold text-base">R$ ${parseFloat(pedido.preco).toFixed(2).replace('.', ',')}</span>
+              </div>
+            </div>
+            ` : ''}
           </div>
           
           <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400">

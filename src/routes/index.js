@@ -15,11 +15,13 @@ const configRouter = require('./config');
 const notificacoesRouter = require('./notificacoes');
 const localizacaoRouter = require('./localizacao');
 const dashboardRouter = require('./dashboard');
+const relatoriosRouter = require('./relatorios');
 
 router.use('/auth', authRouter);
 router.use('/notificacoes', authenticateToken, notificacoesRouter);
 router.use('/localizacao', authenticateToken, localizacaoRouter);
 router.use('/dashboard', authenticateToken, checkRole(['admin']), dashboardRouter);
+router.use('/relatorios', authenticateToken, checkRole(['admin']), relatoriosRouter);
 
 // Rotas restritas para admin
 router.use('/cacambas', authenticateToken, checkRole(['admin']), cacambasRouter);

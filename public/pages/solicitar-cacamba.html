@@ -142,14 +142,20 @@
               <div class="text-3xl mb-3">🗑️</div>
               <div class="text-base font-bold text-slate-800 mb-1">Médio</div>
               <div class="text-xs text-slate-500 leading-relaxed">Reformas residenciais e pequenos entulhos.</div>
-              <span class="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-lg bg-white border border-teal-200 text-teal-700">Até 3m³</span>
+              <div class="flex items-center justify-between mt-3">
+                <span class="inline-block text-xs font-bold px-3 py-1 rounded-lg bg-white border border-teal-200 text-teal-700">Até 3m³</span>
+                <span class="text-sm font-bold text-teal-600">R$ 350</span>
+              </div>
             </button>
             <button onclick="selSize(this,'GRANDE')"
               class="size-card border border-slate-200 bg-white hover:border-slate-300 rounded-2xl p-6 text-left transition-all">
               <div class="text-3xl mb-3">🏗️</div>
               <div class="text-base font-bold text-slate-400 mb-1">Grande</div>
               <div class="text-xs text-slate-400 leading-relaxed">Obras maiores, demolições e grandes volumes.</div>
-              <span class="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-400">Até 5m³</span>
+              <div class="flex items-center justify-between mt-3">
+                <span class="inline-block text-xs font-bold px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-400">Até 5m³</span>
+                <span class="text-sm font-bold text-slate-400">R$ 450</span>
+              </div>
             </button>
           </div>
         </div>
@@ -349,6 +355,7 @@
   const S = { tipo:'ENTREGA', tamanho:'MEDIO', obs:'', cep:'', cidade:'', rua:'', numero:'', bairro:'', complemento:'', referencia:'', data:'', periodo:'', nome:'', cpf:'', tel:'', email:'' };
   const TIPO_LABEL = { ENTREGA:'🚚 Entrega', COLETA:'📦 Coleta', TROCA:'🔄 Troca' };
   const PERIOD_LABEL = { MANHA:'Manhã (08h–12h)', TARDE:'Tarde (13h–17h)' };
+  const PRECO_TAMANHO = { MEDIO: 350, GRANDE: 450 };
 
   function goStep(n) {
     capture();
@@ -406,10 +413,14 @@
       c.classList.add('bg-white','border-slate-200');
       c.querySelector('.text-base').className = 'text-base font-bold text-slate-400 mb-1';
       c.querySelector('.text-xs.leading-relaxed').className = 'text-xs text-slate-400 leading-relaxed';
+      const priceSpan = c.querySelector('span.text-sm.font-bold');
+      if (priceSpan) priceSpan.className = 'text-sm font-bold text-slate-400';
     });
     el.classList.add('sel-card'); el.classList.remove('bg-white','border-slate-200');
     el.querySelector('.text-base').className = 'text-base font-bold text-slate-800 mb-1';
     el.querySelector('.text-xs.leading-relaxed').className = 'text-xs text-slate-500 leading-relaxed';
+    const priceSpan = el.querySelector('span.text-sm.font-bold');
+    if (priceSpan) priceSpan.className = 'text-sm font-bold text-teal-600';
     S.tamanho = v; updateSummary();
   }
 
@@ -417,13 +428,17 @@
     capture();
     const rows = [];
     if(S.tipo)           rows.push(['Tipo', TIPO_LABEL[S.tipo]]);
-    if(S.tamanho)        rows.push(['Tamanho', S.tamanho==='MEDIO'?'Médio':'Grande']);
+    if(S.tamanho) {
+      const tamanhoLabel = S.tamanho==='MEDIO'?'Médio':'Grande';
+      rows.push(['Tamanho', tamanhoLabel]);
+    }
     if(S.rua&&S.numero)  rows.push(['Endereço', S.rua+', '+S.numero]);
     if(S.bairro)         rows.push(['Bairro', S.bairro]);
     if(S.cidade)         rows.push(['Cidade', S.cidade]);
     if(S.data)           rows.push(['Data', fmtDate(S.data)]);
     if(S.nome)           rows.push(['Cliente', S.nome]);
 
+    const preco = PRECO_TAMANHO[S.tamanho] || 0;
     const b = document.getElementById('sum-body');
     if(!rows.length) { b.innerHTML='<div class="text-slate-400 text-xs text-center py-4">Preencha o formulário...</div>'; return; }
     b.innerHTML = rows.map(r=>`
@@ -432,6 +447,10 @@
         <span class="text-xs font-semibold text-slate-700 text-right ml-2 max-w-[120px] truncate">${r[1]}</span>
       </div>`).join('')
       + `<div class="border-t border-slate-200 mt-4 pt-4">
+           <div class="flex justify-between items-center mb-3">
+             <span class="text-xs font-bold text-slate-400 uppercase">Valor</span>
+             <span class="text-sm font-bold text-teal-600">R$ ${preco.toFixed(2).replace('.', ',')}</span>
+           </div>
            <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-700">
              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>Pendente
            </span>
@@ -441,9 +460,11 @@
   function buildReview() {
     capture();
     const per = PERIOD_LABEL[S.periodo] || 'Sem preferência';
+    const preco = PRECO_TAMANHO[S.tamanho] || 0;
     const fields = [
       ['Tipo de Serviço', TIPO_LABEL[S.tipo]||'—'],
       ['Tamanho', S.tamanho==='MEDIO'?'Médio':'Grande'],
+      ['Valor Estimado', `R$ ${preco.toFixed(2).replace('.', ',')}`],
       ['Endereço', `${S.rua||'—'}, ${S.numero||'—'}${S.complemento?' – '+S.complemento:''}`],
       ['Bairro / Cidade', `${S.bairro||'—'} – ${S.cidade||'—'}`],
       ['CEP', S.cep||'—'],
@@ -458,7 +479,7 @@
     document.getElementById('rv-body').innerHTML = fields.map((f,i) => `
       <tr class="hover:bg-slate-100 transition-colors">
         <td class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">${f[0]}</td>
-        <td class="px-4 py-3 text-sm ${i===0?'font-medium text-slate-800':'text-slate-600'}">${f[1]}</td>
+        <td class="px-4 py-3 text-sm ${i===0 || i===2?'font-medium text-slate-800':'text-slate-600'}">${f[1]}</td>
       </tr>`).join('');
   }
 

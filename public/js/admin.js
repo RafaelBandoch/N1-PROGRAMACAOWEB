@@ -37,7 +37,7 @@ botoesTipo.forEach((btn) => {
     updateTabsUI(btn);
     titutoLista.textContent = btn.innerText.trim().replace(/^[^\w\s]+/, '').trim() || (tipoAtual.charAt(0).toUpperCase() + tipoAtual.slice(1));
     
-    if (tipoAtual === 'dashboard') {
+    if (tipoAtual === 'dashboard' || tipoAtual === 'relatorio-financeiro' || tipoAtual === 'clientes-gasto') {
       btnCadastrar.style.display = 'none';
     } else {
       btnCadastrar.style.display = 'flex';
@@ -135,7 +135,16 @@ async function carregarLista(showLoading = false) {
 
   try {
     const token = localStorage.getItem('token');
-    const res = await fetch("/api/" + tipoAtual, {
+    let url = "/api/" + tipoAtual;
+    
+    // Rotas especiais para relatórios
+    if (tipoAtual === 'relatorio-financeiro') {
+      url = "/api/relatorios/financeiro";
+    } else if (tipoAtual === 'clientes-gasto') {
+      url = "/api/relatorios/clientes-maior-gasto";
+    }
+    
+    const res = await fetch(url, {
       headers: { "Authorization": `Bearer ${token}` }
     });
     const dados = await res.json();
@@ -143,6 +152,14 @@ async function carregarLista(showLoading = false) {
 
     if (tipoAtual === 'dashboard') {
       return renderDashboard(dados);
+    }
+    
+    if (tipoAtual === 'relatorio-financeiro') {
+      return renderRelatorioFinanceiro(dados);
+    }
+    
+    if (tipoAtual === 'clientes-gasto') {
+      return renderClientesGasto(dados);
     }
 
     if (!dados || dados.length === 0) {
@@ -799,6 +816,187 @@ async function atualizarStatusSolicitacao(id, status) {
   } catch(e) {
     alert("Erro de conexão!");
   }
+}
+
+function renderRelatorioFinanceiro(dados) {
+  const resumo = dados.resumo || {};
+  const porTamanho = dados.porTamanho || {};
+  const solicitacoes = dados.solicitacoes || [];
+
+  let html = `
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-6 shadow-sm">
+        <span class="text-emerald-600 text-xs font-bold uppercase tracking-widest block mb-2">Total de Receita</span>
+        <div class="flex items-end gap-3">
+          <span class="text-5xl font-black text-emerald-700">R$ ${(resumo.totalReceita || 0).toFixed(2).replace('.', ',')}</span>
+        </div>
+        <p class="text-xs text-emerald-600 mt-2">Todos os pedidos aprovados</p>
+      </div>
+
+      <div class="bg-gradient-to-br from-blue-50 to-sky-50 border border-blue-200 rounded-3xl p-6 shadow-sm">
+        <span class="text-blue-600 text-xs font-bold uppercase tracking-widest block mb-2">Total de Pedidos</span>
+        <div class="flex items-end gap-3">
+          <span class="text-5xl font-black text-blue-700">${resumo.totalPedidos || 0}</span>
+        </div>
+        <p class="text-xs text-blue-600 mt-2">Solicitações processadas</p>
+      </div>
+
+      <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-3xl p-6 shadow-sm">
+        <span class="text-purple-600 text-xs font-bold uppercase tracking-widest block mb-2">Ticket Médio</span>
+        <div class="flex items-end gap-3">
+          <span class="text-5xl font-black text-purple-700">R$ ${(resumo.recebitaMedio || 0).toFixed(2).replace('.', ',')}</span>
+        </div>
+        <p class="text-xs text-purple-600 mt-2">Valor médio por pedido</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-800 mb-6">Receita por Tamanho de Caçamba</h3>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-4 bg-sky-50 rounded-2xl border border-sky-100">
+            <div>
+              <p class="text-sm font-bold text-slate-800">Caçamba Média</p>
+              <p class="text-xs text-slate-500">${porTamanho.MEDIO?.quantidade || 0} pedidos</p>
+            </div>
+            <span class="text-2xl font-black text-sky-600">R$ ${(porTamanho.MEDIO?.receita || 0).toFixed(2).replace('.', ',')}</span>
+          </div>
+          <div class="flex items-center justify-between p-4 bg-amber-50 rounded-2xl border border-amber-100">
+            <div>
+              <p class="text-sm font-bold text-slate-800">Caçamba Grande</p>
+              <p class="text-xs text-slate-500">${porTamanho.GRANDE?.quantidade || 0} pedidos</p>
+            </div>
+            <span class="text-2xl font-black text-amber-600">R$ ${(porTamanho.GRANDE?.receita || 0).toFixed(2).replace('.', ',')}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-800 mb-6">Distribuição de Pedidos</h3>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="text-sm font-semibold text-slate-700">Médio</span>
+              <span class="text-xs font-bold text-slate-500">${Math.round((porTamanho.MEDIO?.quantidade || 0) / ((porTamanho.MEDIO?.quantidade || 0) + (porTamanho.GRANDE?.quantidade || 0)) * 100)}%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div class="bg-sky-500 h-full rounded-full" style="width: ${Math.round((porTamanho.MEDIO?.quantidade || 0) / ((porTamanho.MEDIO?.quantidade || 0) + (porTamanho.GRANDE?.quantidade || 0)) * 100)}%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="text-sm font-semibold text-slate-700">Grande</span>
+              <span class="text-xs font-bold text-slate-500">${Math.round((porTamanho.GRANDE?.quantidade || 0) / ((porTamanho.MEDIO?.quantidade || 0) + (porTamanho.GRANDE?.quantidade || 0)) * 100)}%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div class="bg-amber-500 h-full rounded-full" style="width: ${Math.round((porTamanho.GRANDE?.quantidade || 0) / ((porTamanho.MEDIO?.quantidade || 0) + (porTamanho.GRANDE?.quantidade || 0)) * 100)}%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+      <h3 class="text-lg font-bold text-slate-800 mb-6">Detalhes de Solicitações</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="text-xs uppercase text-slate-400 border-b border-slate-200">
+            <tr>
+              <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">ID</th>
+              <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Cliente</th>
+              <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Tamanho</th>
+              <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Preço</th>
+              <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Data</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            ${solicitacoes.map(s => `
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3 text-sm font-medium text-slate-800">#${s.id}</td>
+                <td class="px-4 py-3 text-sm text-slate-600">${s.nome}</td>
+                <td class="px-4 py-3 text-sm">
+                  <span class="inline-block px-2 py-1 rounded-lg text-xs font-semibold ${s.tamanho === 'MEDIO' ? 'bg-sky-50 text-sky-700' : 'bg-amber-50 text-amber-700'}">
+                    ${s.tamanho}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm font-bold text-teal-600">R$ ${parseFloat(s.preco).toFixed(2).replace('.', ',')}</td>
+                <td class="px-4 py-3 text-sm text-slate-500">${new Date(s.data_agendada).toLocaleDateString('pt-BR')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  listaConteudo.innerHTML = html;
+}
+
+function renderClientesGasto(dados) {
+  const clientes = dados.clientes || [];
+  const totalGeral = dados.totalReceitaGeral || 0;
+
+  let html = `
+    <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-3xl p-6 shadow-sm mb-8">
+      <span class="text-purple-600 text-xs font-bold uppercase tracking-widest block mb-2">Receita Total dos Top Clientes</span>
+      <div class="flex items-end gap-3">
+        <span class="text-5xl font-black text-purple-700">R$ ${totalGeral.toFixed(2).replace('.', ',')}</span>
+      </div>
+    </div>
+
+    <div class="grid gap-6">
+      ${clientes.map((cliente, idx) => `
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-lg hover:border-teal-300 transition duration-300">
+          <div class="flex items-start justify-between mb-6">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-100 to-emerald-50 border border-teal-200 flex items-center justify-center text-2xl font-black text-teal-600">
+                ${idx + 1}
+              </div>
+              <div>
+                <p class="text-[11px] font-bold tracking-widest text-slate-400 uppercase mb-1">Cliente #${idx + 1}</p>
+                <h3 class="text-xl font-bold text-slate-800">${cliente.nome}</h3>
+                <p class="text-xs text-slate-500 font-mono">${cliente.cpf_cnpj}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Gasto</p>
+              <p class="text-2xl font-black text-teal-600">R$ ${cliente.totalGasto.toFixed(2).replace('.', ',')}</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-100">
+            <div class="flex flex-col">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pedidos</span>
+              <span class="text-2xl font-black text-slate-800">${cliente.totalPedidos}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Gasto Médio</span>
+              <span class="text-2xl font-black text-slate-800">R$ ${cliente.gastoMedio.toFixed(2).replace('.', ',')}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Percentual</span>
+              <span class="text-2xl font-black text-slate-800">${(cliente.totalGasto / totalGeral * 100).toFixed(1)}%</span>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-100">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Histórico de Pedidos</p>
+            <div class="space-y-2">
+              ${cliente.detalhes.slice(0, 3).map(d => `
+                <div class="flex items-center justify-between text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                  <span class="text-slate-600">${d.tamanho} - ${new Date(d.data_agendada).toLocaleDateString('pt-BR')}</span>
+                  <span class="font-bold text-teal-600">R$ ${parseFloat(d.preco).toFixed(2).replace('.', ',')}</span>
+                </div>
+              `).join('')}
+              ${cliente.detalhes.length > 3 ? `<p class="text-[10px] text-slate-400 text-center pt-2">+ ${cliente.detalhes.length - 3} pedido(s)</p>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  listaConteudo.innerHTML = html;
 }
 
 async function abrirModalAprovacao(id) {
