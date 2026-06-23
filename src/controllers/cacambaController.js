@@ -3,7 +3,7 @@ const db = require('../database/db');
 exports.criar = async (req, res, next) => {
   try {
 
-    const { tamanho, status } = req.body;
+    const { tamanho, status, preco } = req.body;
 
     if (!tamanho) {
       return res.status(400).json({ erro: 'Tamanho é obrigatório' });
@@ -12,6 +12,7 @@ exports.criar = async (req, res, next) => {
     const [id] = await db('cacambas').insert({
       tamanho,
       status: status || 'DISPONIVEL',
+      preco: preco || 0,
     });
 
     res.status(201).json({

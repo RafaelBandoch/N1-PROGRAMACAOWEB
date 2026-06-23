@@ -142,14 +142,20 @@
               <div class="text-3xl mb-3">🗑️</div>
               <div class="text-base font-bold text-slate-800 mb-1">Médio</div>
               <div class="text-xs text-slate-500 leading-relaxed">Reformas residenciais e pequenos entulhos.</div>
-              <span class="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-lg bg-white border border-teal-200 text-teal-700">Até 3m³</span>
+              <div class="flex items-center justify-between mt-3">
+                <span class="inline-block text-xs font-bold px-3 py-1 rounded-lg bg-white border border-teal-200 text-teal-700">Até 3m³</span>
+                <span class="text-sm font-bold text-teal-600">R$ 350</span>
+              </div>
             </button>
             <button onclick="selSize(this,'GRANDE')"
               class="size-card border border-slate-200 bg-white hover:border-slate-300 rounded-2xl p-6 text-left transition-all">
               <div class="text-3xl mb-3">🏗️</div>
               <div class="text-base font-bold text-slate-400 mb-1">Grande</div>
               <div class="text-xs text-slate-400 leading-relaxed">Obras maiores, demolições e grandes volumes.</div>
-              <span class="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-400">Até 5m³</span>
+              <div class="flex items-center justify-between mt-3">
+                <span class="inline-block text-xs font-bold px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-400">Até 5m³</span>
+                <span class="text-sm font-bold text-slate-400">R$ 450</span>
+              </div>
             </button>
           </div>
         </div>
@@ -245,6 +251,37 @@
                 <option value="MANHA">Manhã (08h – 12h)</option>
                 <option value="TARDE">Tarde (13h – 17h)</option>
               </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-3xl p-8 mb-6 shadow-sm">
+          <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-6">Forma de Pagamento</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Método *</label>
+              <select id="forma_pagamento" onchange="toggleTroco(this.value)"
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all">
+                <option value="">Selecione...</option>
+                <optgroup label="Pagamento na Entrega">
+                  <option value="DINHEIRO_ENTREGA">Dinheiro (na entrega)</option>
+                  <option value="CARTAO_CREDITO_ENTREGA">Cartão de Crédito (na entrega)</option>
+                  <option value="CARTAO_DEBITO_ENTREGA">Cartão de Débito (na entrega)</option>
+                </optgroup>
+                <optgroup label="Pagamento Online">
+                  <option value="PIX_ONLINE">PIX (Online)</option>
+                  <option value="CARTAO_CREDITO_ONLINE">Cartão de Crédito (Online)</option>
+                  <option value="CARTAO_DEBITO_ONLINE">Cartão de Débito (Online)</option>
+                </optgroup>
+              </select>
+            </div>
+            <div id="div_troco" class="hidden">
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Troco para quanto?</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 text-sm font-bold">R$</span>
+                <input type="number" id="troco_para" placeholder="Ex: 500.00" step="0.01"
+                  class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
+              </div>
             </div>
           </div>
         </div>
@@ -349,6 +386,7 @@
   const S = { tipo:'ENTREGA', tamanho:'MEDIO', obs:'', cep:'', cidade:'', rua:'', numero:'', bairro:'', complemento:'', referencia:'', data:'', periodo:'', nome:'', cpf:'', tel:'', email:'' };
   const TIPO_LABEL = { ENTREGA:'🚚 Entrega', COLETA:'📦 Coleta', TROCA:'🔄 Troca' };
   const PERIOD_LABEL = { MANHA:'Manhã (08h–12h)', TARDE:'Tarde (13h–17h)' };
+  const PRECO_TAMANHO = { MEDIO: 350, GRANDE: 450 };
 
   function goStep(n) {
     capture();
@@ -385,8 +423,19 @@
   }
 
   function capture() {
-    ['obs','cep','cidade','rua','numero','bairro','complemento','referencia','data','periodo','nome','cpf','tel','email']
+    ['obs','cep','cidade','rua','numero','bairro','complemento','referencia','data','periodo','nome','cpf','tel','email','forma_pagamento','troco_para']
       .forEach(k => { const el=document.getElementById(k); if(el) S[k]=el.value; });
+  }
+
+  function toggleTroco(val) {
+    const divTroco = document.getElementById('div_troco');
+    if (val === 'DINHEIRO_ENTREGA') {
+      divTroco.classList.remove('hidden');
+    } else {
+      divTroco.classList.add('hidden');
+      document.getElementById('troco_para').value = '';
+    }
+    updateSummary();
   }
 
   function selTipo(el, v) {
@@ -406,10 +455,14 @@
       c.classList.add('bg-white','border-slate-200');
       c.querySelector('.text-base').className = 'text-base font-bold text-slate-400 mb-1';
       c.querySelector('.text-xs.leading-relaxed').className = 'text-xs text-slate-400 leading-relaxed';
+      const priceSpan = c.querySelector('span.text-sm.font-bold');
+      if (priceSpan) priceSpan.className = 'text-sm font-bold text-slate-400';
     });
     el.classList.add('sel-card'); el.classList.remove('bg-white','border-slate-200');
     el.querySelector('.text-base').className = 'text-base font-bold text-slate-800 mb-1';
     el.querySelector('.text-xs.leading-relaxed').className = 'text-xs text-slate-500 leading-relaxed';
+    const priceSpan = el.querySelector('span.text-sm.font-bold');
+    if (priceSpan) priceSpan.className = 'text-sm font-bold text-teal-600';
     S.tamanho = v; updateSummary();
   }
 
@@ -417,13 +470,32 @@
     capture();
     const rows = [];
     if(S.tipo)           rows.push(['Tipo', TIPO_LABEL[S.tipo]]);
-    if(S.tamanho)        rows.push(['Tamanho', S.tamanho==='MEDIO'?'Médio':'Grande']);
+    if(S.tamanho) {
+      const tamanhoLabel = S.tamanho==='MEDIO'?'Médio':'Grande';
+      rows.push(['Tamanho', tamanhoLabel]);
+    }
     if(S.rua&&S.numero)  rows.push(['Endereço', S.rua+', '+S.numero]);
     if(S.bairro)         rows.push(['Bairro', S.bairro]);
     if(S.cidade)         rows.push(['Cidade', S.cidade]);
     if(S.data)           rows.push(['Data', fmtDate(S.data)]);
     if(S.nome)           rows.push(['Cliente', S.nome]);
+    if(S.forma_pagamento) {
+      const labels = {
+        'DINHEIRO_ENTREGA': 'Dinheiro (Entrega)',
+        'CARTAO_CREDITO_ENTREGA': 'Crédito (Entrega)',
+        'CARTAO_DEBITO_ENTREGA': 'Débito (Entrega)',
+        'PIX_ONLINE': 'PIX (Online)',
+        'CARTAO_CREDITO_ONLINE': 'Crédito (Online)',
+        'CARTAO_DEBITO_ONLINE': 'Débito (Online)'
+      };
+      let txt = labels[S.forma_pagamento] || S.forma_pagamento;
+      if (S.forma_pagamento === 'DINHEIRO_ENTREGA' && S.troco_para) {
+        txt += ` (Troco para R$ ${parseFloat(S.troco_para).toFixed(2)})`;
+      }
+      rows.push(['Pagamento', txt]);
+    }
 
+    const preco = PRECO_TAMANHO[S.tamanho] || 0;
     const b = document.getElementById('sum-body');
     if(!rows.length) { b.innerHTML='<div class="text-slate-400 text-xs text-center py-4">Preencha o formulário...</div>'; return; }
     b.innerHTML = rows.map(r=>`
@@ -432,6 +504,10 @@
         <span class="text-xs font-semibold text-slate-700 text-right ml-2 max-w-[120px] truncate">${r[1]}</span>
       </div>`).join('')
       + `<div class="border-t border-slate-200 mt-4 pt-4">
+           <div class="flex justify-between items-center mb-3">
+             <span class="text-xs font-bold text-slate-400 uppercase">Valor</span>
+             <span class="text-sm font-bold text-teal-600">R$ ${preco.toFixed(2).replace('.', ',')}</span>
+           </div>
            <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-700">
              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>Pendente
            </span>
@@ -441,9 +517,11 @@
   function buildReview() {
     capture();
     const per = PERIOD_LABEL[S.periodo] || 'Sem preferência';
+    const preco = PRECO_TAMANHO[S.tamanho] || 0;
     const fields = [
       ['Tipo de Serviço', TIPO_LABEL[S.tipo]||'—'],
       ['Tamanho', S.tamanho==='MEDIO'?'Médio':'Grande'],
+      ['Valor Estimado', `R$ ${preco.toFixed(2).replace('.', ',')}`],
       ['Endereço', `${S.rua||'—'}, ${S.numero||'—'}${S.complemento?' – '+S.complemento:''}`],
       ['Bairro / Cidade', `${S.bairro||'—'} – ${S.cidade||'—'}`],
       ['CEP', S.cep||'—'],
@@ -453,12 +531,13 @@
       ['CPF / CNPJ', S.cpf||'—'],
       ['Telefone', S.tel||'—'],
       ['E-mail', S.email||'—'],
+      ['Forma de Pagamento', S.forma_pagamento ? (S.forma_pagamento === 'DINHEIRO_ENTREGA' && S.troco_para ? `Dinheiro na Entrega (Troco p/ R$ ${S.troco_para})` : S.forma_pagamento.replace(/_/g, ' ')) : '—'],
       ['Observações', S.obs||'—'],
     ];
     document.getElementById('rv-body').innerHTML = fields.map((f,i) => `
       <tr class="hover:bg-slate-100 transition-colors">
         <td class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">${f[0]}</td>
-        <td class="px-4 py-3 text-sm ${i===0?'font-medium text-slate-800':'text-slate-600'}">${f[1]}</td>
+        <td class="px-4 py-3 text-sm ${i===0 || i===2?'font-medium text-slate-800':'text-slate-600'}">${f[1]}</td>
       </tr>`).join('');
   }
 
@@ -466,11 +545,11 @@
     capture();
     
     // Validação de campos obrigatórios antes do envio
-    if (!S.nome || !S.cpf || !S.tel || !S.rua || !S.numero || !S.bairro || !S.cidade || !S.cep || !S.data) {
-      alert('Por favor, preencha todos os campos obrigatórios (*) antes de confimar.');
+    if (!S.nome || !S.cpf || !S.tel || !S.rua || !S.numero || !S.bairro || !S.cidade || !S.cep || !S.data || !S.forma_pagamento) {
+      alert('Por favor, preencha todos os campos obrigatórios (*) antes de confirmar.');
       // Adicional: volta automaticamente para qual etapa faltou
       if (!S.rua || !S.numero || !S.bairro || !S.cidade || !S.cep) goStep(2);
-      else if (!S.data || !S.nome || !S.cpf || !S.tel) goStep(3);
+      else if (!S.data || !S.nome || !S.cpf || !S.tel || !S.forma_pagamento) goStep(3);
       return;
     }
 
@@ -485,7 +564,9 @@
       endereco: enderecoFormatado,
       tamanho: S.tamanho,
       data_agendada: S.data,
-      observacoes: obsFormatada
+      observacoes: obsFormatada,
+      forma_pagamento: S.forma_pagamento,
+      troco_para: S.forma_pagamento === 'DINHEIRO_ENTREGA' ? S.troco_para : null
     };
 
     try {

@@ -5,6 +5,7 @@ const { authenticateToken, checkRole } = require('../middlewares/authMiddleware'
 
 router.get('/', solicitacaoController.index);
 router.post('/', solicitacaoController.create);
+router.get('/gastos/cliente', authenticateToken, solicitacaoController.obterGastosCliente);
 router.patch('/:id/status', solicitacaoController.updateStatus);
 router.post('/:id/aprovar', authenticateToken, checkRole(['admin']), solicitacaoController.aprovar);
 router.get('/:id/rastreamento', authenticateToken, checkRole(['cliente', 'admin']), solicitacaoController.rastrear);

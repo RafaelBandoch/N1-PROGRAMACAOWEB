@@ -25,11 +25,13 @@ exports.listar = async (req, res, next) => {
         'tarefas.*',
         'clientes.nome as cliente_nome',
         'motoristas.nome as motorista_nome',
-        'veiculos.placa as veiculo_placa'
+        'veiculos.placa as veiculo_placa',
+        'cacambas.preco as preco'
       )
       .leftJoin('clientes', 'tarefas.cliente_id', 'clientes.id')
       .leftJoin('motoristas', 'tarefas.motorista_id', 'motoristas.id')
       .leftJoin('veiculos', 'tarefas.veiculo_id', 'veiculos.id')
+      .leftJoin('cacambas', 'tarefas.cacamba_id', 'cacambas.id')
       .orderBy('data_agendada', 'asc');
 
     if (req.user && req.user.role === 'motorista' && req.user.motorista_id) {

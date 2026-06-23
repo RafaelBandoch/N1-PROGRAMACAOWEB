@@ -62,11 +62,47 @@
       </a>
     </div>
 
+    <!-- Resumo Financeiro -->
+    <div id="resumoFinanceiro" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 hidden">
+      <div class="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-3xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-teal-600 uppercase tracking-wider">Total Gasto</span>
+          <span class="text-2xl">💰</span>
+        </div>
+        <div class="flex items-end gap-2">
+          <h3 id="totalGasto" class="text-3xl font-bold text-teal-700">R$ 0,00</h3>
+        </div>
+        <p class="text-xs text-teal-600 mt-2">Soma de todos os pedidos aprovados</p>
+      </div>
+
+      <div class="bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-200 rounded-3xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-sky-600 uppercase tracking-wider">Total de Pedidos</span>
+          <span class="text-2xl">📋</span>
+        </div>
+        <div class="flex items-end gap-2">
+          <h3 id="totalPedidos" class="text-3xl font-bold text-sky-700">0</h3>
+        </div>
+        <p class="text-xs text-sky-600 mt-2">Solicitações aprovadas</p>
+      </div>
+
+      <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-3xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-purple-600 uppercase tracking-wider">Gasto Médio</span>
+          <span class="text-2xl">📊</span>
+        </div>
+        <div class="flex items-end gap-2">
+          <h3 id="gastoMedio" class="text-3xl font-bold text-purple-700">R$ 0,00</h3>
+        </div>
+        <p class="text-xs text-purple-600 mt-2">Valor médio por pedido</p>
+      </div>
+    </div>
+
     <div id="loading" class="text-slate-400 py-12 text-center animate-pulse">
       Carregando suas solicitações...
     </div>
 
-    <div id="pedidosList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 hidden">
+    <div id="pedidosList" class="space-y-12 hidden">
       <!-- Pedidos renderizados aqui -->
     </div>
     
@@ -93,7 +129,33 @@
         document.getElementById('userEmailDisplay').textContent = user.email;
       }
       loadPedidos();
+      loadResumoFinanceiro();
     });
+
+    async function loadResumoFinanceiro() {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('/api/solicitacoes/gastos/cliente', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const resumo = document.getElementById('resumoFinanceiro');
+          resumo.classList.remove('hidden');
+
+          document.getElementById('totalGasto').textContent = `R$ ${data.totalGasto.toFixed(2).replace('.', ',')}`;
+          document.getElementById('totalPedidos').textContent = data.totalPedidos;
+          
+          const gastoMedio = data.totalPedidos > 0 ? data.totalGasto / data.totalPedidos : 0;
+          document.getElementById('gastoMedio').textContent = `R$ ${gastoMedio.toFixed(2).replace('.', ',')}`;
+        }
+      } catch (err) {
+        console.error('Erro ao carregar resumo financeiro:', err);
+      }
+    }
 
     async function loadPedidos() {
       const token = localStorage.getItem('token');
@@ -208,63 +270,117 @@
       const list = document.getElementById('pedidosList');
       list.innerHTML = '';
 
+      // Ordenar por data (mais recentes primeiro)
+      pedidos.sort((a, b) => new Date(b.data_agendada) - new Date(a.data_agendada));
+
+      // Agrupar pedidos por mês e ano
+      const agrupados = {};
+      
       pedidos.forEach(pedido => {
         const dAgendada = new Date(pedido.data_agendada);
-        const dCriada = new Date(pedido.created_at);
-        const dataFormatada = !isNaN(dAgendada) ? dAgendada.toLocaleDateString('pt-BR') : pedido.data_agendada;
-        const dataCriadaFormatada = !isNaN(dCriada) ? dCriada.toLocaleDateString('pt-BR') : '-';
-        
-        let statusColor = 'text-amber-700 bg-amber-50 border-amber-200';
-        let statusIcon = '⏳';
-        let statusText = 'Em Análise';
-        
-        if (pedido.status === 'ACEITO') {
-          statusColor = 'text-teal-700 bg-teal-50 border-teal-200';
-          statusIcon = '✅';
-          statusText = 'Aprovado / Em andamento';
-        } else if (pedido.status === 'REJEITADO') {
-          statusColor = 'text-red-600 bg-red-50 border-red-200';
-          statusIcon = '❌';
-          statusText = 'Cancelado';
+        let mesAno = 'Data Indefinida';
+        if (!isNaN(dAgendada)) {
+          mesAno = dAgendada.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+          mesAno = mesAno.charAt(0).toUpperCase() + mesAno.slice(1);
         }
-
-        const card = document.createElement('div');
-        card.className = 'bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col hover:border-teal-300 hover:shadow-md transition-all relative group';
-        card.innerHTML = `
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Pedido #${pedido.id}</span>
-              <h3 class="text-lg font-bold text-slate-800 uppercase">${pedido.tamanho}</h3>
-            </div>
-            <div class="px-3 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 ${statusColor}">
-              <span>${statusIcon}</span> ${statusText}
-            </div>
-          </div>
-          
-          <div class="space-y-3 mb-6 flex-1">
-            <div class="flex gap-3 text-sm">
-              <span class="w-5 text-center shrink-0">📅</span>
-              <div>
-                <span class="block text-slate-400 text-xs uppercase">Data Agendada</span>
-                <span class="text-slate-700 font-medium">${dataFormatada}</span>
-              </div>
-            </div>
-            <div class="flex gap-3 text-sm">
-              <span class="w-5 text-center shrink-0">📍</span>
-              <div>
-                <span class="block text-slate-400 text-xs uppercase">Endereço</span>
-                <span class="text-slate-700 font-medium line-clamp-2" title="${pedido.endereco}">${pedido.endereco}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400">
-            <span>Solicitado em: ${dataCriadaFormatada}</span>
-            ${pedido.status === 'ACEITO' ? `<button onclick="abrirRastreamento(${pedido.id})" class="bg-teal-50 text-teal-700 font-semibold px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-100 transition">Acompanhar Pedido</button>` : ''}
-          </div>
-        `;
-        list.appendChild(card);
+        
+        if (!agrupados[mesAno]) {
+          agrupados[mesAno] = [];
+        }
+        agrupados[mesAno].push(pedido);
       });
+
+      for (const [mesAno, pedidosDoMes] of Object.entries(agrupados)) {
+        // Criar seção para o mês
+        const section = document.createElement('div');
+        
+        const titulo = document.createElement('h2');
+        titulo.className = 'text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-slate-200 pb-3';
+        titulo.innerHTML = `<span class="text-3xl">📅</span> ${mesAno} <span class="text-sm font-normal text-slate-400 ml-2">(${pedidosDoMes.length} pedidos)</span>`;
+        section.appendChild(titulo);
+
+        const grid = document.createElement('div');
+        grid.className = 'grid gap-6 md:grid-cols-2 lg:grid-cols-3';
+
+        pedidosDoMes.forEach(pedido => {
+          const dAgendada = new Date(pedido.data_agendada);
+          const dCriada = new Date(pedido.created_at);
+          const dataFormatada = !isNaN(dAgendada) ? dAgendada.toLocaleDateString('pt-BR') : pedido.data_agendada;
+          const dataCriadaFormatada = !isNaN(dCriada) ? dCriada.toLocaleDateString('pt-BR') : '-';
+          
+          let statusColor = 'text-amber-700 bg-amber-50 border-amber-200';
+          let statusIcon = '⏳';
+          let statusText = 'Em Análise';
+          
+          if (pedido.status === 'ACEITO') {
+            statusColor = 'text-teal-700 bg-teal-50 border-teal-200';
+            statusIcon = '✅';
+            statusText = 'Aprovado / Em andamento';
+          } else if (pedido.status === 'REJEITADO') {
+            statusColor = 'text-red-600 bg-red-50 border-red-200';
+            statusIcon = '❌';
+            statusText = 'Cancelado';
+          }
+
+          const card = document.createElement('div');
+          card.className = 'bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col hover:border-teal-300 hover:shadow-md transition-all relative group';
+          card.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">Pedido #${pedido.id}</span>
+                <h3 class="text-lg font-bold text-slate-800 uppercase">${pedido.tamanho}</h3>
+              </div>
+              <div class="px-3 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 ${statusColor}">
+                <span>${statusIcon}</span> ${statusText}
+              </div>
+            </div>
+            
+            <div class="space-y-3 mb-6 flex-1">
+              <div class="flex gap-3 text-sm">
+                <span class="w-5 text-center shrink-0">📅</span>
+                <div>
+                  <span class="block text-slate-400 text-xs uppercase">Data Agendada</span>
+                  <span class="text-slate-700 font-medium">${dataFormatada}</span>
+                </div>
+              </div>
+              <div class="flex gap-3 text-sm">
+                <span class="w-5 text-center shrink-0">📍</span>
+                <div>
+                  <span class="block text-slate-400 text-xs uppercase">Endereço</span>
+                  <span class="text-slate-700 font-medium line-clamp-2" title="${pedido.endereco}">${pedido.endereco}</span>
+                </div>
+              </div>
+              ${pedido.preco ? `
+              <div class="flex gap-3 text-sm">
+                <span class="w-5 text-center shrink-0">💰</span>
+                <div>
+                  <span class="block text-slate-400 text-xs uppercase">Valor</span>
+                  <span class="text-teal-700 font-bold text-base">R$ ${parseFloat(pedido.preco).toFixed(2).replace('.', ',')}</span>
+                </div>
+              </div>
+              ` : ''}
+              ${pedido.forma_pagamento ? `
+              <div class="flex gap-3 text-sm">
+                <span class="w-5 text-center shrink-0">💳</span>
+                <div>
+                  <span class="block text-slate-400 text-xs uppercase">Pagamento</span>
+                  <span class="text-slate-700 font-medium">${pedido.forma_pagamento.replace(/_/g, ' ')}${pedido.forma_pagamento === 'DINHEIRO_ENTREGA' && pedido.troco_para ? ` (Troco p/ R$ ${parseFloat(pedido.troco_para).toFixed(2).replace('.', ',')})` : ''}</span>
+                </div>
+              </div>
+              ` : ''}
+            </div>
+            
+            <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400">
+              <span>Solicitado em: ${dataCriadaFormatada}</span>
+              ${pedido.status === 'ACEITO' ? `<button onclick="abrirRastreamento(${pedido.id})" class="bg-teal-50 text-teal-700 font-semibold px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-100 transition">Acompanhar Pedido</button>` : ''}
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+        section.appendChild(grid);
+        list.appendChild(section);
+      }
     }
   </script>
   <script src="../js/notificacoes.js"></script>

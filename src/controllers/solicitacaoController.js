@@ -26,7 +26,7 @@ module.exports = {
 
   async create(req, res, next) {
     try {
-      const { nome, cpf_cnpj, telefone, endereco, tamanho, data_agendada, observacoes } = req.body;
+      const { nome, cpf_cnpj, telefone, endereco, tamanho, data_agendada, observacoes, forma_pagamento, troco_para } = req.body;
       
       let finalCpfCnpj = cpf_cnpj;
       if (req.user && req.user.role === 'cliente' && req.user.cliente_id) {
@@ -36,6 +36,13 @@ module.exports = {
         }
       }
 
+      // Obter preço da caçamba baseado no tamanho
+      const cacambaPreco = await db('cacambas')
+        .where({ tamanho })
+        .first();
+      
+      const preco = cacambaPreco ? cacambaPreco.preco : 0;
+
       const [id] = await db('solicitacoes').insert({
         nome,
         cpf_cnpj: finalCpfCnpj,
@@ -44,7 +51,10 @@ module.exports = {
         tamanho,
         data_agendada,
         observacoes,
-        status: 'PENDENTE'
+        status: 'PENDENTE',
+        preco,
+        forma_pagamento,
+        troco_para: troco_para ? parseFloat(troco_para) : null
       });
 
       const admins = await db('usuarios').where({ role: 'admin' });
@@ -138,7 +148,9 @@ module.exports = {
           endereco_execucao: sol.endereco,
           data_agendada: sol.data_agendada,
           status: 'EM_ANDAMENTO',
-          justificativa: sol.observacoes || ''
+          justificativa: sol.observacoes || '',
+          forma_pagamento: sol.forma_pagamento,
+          troco_para: sol.troco_para
         });
 
         let rota = await trx('rotas')
@@ -236,5 +248,50 @@ module.exports = {
     } catch(error) {
       next(error);
     }
+  },
+
+  async obterGastosCliente(req, res, next) {
+    try {
+      let cpf_cnpj;
+
+      if (req.user && req.user.role === 'cliente' && req.user.cliente_id) {
+        const cliente = await db('clientes').where({ id: req.user.cliente_id }).first();
+        if (!cliente) {
+          return res.status(404).json({ erro: 'Cliente não encontrado' });
+        }
+        cpf_cnpj = cliente.cpf_cnpj;
+      } else if (req.user && req.user.role === 'admin') {
+        // Admin pode ver gastos de qualquer cliente
+        cpf_cnpj = req.query.cpf_cnpj;
+        if (!cpf_cnpj) {
+          return res.status(400).json({ erro: 'CPF/CNPJ é obrigatório para admin' });
+        }
+      } else {
+        return res.status(403).json({ erro: 'Acesso negado' });
+      }
+
+      const solicitacoes = await db('solicitacoes')
+        .where({ cpf_cnpj })
+        .whereIn('status', ['ACEITO'])
+        .select('*');
+
+      const totalGasto = solicitacoes.reduce((acc, sol) => acc + parseFloat(sol.preco || 0), 0);
+      const totalPedidos = solicitacoes.length;
+
+      return res.json({
+        cpf_cnpj,
+        totalGasto: parseFloat(totalGasto.toFixed(2)),
+        totalPedidos,
+        solicitacoes: solicitacoes.map(sol => ({
+          id: sol.id,
+          tamanho: sol.tamanho,
+          preco: parseFloat(sol.preco || 0),
+          data_agendada: sol.data_agendada,
+          status: sol.status
+        }))
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-};
+}
