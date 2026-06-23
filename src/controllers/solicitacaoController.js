@@ -26,7 +26,7 @@ module.exports = {
 
   async create(req, res, next) {
     try {
-      const { nome, cpf_cnpj, telefone, endereco, tamanho, data_agendada, observacoes } = req.body;
+      const { nome, cpf_cnpj, telefone, endereco, tamanho, data_agendada, observacoes, forma_pagamento, troco_para } = req.body;
       
       let finalCpfCnpj = cpf_cnpj;
       if (req.user && req.user.role === 'cliente' && req.user.cliente_id) {
@@ -52,7 +52,9 @@ module.exports = {
         data_agendada,
         observacoes,
         status: 'PENDENTE',
-        preco
+        preco,
+        forma_pagamento,
+        troco_para: troco_para ? parseFloat(troco_para) : null
       });
 
       const admins = await db('usuarios').where({ role: 'admin' });
@@ -146,7 +148,9 @@ module.exports = {
           endereco_execucao: sol.endereco,
           data_agendada: sol.data_agendada,
           status: 'EM_ANDAMENTO',
-          justificativa: sol.observacoes || ''
+          justificativa: sol.observacoes || '',
+          forma_pagamento: sol.forma_pagamento,
+          troco_para: sol.troco_para
         });
 
         let rota = await trx('rotas')

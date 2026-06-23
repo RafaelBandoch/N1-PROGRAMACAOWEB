@@ -767,6 +767,12 @@ function renderSolicitacoes(dados) {
                <span class="text-slate-400 font-medium w-20 shrink-0">📅 Agendado:</span>
                <span class="font-semibold">${dataAgendadaStr}</span>
              </div>
+             ${s.forma_pagamento ? `
+             <div class="flex items-center gap-2">
+               <span class="text-slate-400 font-medium w-20 shrink-0">💳 Pgto:</span>
+               <span class="font-semibold text-slate-700">${s.forma_pagamento.replace(/_/g, ' ')}${s.forma_pagamento === 'DINHEIRO_ENTREGA' && s.troco_para ? ` (Troco R$ ${s.troco_para})` : ''}</span>
+             </div>
+             ` : ''}
              ${s.observacoes ? `
                <div class="flex items-start gap-2 mt-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs">
                  <span class="text-slate-400 font-medium shrink-0">💬 Obs:</span>

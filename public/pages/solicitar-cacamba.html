@@ -256,6 +256,37 @@
         </div>
 
         <div class="bg-white border border-slate-200 rounded-3xl p-8 mb-6 shadow-sm">
+          <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-6">Forma de Pagamento</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Método *</label>
+              <select id="forma_pagamento" onchange="toggleTroco(this.value)"
+                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all">
+                <option value="">Selecione...</option>
+                <optgroup label="Pagamento na Entrega">
+                  <option value="DINHEIRO_ENTREGA">Dinheiro (na entrega)</option>
+                  <option value="CARTAO_CREDITO_ENTREGA">Cartão de Crédito (na entrega)</option>
+                  <option value="CARTAO_DEBITO_ENTREGA">Cartão de Débito (na entrega)</option>
+                </optgroup>
+                <optgroup label="Pagamento Online">
+                  <option value="PIX_ONLINE">PIX (Online)</option>
+                  <option value="CARTAO_CREDITO_ONLINE">Cartão de Crédito (Online)</option>
+                  <option value="CARTAO_DEBITO_ONLINE">Cartão de Débito (Online)</option>
+                </optgroup>
+              </select>
+            </div>
+            <div id="div_troco" class="hidden">
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Troco para quanto?</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 text-sm font-bold">R$</span>
+                <input type="number" id="troco_para" placeholder="Ex: 500.00" step="0.01"
+                  class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-3xl p-8 mb-6 shadow-sm">
           <h2 class="text-2xl font-bold text-slate-800 tracking-tight mb-6">Dados do Cliente</h2>
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -392,8 +423,19 @@
   }
 
   function capture() {
-    ['obs','cep','cidade','rua','numero','bairro','complemento','referencia','data','periodo','nome','cpf','tel','email']
+    ['obs','cep','cidade','rua','numero','bairro','complemento','referencia','data','periodo','nome','cpf','tel','email','forma_pagamento','troco_para']
       .forEach(k => { const el=document.getElementById(k); if(el) S[k]=el.value; });
+  }
+
+  function toggleTroco(val) {
+    const divTroco = document.getElementById('div_troco');
+    if (val === 'DINHEIRO_ENTREGA') {
+      divTroco.classList.remove('hidden');
+    } else {
+      divTroco.classList.add('hidden');
+      document.getElementById('troco_para').value = '';
+    }
+    updateSummary();
   }
 
   function selTipo(el, v) {
@@ -437,6 +479,21 @@
     if(S.cidade)         rows.push(['Cidade', S.cidade]);
     if(S.data)           rows.push(['Data', fmtDate(S.data)]);
     if(S.nome)           rows.push(['Cliente', S.nome]);
+    if(S.forma_pagamento) {
+      const labels = {
+        'DINHEIRO_ENTREGA': 'Dinheiro (Entrega)',
+        'CARTAO_CREDITO_ENTREGA': 'Crédito (Entrega)',
+        'CARTAO_DEBITO_ENTREGA': 'Débito (Entrega)',
+        'PIX_ONLINE': 'PIX (Online)',
+        'CARTAO_CREDITO_ONLINE': 'Crédito (Online)',
+        'CARTAO_DEBITO_ONLINE': 'Débito (Online)'
+      };
+      let txt = labels[S.forma_pagamento] || S.forma_pagamento;
+      if (S.forma_pagamento === 'DINHEIRO_ENTREGA' && S.troco_para) {
+        txt += ` (Troco para R$ ${parseFloat(S.troco_para).toFixed(2)})`;
+      }
+      rows.push(['Pagamento', txt]);
+    }
 
     const preco = PRECO_TAMANHO[S.tamanho] || 0;
     const b = document.getElementById('sum-body');
@@ -474,6 +531,7 @@
       ['CPF / CNPJ', S.cpf||'—'],
       ['Telefone', S.tel||'—'],
       ['E-mail', S.email||'—'],
+      ['Forma de Pagamento', S.forma_pagamento ? (S.forma_pagamento === 'DINHEIRO_ENTREGA' && S.troco_para ? `Dinheiro na Entrega (Troco p/ R$ ${S.troco_para})` : S.forma_pagamento.replace(/_/g, ' ')) : '—'],
       ['Observações', S.obs||'—'],
     ];
     document.getElementById('rv-body').innerHTML = fields.map((f,i) => `
@@ -487,11 +545,11 @@
     capture();
     
     // Validação de campos obrigatórios antes do envio
-    if (!S.nome || !S.cpf || !S.tel || !S.rua || !S.numero || !S.bairro || !S.cidade || !S.cep || !S.data) {
-      alert('Por favor, preencha todos os campos obrigatórios (*) antes de confimar.');
+    if (!S.nome || !S.cpf || !S.tel || !S.rua || !S.numero || !S.bairro || !S.cidade || !S.cep || !S.data || !S.forma_pagamento) {
+      alert('Por favor, preencha todos os campos obrigatórios (*) antes de confirmar.');
       // Adicional: volta automaticamente para qual etapa faltou
       if (!S.rua || !S.numero || !S.bairro || !S.cidade || !S.cep) goStep(2);
-      else if (!S.data || !S.nome || !S.cpf || !S.tel) goStep(3);
+      else if (!S.data || !S.nome || !S.cpf || !S.tel || !S.forma_pagamento) goStep(3);
       return;
     }
 
@@ -506,7 +564,9 @@
       endereco: enderecoFormatado,
       tamanho: S.tamanho,
       data_agendada: S.data,
-      observacoes: obsFormatada
+      observacoes: obsFormatada,
+      forma_pagamento: S.forma_pagamento,
+      troco_para: S.forma_pagamento === 'DINHEIRO_ENTREGA' ? S.troco_para : null
     };
 
     try {
