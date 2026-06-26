@@ -3,7 +3,7 @@ node_modules/
 package-lock.json
 
 # Tailwind (CSS gerado)
-public/css/output.css
+frontend/public/css/output.css
 
 # Env
 .env

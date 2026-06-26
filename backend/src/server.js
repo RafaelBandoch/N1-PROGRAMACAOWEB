@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const app = express();
 
@@ -10,10 +10,10 @@ const loggerMiddleware = require('./middlewares/loggerMiddleware');
 app.use(loggerMiddleware);
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/landing.html'));
+  res.sendFile(path.join(__dirname, '../../frontend/public/landing.html'));
 });
 
-app.use(express.static(path.join(__dirname, '../public'), {
+app.use(express.static(path.join(__dirname, '../../frontend/public'), {
   index: false,
   extensions: ['html']
 }));

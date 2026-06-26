@@ -36,13 +36,13 @@ botoesTipo.forEach((btn) => {
     tipoAtual = btn.dataset.tipo;
     updateTabsUI(btn);
     titutoLista.textContent = btn.innerText.trim().replace(/^[^\w\s]+/, '').trim() || (tipoAtual.charAt(0).toUpperCase() + tipoAtual.slice(1));
-    
-    if (tipoAtual === 'dashboard' || tipoAtual === 'relatorio-financeiro' || tipoAtual === 'clientes-gasto') {
+
+    if (tipoAtual === 'dashboard' || tipoAtual === 'relatorio-financeiro' || tipoAtual === 'clientes-gasto' || tipoAtual === 'logs') {
       btnCadastrar.style.display = 'none';
     } else {
       btnCadastrar.style.display = 'flex';
     }
-    
+
     carregarLista(true);
   });
 });
@@ -95,11 +95,11 @@ async function abrirModal() {
       try {
         const token = localStorage.getItem('token');
         const res = await fetch("/api/" + tipoAtual, {
-          method: "POST", 
-          headers: { 
+          method: "POST",
+          headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
-          }, 
+          },
           body: JSON.stringify(dados),
         });
         const data = await res.json();
@@ -136,14 +136,14 @@ async function carregarLista(showLoading = false) {
   try {
     const token = localStorage.getItem('token');
     let url = "/api/" + tipoAtual;
-    
+
     // Rotas especiais para relatórios
     if (tipoAtual === 'relatorio-financeiro') {
       url = "/api/relatorios/financeiro";
     } else if (tipoAtual === 'clientes-gasto') {
       url = "/api/relatorios/clientes-maior-gasto";
     }
-    
+
     const res = await fetch(url, {
       headers: { "Authorization": `Bearer ${token}` }
     });
@@ -153,13 +153,17 @@ async function carregarLista(showLoading = false) {
     if (tipoAtual === 'dashboard') {
       return renderDashboard(dados);
     }
-    
+
     if (tipoAtual === 'relatorio-financeiro') {
       return renderRelatorioFinanceiro(dados);
     }
-    
+
     if (tipoAtual === 'clientes-gasto') {
       return renderClientesGasto(dados);
+    }
+
+    if (tipoAtual === 'logs') {
+      return renderLogs(dados);
     }
 
     if (!dados || dados.length === 0) {
@@ -215,7 +219,7 @@ function renderizarTabelaGenerica(dados) {
         tbodyHTML += `<td class="px-4 py-3 text-sm ${i === 0 ? 'font-medium text-slate-800' : 'text-slate-600'}">${content}</td>`;
       }
     });
-    tbodyHTML += `<td class="px-4 py-3 text-right"><button onclick="deleteItem(tipoAtual, ${row.id})" class="text-slate-400 hover:text-red-500" title="Excluir">🗑️</button></td></tr>`;
+    tbodyHTML += `<td class="px-4 py-3 text-right"><button onclick="deleteItem(tipoAtual, ${row.id})" class="text-slate-400 hover:text-red-500 inline-flex items-center justify-center p-1.5 hover:bg-red-50 rounded-lg transition-colors" title="Excluir"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td></tr>`;
   });
   tbodyHTML += `</tbody>`;
 
@@ -272,20 +276,12 @@ function renderMotoristas(dados) {
            </span>
         </div>
         
-        <div class="w-16 h-16 bg-gradient-to-br from-slate-100 to-white border border-slate-200 rounded-2xl flex items-center justify-center mb-6 text-3xl shadow-inner relative">
-          👷‍♂️
-          <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center text-[10px]">✅</div>
+        <div class="w-16 h-16 bg-gradient-to-br from-slate-100 to-white border border-slate-200 rounded-2xl flex items-center justify-center mb-6 text-slate-500 shadow-inner relative">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-emerald-50 border border-emerald-200 rounded-full flex items-center justify-center text-emerald-600 text-xs font-bold shadow-sm">✓</div>
         </div>
         
         <h3 class="text-xl font-bold text-slate-800 mb-1 tracking-tight">${m.nome}</h3>
-        
-        <div class="flex items-center gap-3 mt-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
-           <div class="p-1.5 bg-white rounded shadow-sm text-xs">🪪</div>
-           <div>
-             <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-0.5">Nº Registro CNH</div>
-             <div class="font-mono tracking-wider font-semibold">${m.cnh || 'Não informada'}</div>
-           </div>
-        </div>
         
         <div class="mt-6 flex justify-between items-center pt-5 border-t border-slate-100">
            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Cód. Motorista #${m.id}</span>
@@ -322,9 +318,9 @@ function renderVeiculos(dados) {
           <h3 class="text-xl font-bold text-slate-800 mb-1">${v.modelo || 'Caminhão Padrão'}</h3>
           
           <div class="flex items-center gap-3 mt-3 mb-5">
-             <span class="bg-sky-50 text-sky-700 px-3 py-1.5 rounded-lg text-xs font-bold border border-sky-100 flex items-center gap-2">
-               ⚖️ Cap: ${v.capacidade || 'N/A'}
-             </span>
+              <span class="bg-sky-50 text-sky-700 px-3 py-1.5 rounded-lg text-xs font-bold border border-sky-100 flex items-center gap-2">
+                Cap: ${v.capacidade || 'N/A'}
+              </span>
              <span class="bg-slate-50 text-slate-500 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 font-mono">
                Frota #${v.id}
              </span>
@@ -384,7 +380,9 @@ function renderCacambas(dados) {
            <div class="bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 shadow-inner">
              <span class="text-slate-400 font-normal mr-1">#</span>${c.id}
            </div>
-           <button onclick="deleteItem('cacambas', ${c.id})" class="text-slate-400 hover:text-red-500 p-1" title="Excluir">🗑️</button>
+            <button onclick="deleteItem('cacambas', ${c.id})" class="text-slate-400 hover:text-red-500 p-1 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center justify-center w-7 h-7" title="Excluir">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
            <span class="w-3 h-3 rounded-full ${dotColor}" title="${c.status}"></span>
         </div>
         <div>
@@ -401,7 +399,7 @@ function renderCacambas(dados) {
 
 function renderRotas(dados) {
   let listHtml = '<div class="flex flex-col gap-5 py-4">';
-  
+
   dados.forEach(rota => {
     const d = new Date(rota.data);
     const dateStr = !isNaN(d) ? d.toLocaleDateString('pt-BR') : rota.data;
@@ -435,19 +433,19 @@ function renderRotas(dados) {
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
             Ver Melhor Rota
           </button>
-          <button onclick="deleteItem('rotas', ${rota.id})" class="bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-500 p-2 rounded-lg transition-colors" title="Excluir">🗑️</button>
+          <button onclick="deleteItem('rotas', ${rota.id})" class="bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-500 p-2 rounded-lg transition-colors inline-flex items-center justify-center" title="Excluir"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
         </div>
       </div>
     `;
   });
-  
+
   listHtml += '</div>';
   listaConteudo.innerHTML = listHtml;
 }
 
 function renderClientes(dados) {
   let gridCards = '<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 p-4">';
-  
+
   dados.forEach(cliente => {
     gridCards += `
       <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row gap-6 hover:shadow-lg hover:shadow-slate-100 hover:-translate-y-1 transition duration-300 w-full overflow-hidden relative group">
@@ -459,7 +457,9 @@ function renderClientes(dados) {
             <h3 class="text-slate-800 font-bold text-xl mb-1 truncate" title="${cliente.nome}">${cliente.nome}</h3>
             <div class="flex flex-col gap-2 mt-4 text-sm">
               <div class="flex items-start gap-3 text-slate-500">
-                 <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">📍</div>
+                 <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 text-slate-400">
+                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                 </div>
                  <span class="break-words line-clamp-2">${cliente.endereco || 'Endereço não informado'}</span>
               </div>
               <div class="flex items-center gap-3 text-slate-400 mt-1">
@@ -471,7 +471,7 @@ function renderClientes(dados) {
       </div>
     `;
   });
-  
+
   gridCards += '</div>';
   listaConteudo.innerHTML = gridCards;
 }
@@ -501,27 +501,38 @@ function renderTarefas(dados) {
 
     dados.filter(t => t.status === statusKey).forEach(tarefa => {
       const d = new Date(tarefa.data_agendada);
-      const dateStr = !isNaN(d) ? d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : tarefa.data_agendada;
-      
+      const dateStr = !isNaN(d) ? d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : tarefa.data_agendada;
+
       let icon = '';
       let textColor = '';
-      if (tarefa.tipo === 'ENTREGA') { icon = '⬇️'; textColor = 'text-emerald-600'; }
-      if (tarefa.tipo === 'COLETA') { icon = '⬆️'; textColor = 'text-red-500'; }
-      if (tarefa.tipo === 'TROCA') { icon = '🔄'; textColor = 'text-sky-600'; }
+      if (tarefa.tipo === 'ENTREGA') {
+        icon = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 13l-7 7-7-7m14-6l-7 7-7-7"></path></svg>`;
+        textColor = 'text-emerald-600';
+      }
+      if (tarefa.tipo === 'COLETA') {
+        icon = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 11l7-7 7 7M5 19l7-7 7 7"></path></svg>`;
+        textColor = 'text-red-500';
+      }
+      if (tarefa.tipo === 'TROCA') {
+        icon = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89"></path></svg>`;
+        textColor = 'text-sky-600';
+      }
 
       kanbanHtml += `
         <div id="task-${tarefa.id}" draggable="true" ondragstart="dragTask(event, ${tarefa.id})"
              class="bg-white border ${col.border} rounded-xl p-4 cursor-grab active:cursor-grabbing hover:border-teal-300 transition-colors shadow-sm group">
            <div class="flex justify-between items-start mb-3">
-              <span class="text-[10px] font-bold ${textColor} tracking-widest uppercase flex items-center gap-1">${icon} ${tarefa.tipo}</span>
+              <span class="text-[10px] font-bold ${textColor} tracking-widest uppercase flex items-center gap-1.5">${icon} ${tarefa.tipo}</span>
               <div class="flex gap-2">
                  <span class="text-slate-400 text-xs font-mono">#${tarefa.id}</span>
-                 <button onclick="deleteItem('tarefas', ${tarefa.id})" class="text-slate-400 hover:text-red-500" title="Excluir">🗑️</button>
+                 <button onclick="deleteItem('tarefas', ${tarefa.id})" class="text-slate-400 hover:text-red-500 inline-flex items-center justify-center p-0.5" title="Excluir">
+                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                 </button>
               </div>
            </div>
            <h4 class="text-slate-800 font-semibold text-sm mb-2 line-clamp-2">${tarefa.cliente_nome || 'Cliente não definido'}</h4>
            <div class="flex items-start gap-2 mb-3">
-             <span class="text-slate-500 text-xs line-clamp-2 flex-1">📍 ${tarefa.endereco_execucao || 'Endereço não informado'}</span>
+             <span class="text-slate-500 text-xs line-clamp-2 flex-1">${tarefa.endereco_execucao || 'Endereço não informado'}</span>
              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tarefa.endereco_execucao || '')}" target="_blank" title="Abrir no Google Maps" 
                 class="opacity-0 group-hover:opacity-100 p-1.5 bg-slate-100 hover:bg-teal-600 rounded-lg text-slate-400 hover:text-white transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -651,7 +662,7 @@ async function dropTask(ev, newStatus) {
     });
 
     if (res.ok) {
-      carregarLista(); 
+      carregarLista();
     } else {
       alert('Erro ao atualizar status da tarefa.');
     }
@@ -671,13 +682,13 @@ async function viewRouteMap(rotaId) {
         alert('Esta rota não possui tarefas cadastradas.');
         return;
       }
-      
+
       // Origem fixa
       const origin = encodeURIComponent("Rua Visconde de Taunay, Joinville, SC");
-      
+
       // O último endereço da rota vira o destino final
       const destination = encodeURIComponent(tarefas[tarefas.length - 1].endereco_execucao);
-      
+
       // Os demais viram waypoints (paradas no caminho)
       let waypointsStr = '';
       if (tarefas.length > 1) {
@@ -687,10 +698,10 @@ async function viewRouteMap(rotaId) {
 
       // Gera o link para abrir no site do Google Maps
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsStr}&travelmode=driving`;
-      
+
       // Abre em uma nova aba
       window.open(mapsUrl, '_blank');
-      
+
     } else {
       alert('Erro ao buscar tarefas da rota');
     }
@@ -737,7 +748,7 @@ function renderSolicitacoes(dados) {
     const dataAgendadaStr = !isNaN(d) ? d.toLocaleDateString('pt-BR') : s.data_agendada;
     const c = new Date(s.created_at);
     const dataCriacaoStr = !isNaN(c) ? c.toLocaleDateString('pt-BR') : '-';
-    
+
     listHtml += `
       <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-lg hover:border-teal-300 transition duration-300 relative flex flex-col justify-between gap-4">
         <div>
@@ -752,30 +763,30 @@ function renderSolicitacoes(dados) {
           
           <div class="flex flex-col gap-2 text-sm text-slate-600 mt-3">
              <div class="flex items-start gap-2">
-               <span class="text-slate-400 font-medium w-20 shrink-0">📍 Endereço:</span>
+               <span class="text-slate-400 font-medium w-20 shrink-0">Endereço:</span>
                <span class="break-words">${s.endereco}</span>
              </div>
              <div class="flex items-center gap-2">
-               <span class="text-slate-400 font-medium w-20 shrink-0">📞 Telefone:</span>
+               <span class="text-slate-400 font-medium w-20 shrink-0">Telefone:</span>
                <span>${s.telefone}</span>
              </div>
              <div class="flex items-center gap-2">
-               <span class="text-slate-400 font-medium w-20 shrink-0">🗄️ Tamanho:</span>
+               <span class="text-slate-400 font-medium w-20 shrink-0">Tamanho:</span>
                <span class="font-bold text-teal-600">${s.tamanho}</span>
              </div>
              <div class="flex items-center gap-2">
-               <span class="text-slate-400 font-medium w-20 shrink-0">📅 Agendado:</span>
+               <span class="text-slate-400 font-medium w-20 shrink-0">Agendado:</span>
                <span class="font-semibold">${dataAgendadaStr}</span>
              </div>
              ${s.forma_pagamento ? `
              <div class="flex items-center gap-2">
-               <span class="text-slate-400 font-medium w-20 shrink-0">💳 Pgto:</span>
+               <span class="text-slate-400 font-medium w-20 shrink-0">Pagamento:</span>
                <span class="font-semibold text-slate-700">${s.forma_pagamento.replace(/_/g, ' ')}${s.forma_pagamento === 'DINHEIRO_ENTREGA' && s.troco_para ? ` (Troco R$ ${s.troco_para})` : ''}</span>
              </div>
              ` : ''}
              ${s.observacoes ? `
                <div class="flex items-start gap-2 mt-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs">
-                 <span class="text-slate-400 font-medium shrink-0">💬 Obs:</span>
+                 <span class="text-slate-400 font-medium shrink-0">Obs:</span>
                  <span class="italic text-slate-500 break-words">${s.observacoes}</span>
                </div>
              ` : ''}
@@ -803,23 +814,23 @@ function renderSolicitacoes(dados) {
 }
 
 async function atualizarStatusSolicitacao(id, status) {
-  if(!confirm(`Deseja marcar essa solicitação como ${status}?`)) return;
+  if (!confirm(`Deseja marcar essa solicitação como ${status}?`)) return;
   const token = localStorage.getItem('token');
   try {
     const res = await fetch(`/api/solicitacoes/${id}/status`, {
       method: "PATCH",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify({ status })
     });
-    if(res.ok) {
+    if (res.ok) {
       carregarLista();
     } else {
       alert("Erro ao atualizar!");
     }
-  } catch(e) {
+  } catch (e) {
     alert("Erro de conexão!");
   }
 }
@@ -1010,7 +1021,7 @@ async function abrirModalAprovacao(id) {
   try {
     const res = await fetch("../components/aprovar-solicitacao-modal.html");
     const html = await res.text();
-    
+
     const container = document.getElementById("modal-container");
     container.innerHTML = `<div id="modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm hidden transition-all duration-300 opacity-0">
       <div class="relative bg-white w-full max-w-md rounded-3xl border border-slate-200 shadow-2xl transition-all duration-300 transform scale-95 opacity-0 mx-auto">
@@ -1078,7 +1089,7 @@ async function abrirModalAprovacao(id) {
           body: JSON.stringify(dados)
         });
         const respData = await fetchRes.json();
-        
+
         if (fetchRes.ok) {
           alerta.innerHTML = `<div class="p-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg">${respData.mensagem}</div>`;
           setTimeout(() => { closeModal(); carregarLista(); }, 1500);
@@ -1087,13 +1098,68 @@ async function abrirModalAprovacao(id) {
           submitBtn.innerHTML = 'Aprovar e Criar Tarefa';
           submitBtn.disabled = false;
         }
-      } catch(err) {
+      } catch (err) {
         alerta.innerHTML = `<div class="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">Erro de conexão</div>`;
         submitBtn.disabled = false;
       }
     });
 
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   }
+}
+
+function renderLogs(dados) {
+  if (!dados || dados.length === 0) {
+    listaConteudo.innerHTML = '<div class="text-slate-400 py-12 text-center">Nenhum log de acesso registrado</div>';
+    return;
+  }
+
+  let html = `
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-bold text-slate-800">Histórico de Acessos Recentes (Últimos 100)</h3>
+        <button onclick="carregarLista(true)" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-1.5 px-3 rounded-xl transition">
+          Atualizar
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="text-xs uppercase text-slate-400 border-b border-slate-200">
+            <tr>
+              <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Data / Hora</th>
+              <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Método</th>
+              <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Rota / Endpoint</th>
+              <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">IP do Cliente</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            ${dados.map(log => {
+    let methodBadge = '';
+    if (log.metodo === 'GET') methodBadge = 'bg-sky-50 text-sky-700 ring-sky-200';
+    else if (log.metodo === 'POST') methodBadge = 'bg-emerald-50 text-emerald-700 ring-emerald-200';
+    else if (log.metodo === 'PUT' || log.metodo === 'PATCH') methodBadge = 'bg-amber-50 text-amber-700 ring-amber-200';
+    else if (log.metodo === 'DELETE') methodBadge = 'bg-red-50 text-red-700 ring-red-200';
+    else methodBadge = 'bg-slate-50 text-slate-700 ring-slate-200';
+
+    return `
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-4 py-3 text-sm text-slate-500 font-mono">${log.data}</td>
+                  <td class="px-4 py-3 text-sm">
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ring-1 ring-inset ${methodBadge}">
+                      ${log.metodo}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-slate-700 font-mono truncate max-w-xs md:max-w-md" title="${log.rota}">${log.rota}</td>
+                  <td class="px-4 py-3 text-sm text-slate-500 font-mono">${log.ip}</td>
+                </tr>
+              `;
+  }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  listaConteudo.innerHTML = html;
 }

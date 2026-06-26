@@ -218,8 +218,9 @@
           if (res.ok) {
             const { latitude, longitude, motorista_nome } = data;
             const latLng = [Number(latitude), Number(longitude)];
-            map.setView(latLng, 16);
+            
             if (!marker) {
+              map.setView(latLng, 14);
               const driverIcon = L.divIcon({
                 className: 'custom-driver-icon',
                 html: '<div style="background-color: #0d9488; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',

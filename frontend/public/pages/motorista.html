@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roteiro do Motorista | Facilita Caçambas</title>
+  <link rel="stylesheet" href="../css/output.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Timeline styles */
+    .timeline-line {
+      position: absolute;
+      left: 1.1875rem;
+      /* 19px */
+      top: 2rem;
+      bottom: 0;
+      width: 2px;
+      background-color: #e2e8f0;
+      /* slate-200 */
+      z-index: 0;
+    }
+
+    .timeline-node {
+      position: relative;
+      z-index: 10;
+    }
+  </style>
+  <script>
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+
+    if (!token || !userStr) {
+      window.location.href = 'login.html';
+    } else {
+      const user = JSON.parse(userStr);
+      if (user.role !== 'motorista' && user.role !== 'admin') {
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+</head>
+
+<body
+  class="bg-white text-slate-700 min-h-screen relative overflow-x-hidden selection:bg-teal-100 selection:text-teal-900">
+
+  <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-extrabold text-lg shadow-sm">
+          C
+        </div>
+        <span class="text-xl font-bold tracking-tight text-slate-800">Painel <span
+            class="text-teal-600">Motorista</span></span>
+      </div>
+      <button onclick="logout()" class="text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors">
+        Sair
+      </button>
+    </div>
+  </nav>
+
+  <main class="pt-24 pb-24 px-4 sm:px-6 relative z-10 max-w-4xl mx-auto">
+    <!-- Header / Driver Widget -->
+    <header
+      class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white border border-slate-200 p-6 rounded-2xl shadow-sm gap-4">
+      <div>
+        <p class="text-sm font-medium text-slate-400 uppercase tracking-wider mb-1">Olá,</p>
+        <h1 id="motorista-nome" class="text-2xl font-bold text-slate-800 tracking-tight">Carregando...</h1>
+      </div>
+      <div class="w-full sm:w-auto">
+        <button id="btn-simular-gps"
+          class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 transition flex items-center justify-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-slate-400" id="gps-status-dot"></span>
+          <span id="gps-status-text">Sinal GPS Desativado</span>
+        </button>
+      </div>
+    </header>
+
+    <div id="rotas-container" class="min-h-[400px]">
+      <div class="text-slate-400 py-12 text-center animate-pulse">Carregando rotas...</div>
+    </div>
+  </main>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+
+    function limparEnderecoParaMaps(endereco) {
+      if (!endereco) return '';
+      let enderecoLimpo = endereco
+        .replace(/\s*-\s*Ref:.*$/i, '')
+        .replace(/\s*\|\s*Ref:.*$/i, '')
+        .replace(/\s*Referência:.*$/i, '')
+        .replace(/\s*Referencia:.*$/i, '')
+        .replace(/(,\s*\d+)\s*-\s*[^,]+(,)/i, '$1$2')
+        .replace(/\s+/g, ' ')
+        .replace(/\s+,/g, ',')
+        .replace(/,\s+/g, ', ')
+        .trim();
+      if (!/Joinville/i.test(enderecoLimpo)) enderecoLimpo += ', Joinville, SC';
+      return enderecoLimpo;
+    }
+
+    async function carregarRotas() {
+      const container = document.getElementById('rotas-container');
+      const token = localStorage.getItem('token');
+
+      try {
+        const res = await fetch('/api/rotas', { headers: { 'Authorization': `Bearer ${token}` } });
+        const rotas = await res.json();
+
+        if (res.ok) {
+          const rotasComTarefas = await Promise.all(rotas.map(async (rota) => {
+            try {
+              const resT = await fetch(`/api/rotas/${rota.id}/tarefas`, { headers: { 'Authorization': `Bearer ${token}` } });
+              const tarefas = await resT.json();
+              return { ...rota, tarefas: resT.ok ? tarefas : [] };
+            } catch (e) { return { ...rota, tarefas: [] }; }
+          }));
+
+          renderRotas(rotasComTarefas);
+        } else {
+          container.innerHTML = '<div class="text-red-500 py-12 text-center font-semibold">Erro ao carregar rotas.</div>';
+        }
+      } catch (err) {
+        container.innerHTML = '<div class="text-red-500 py-12 text-center font-semibold">Sem conexão com o servidor.</div>';
+      }
+    }
+
+    // Render multiple routes or a nice empty state
+    function renderRotas(rotas) {
+      const container = document.getElementById('rotas-container');
+      if (!rotas || rotas.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-16 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+            <svg class="w-12 h-12 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+            <h3 class="text-lg font-bold text-slate-700">Nenhuma Rota Designada</h3>
+            <p class="text-sm text-slate-500 mt-1">Você não possui rotas ativas no momento.</p>
+          </div>`;
+        return;
+      }
+
+      let html = '';
+
+      // Render as a list of route blocks
+      rotas.forEach((rota, idx) => {
+        const d = new Date(rota.data);
+        const dateStr = !isNaN(d) ? d.toLocaleDateString('pt-BR') : rota.data;
+
+        let headerAction = '';
+        let badgeColor = 'bg-slate-100 text-slate-600';
+
+        if (rota.status === 'PLANEJADA') {
+          badgeColor = 'bg-sky-100 text-sky-700';
+          headerAction = `<button onclick="updateRotaStatus(${rota.id}, 'EM_EXECUCAO')" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Iniciar Rota</button>`;
+        } else if (rota.status === 'EM_EXECUCAO') {
+          badgeColor = 'bg-teal-100 text-teal-700';
+          headerAction = `<button onclick="updateRotaStatus(${rota.id}, 'FINALIZADA')" class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Finalizar Rota</button>`;
+        } else if (rota.status === 'FINALIZADA') {
+          badgeColor = 'bg-slate-200 text-slate-700';
+          headerAction = `<span class="px-4 py-2 bg-slate-100 border border-slate-200 text-slate-500 rounded-xl text-sm font-bold">Rota Concluída</span>`;
+        }
+
+        let isAllDone = true;
+
+        html += `
+          <div class="mb-10 bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+            <div class="p-6 sm:p-8 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <div class="flex items-center gap-3 mb-1">
+                  <h2 class="text-xl font-extrabold text-slate-800">Roteiro ${dateStr}</h2>
+                  <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${badgeColor}">${rota.status.replace('_', ' ')}</span>
+                </div>
+                <p class="text-sm text-slate-500">Ref: Rota #${rota.id}</p>
+              </div>
+              <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button onclick="viewRouteMap(${rota.id})" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-bold shadow-sm transition flex items-center justify-center gap-2 flex-1 sm:flex-none">
+                  <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                  Mapa Geral
+                </button>
+                ${headerAction}
+              </div>
+            </div>
+
+            <div class="p-6 sm:p-8 relative">
+              <div class="timeline-line"></div>
+              
+              <!-- Start Depot -->
+              <div class="relative flex items-start gap-4 sm:gap-6 mb-8 group">
+                <div class="timeline-node w-10 h-10 rounded-full bg-teal-100 border-4 border-white flex items-center justify-center text-teal-600 shadow-sm shrink-0 mt-0.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                </div>
+                <div class="flex-1 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm group-hover:border-teal-300 transition">
+                  <h3 class="font-bold text-slate-800 text-base">Início da Viagem (Pátio)</h3>
+                </div>
+              </div>
+        `;
+
+        if (rota.tarefas && rota.tarefas.length > 0) {
+          rota.tarefas.forEach((t, index) => {
+            const isCompleted = t.status === 'ENTREGUE' || t.status === 'COLETADO';
+            const isJustified = t.status === 'JUSTIFICADO' || t.status === 'CANCELADO';
+            const isPending = !isCompleted && !isJustified;
+
+            if (isPending) isAllDone = false;
+
+            let nodeClass = '';
+            let nodeIcon = '';
+
+            if (isCompleted) {
+              nodeClass = 'bg-emerald-500 text-white';
+              nodeIcon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+            } else if (isJustified) {
+              nodeClass = 'bg-slate-400 text-white';
+              nodeIcon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            } else {
+              nodeClass = 'bg-slate-100 text-slate-600 border border-slate-300';
+              nodeIcon = `<span class="font-bold text-sm">${index + 1}</span>`;
+            }
+
+            let tipoBadge = '';
+            let tipoSvg = '';
+            if (t.tipo === 'ENTREGA') {
+              tipoBadge = 'bg-emerald-50 text-emerald-700 border-emerald-100';
+              tipoSvg = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 13l-7 7-7-7m14-6l-7 7-7-7"></path></svg>`;
+            } else if (t.tipo === 'COLETA') {
+              tipoBadge = 'bg-rose-50 text-rose-700 border-rose-100';
+              tipoSvg = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 11l7-7 7 7M5 19l7-7 7 7"></path></svg>`;
+            } else {
+              tipoBadge = 'bg-sky-50 text-sky-700 border-sky-100';
+              tipoSvg = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89"></path></svg>`;
+            }
+
+            let actionArea = '';
+            if (isPending) {
+              const confirmLabel = t.tipo === 'ENTREGA' ? 'Confirmar Entrega' : t.tipo === 'COLETA' ? 'Confirmar Coleta' : 'Confirmar';
+              const targetStatus = t.tipo === 'ENTREGA' ? 'ENTREGUE' : t.tipo === 'COLETA' ? 'COLETADO' : 'ENTREGUE';
+              const btnColor = t.tipo === 'ENTREGA' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700';
+
+              actionArea = `
+                <button onclick="updateTarefaStatus(${t.id}, 'JUSTIFICADO')" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-xl text-xs font-bold transition flex-1 sm:flex-none text-center">Justificar</button>
+                <button onclick="updateTarefaStatus(${t.id}, '${targetStatus}')" class="px-4 py-2.5 ${btnColor} text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                  ${confirmLabel}
+                </button>
+              `;
+            } else {
+              actionArea = `
+                <button onclick="updateTarefaStatus(${t.id}, 'EM_ANDAMENTO')" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89"></path></svg>
+                  Reabrir
+                </button>
+              `;
+            }
+
+            const enderecoLimpo = limparEnderecoParaMaps(t.endereco_execucao);
+
+            html += `
+              <div class="relative flex items-start gap-4 sm:gap-6 mb-8 group">
+                <div class="timeline-node w-10 h-10 rounded-full border-4 border-white flex items-center justify-center shadow-sm shrink-0 mt-0.5 ${nodeClass}">
+                  ${nodeIcon}
+                </div>
+                
+                <div class="flex-1 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm group-hover:shadow-md group-hover:border-slate-300 transition-all flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5">
+                  <div>
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider flex items-center gap-1 ${tipoBadge}">${tipoSvg} ${t.tipo}</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide border border-slate-200">${t.status.replace('_', ' ')}</span>
+                      <span class="text-xs text-slate-400 font-mono">#${t.id}</span>
+                    </div>
+                    
+                    <div class="flex items-start gap-1.5 mt-1.5 text-slate-500">
+                      <svg class="w-4 h-4 shrink-0 mt-0.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                      <p class="text-sm leading-tight">${t.endereco_execucao || 'Endereço não informado'}</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 mt-3">
+                      ${t.preco ? `<span class="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-100">Cobrar: R$ ${parseFloat(t.preco).toFixed(2).replace('.', ',')}</span>` : ''}
+                      ${t.forma_pagamento ? `<span class="text-[10px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">Pgto: ${t.forma_pagamento.replace(/_/g, ' ')}${t.forma_pagamento === 'DINHEIRO_ENTREGA' && t.troco_para ? ` (Troco R$ ${parseFloat(t.troco_para).toFixed(2).replace('.', ',')})` : ''}</span>` : ''}
+                    </div>
+                    ${t.status === 'JUSTIFICADO' && t.justificativa ? `<p class="text-xs text-slate-500 mt-2 bg-slate-50 p-2 rounded border border-slate-100"><span class="font-semibold text-slate-600">Motivo:</span> ${t.justificativa}</p>` : ''}
+                  </div>
+                  
+                  <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto pt-3 xl:pt-0 border-t xl:border-t-0 border-slate-100">
+                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoLimpo)}" target="_blank"
+                       class="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 flex-1 sm:flex-none">
+                      <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                      Navegar
+                    </a>
+                    ${actionArea}
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        // End Depot
+        const endNodeClass = isAllDone ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400';
+        html += `
+              <div class="relative flex items-start gap-4 sm:gap-6 group">
+                <div class="timeline-node w-10 h-10 rounded-full border-4 border-white flex items-center justify-center shadow-sm shrink-0 mt-0.5 ${endNodeClass}">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7M5 13l4-4M19 7l-4 4"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+                </div>
+                <div class="flex-1 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm transition">
+                  <h3 class="font-bold text-slate-800 text-base">Retorno ao Pátio</h3>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    async function updateRotaStatus(id, status) {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch(`/api/rotas/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ status })
+        });
+        if (res.ok) carregarRotas();
+        else alert('Erro ao atualizar status da rota.');
+      } catch (err) { alert('Falha de conexão.'); }
+    }
+
+    async function updateTarefaStatus(taskId, newStatus) {
+      const token = localStorage.getItem('token');
+      let bodyData = { status: newStatus };
+      if (newStatus === 'JUSTIFICADO') {
+        const motivo = prompt('Por favor, informe a justificativa:');
+        if (!motivo) return;
+        bodyData.justificativa = motivo;
+      }
+      try {
+        const res = await fetch(`/api/tarefas/${taskId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify(bodyData)
+        });
+        if (res.ok) carregarRotas();
+        else alert('Erro ao atualizar status da tarefa.');
+      } catch (err) { alert('Erro ao se conectar.'); }
+    }
+
+    async function viewRouteMap(rotaId) {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch(`/api/rotas/${rotaId}/tarefas`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (res.ok) {
+          const tarefas = await res.json();
+          if (tarefas.length === 0) { alert('Sem tarefas nesta rota.'); return; }
+          const tarefasComEndereco = tarefas.map(t => ({ ...t, endereco_maps: limparEnderecoParaMaps(t.endereco_execucao) })).filter(t => t.endereco_maps);
+          if (tarefasComEndereco.length === 0) { alert('Sem endereços válidos.'); return; }
+
+          const origin = encodeURIComponent("Rua Visconde de Taunay, Joinville, SC");
+          const destination = encodeURIComponent(tarefasComEndereco[tarefasComEndereco.length - 1].endereco_maps);
+          let waypointsStr = '';
+          if (tarefasComEndereco.length > 1) {
+            const wpArr = tarefasComEndereco.slice(0, -1).map(t => encodeURIComponent(t.endereco_maps));
+            waypointsStr = `&waypoints=${wpArr.join('|')}`;
+          }
+          const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsStr}&travelmode=driving`;
+          window.open(mapsUrl, '_blank');
+        } else { alert('Erro ao obter tarefas.'); }
+      } catch (err) { alert('Falha de conexão.'); }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.motorista_id) {
+        try {
+          const res = await fetch(`/api/localizacao/${user.motorista_id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+          if (res.ok) {
+            const data = await res.json();
+            document.getElementById('motorista-nome').textContent = data.nome || 'Motorista';
+          } else { document.getElementById('motorista-nome').textContent = user.email; }
+        } catch (e) { document.getElementById('motorista-nome').textContent = user.email; }
+      } else { document.getElementById('motorista-nome').textContent = 'Administrador'; }
+
+      carregarRotas();
+    });
+
+    let gpsInterval = null;
+    let gpsAtivo = false;
+    const btnGps = document.getElementById('btn-simular-gps');
+    const gpsDot = document.getElementById('gps-status-dot');
+    const gpsText = document.getElementById('gps-status-text');
+
+    if (btnGps) {
+      btnGps.addEventListener('click', () => {
+        if (gpsInterval) {
+          clearInterval(gpsInterval);
+          gpsInterval = null;
+          gpsAtivo = false;
+          gpsDot.className = "w-2 h-2 rounded-full bg-slate-400";
+          gpsText.textContent = "Sinal GPS Desativado";
+          btnGps.className = "w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 transition flex items-center justify-center gap-2";
+        } else {
+          gpsAtivo = true;
+          gpsDot.className = "w-2 h-2 rounded-full bg-teal-500 animate-ping";
+          gpsText.textContent = "Transmitindo GPS";
+          btnGps.className = "w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-teal-50 border border-teal-200 text-teal-700 transition flex items-center justify-center gap-2 shadow-sm";
+
+          // Meio da Rua São Paulo em Joinville
+          let currentLat = -26.3200;
+          let currentLng = -48.8422;
+
+          gpsInterval = setInterval(async () => {
+            // Segue reto para cima (Norte) pela Rua São Paulo
+            currentLat += 0.00015;
+            currentLng += 0.000005;
+            try {
+              await fetch('/api/localizacao/atualizar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ latitude: currentLat, longitude: currentLng })
+              });
+            } catch (e) { }
+          }, 500);
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>
