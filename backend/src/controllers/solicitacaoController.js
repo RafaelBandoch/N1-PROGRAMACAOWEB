@@ -3,7 +3,10 @@ const db = require('../database/db');
 module.exports = {
   async index(req, res, next) {
     try {
-      let query = db('solicitacoes').orderBy('created_at', 'desc');
+      let query = db('solicitacoes')
+        .select('solicitacoes.*', 'tarefas.status as tarefa_status')
+        .leftJoin('tarefas', 'tarefas.solicitacao_id', 'solicitacoes.id')
+        .orderBy('solicitacoes.created_at', 'desc');
 
       if (req.user && req.user.role === 'cliente') {
         if (!req.user.cliente_id) {
@@ -11,14 +14,21 @@ module.exports = {
         }
         const cliente = await db('clientes').where({ id: req.user.cliente_id }).first();
         if (cliente && cliente.cpf_cnpj) {
-          query = query.where('cpf_cnpj', cliente.cpf_cnpj);
+          query = query.where('solicitacoes.cpf_cnpj', cliente.cpf_cnpj);
         } else {
           return res.json([]);
         }
       }
 
       const solicitacoes = await query;
-      return res.json(solicitacoes);
+      const mapped = solicitacoes.map(sol => {
+        if (sol.status === 'ACEITO' && sol.tarefa_status) {
+          sol.status = sol.tarefa_status;
+        }
+        delete sol.tarefa_status;
+        return sol;
+      });
+      return res.json(mapped);
     } catch (error) {
       next(error);
     }
@@ -141,6 +151,7 @@ module.exports = {
 
         const [tarefa_id] = await trx('tarefas').insert({
           tipo: 'ENTREGA',
+          solicitacao_id: sol.id,
           cacamba_id,
           cliente_id,
           motorista_id,
@@ -271,18 +282,27 @@ module.exports = {
       }
 
       const solicitacoes = await db('solicitacoes')
-        .where({ cpf_cnpj })
-        .whereIn('status', ['ACEITO'])
-        .select('*');
+        .select('solicitacoes.*', 'tarefas.status as tarefa_status')
+        .leftJoin('tarefas', 'tarefas.solicitacao_id', 'solicitacoes.id')
+        .where('solicitacoes.cpf_cnpj', cpf_cnpj)
+        .whereIn('solicitacoes.status', ['ACEITO']);
 
-      const totalGasto = solicitacoes.reduce((acc, sol) => acc + parseFloat(sol.preco || 0), 0);
-      const totalPedidos = solicitacoes.length;
+      const mappedSolicitacoes = solicitacoes.map(sol => {
+        if (sol.status === 'ACEITO' && sol.tarefa_status) {
+          sol.status = sol.tarefa_status;
+        }
+        delete sol.tarefa_status;
+        return sol;
+      });
+
+      const totalGasto = mappedSolicitacoes.reduce((acc, sol) => acc + parseFloat(sol.preco || 0), 0);
+      const totalPedidos = mappedSolicitacoes.length;
 
       return res.json({
         cpf_cnpj,
         totalGasto: parseFloat(totalGasto.toFixed(2)),
         totalPedidos,
-        solicitacoes: solicitacoes.map(sol => ({
+        solicitacoes: mappedSolicitacoes.map(sol => ({
           id: sol.id,
           tamanho: sol.tamanho,
           preco: parseFloat(sol.preco || 0),

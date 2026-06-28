@@ -37,7 +37,7 @@ botoesTipo.forEach((btn) => {
     updateTabsUI(btn);
     titutoLista.textContent = btn.innerText.trim().replace(/^[^\w\s]+/, '').trim() || (tipoAtual.charAt(0).toUpperCase() + tipoAtual.slice(1));
 
-    if (tipoAtual === 'dashboard' || tipoAtual === 'relatorio-financeiro' || tipoAtual === 'clientes-gasto' || tipoAtual === 'logs') {
+    if (tipoAtual === 'dashboard' || tipoAtual === 'relatorio-financeiro' || tipoAtual === 'clientes-gasto' || tipoAtual === 'logs' || tipoAtual === 'tarefas') {
       btnCadastrar.style.display = 'none';
     } else {
       btnCadastrar.style.display = 'flex';
@@ -139,9 +139,9 @@ async function carregarLista(showLoading = false) {
 
     // Rotas especiais para relatórios
     if (tipoAtual === 'relatorio-financeiro') {
-      url = "/api/relatorios/financeiro";
+      url = "/api/relatorios/financeiro" + (window.mesFiltroAdmin && window.mesFiltroAdmin !== 'todos' ? `?mes=${window.mesFiltroAdmin}` : '');
     } else if (tipoAtual === 'clientes-gasto') {
-      url = "/api/relatorios/clientes-maior-gasto";
+      url = "/api/relatorios/clientes-maior-gasto" + (window.mesFiltroAdmin && window.mesFiltroAdmin !== 'todos' ? `?mes=${window.mesFiltroAdmin}` : '');
     }
 
     const res = await fetch(url, {
@@ -350,17 +350,25 @@ function renderCacambas(dados) {
 
   const totaisHtml = `
     <div class="flex flex-wrap gap-4 mb-8 pt-4 justify-between lg:justify-start">
-      <div class="flex-1 min-w-[200px] bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-         <span class="text-slate-400 text-xs font-bold uppercase tracking-widest block mb-4">Total Inventário</span>
-         <div class="flex items-end gap-3"><span class="text-5xl font-black text-slate-800 tracking-tighter">${dados.length}</span><span class="text-slate-400 mb-1">uni.</span></div>
+      <div class="flex-1 min-w-[150px] bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+         <span class="text-slate-400 text-xs font-bold uppercase tracking-widest block mb-4">Total</span>
+         <div class="flex items-end gap-3"><span class="text-4xl font-black text-slate-800 tracking-tighter">${dados.length}</span><span class="text-slate-400 mb-1">uni.</span></div>
       </div>
-      <div class="flex-1 min-w-[200px] bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+      <div class="flex-1 min-w-[150px] bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
          <span class="text-sky-600 text-xs font-bold uppercase tracking-widest block mb-4 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Pátio Livre</span>
-         <div class="flex items-end gap-3"><span class="text-4xl font-black text-slate-800 tracking-tighter">${counts['DISPONIVEL'] || 0}</span></div>
+         <div class="flex items-end gap-3"><span class="text-3xl font-black text-slate-800 tracking-tighter">${counts['DISPONIVEL'] || 0}</span></div>
       </div>
-      <div class="flex-1 min-w-[200px] bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+      <div class="flex-1 min-w-[150px] bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
          <span class="text-amber-600 text-xs font-bold uppercase tracking-widest block mb-4 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Locadas</span>
-         <div class="flex items-end gap-3"><span class="text-4xl font-black text-slate-800 tracking-tighter">${counts['ENTREGUE'] || 0}</span></div>
+         <div class="flex items-end gap-3"><span class="text-3xl font-black text-slate-800 tracking-tighter">${counts['ENTREGUE'] || 0}</span></div>
+      </div>
+      <div class="flex-1 min-w-[150px] bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+         <span class="text-yellow-600 text-xs font-bold uppercase tracking-widest block mb-4 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> Em Manutenção</span>
+         <div class="flex items-end gap-3"><span class="text-3xl font-black text-slate-800 tracking-tighter">${counts['EM_MANUTENCAO'] || 0}</span></div>
+      </div>
+      <div class="flex-1 min-w-[150px] bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+         <span class="text-purple-600 text-xs font-bold uppercase tracking-widest block mb-4 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span> Reservadas</span>
+         <div class="flex items-end gap-3"><span class="text-3xl font-black text-slate-800 tracking-tighter">${counts['RESERVADA'] || 0}</span></div>
       </div>
     </div>
   `;
@@ -835,12 +843,45 @@ async function atualizarStatusSolicitacao(id, status) {
   }
 }
 
+function updateMesFiltroAdmin(selectObj) {
+  window.mesFiltroAdmin = selectObj.value;
+  carregarLista(true);
+}
+
+function generateMesFiltroHtml() {
+  const dataAtual = new Date();
+  let options = '<option value="todos" ' + (window.mesFiltroAdmin === 'todos' || !window.mesFiltroAdmin ? 'selected' : '') + '>Todos os meses</option>';
+
+  // Generate last 12 months
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(dataAtual.getFullYear(), dataAtual.getMonth() - i, 1);
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const y = d.getFullYear();
+    const val = `${y}-${m}`;
+    const name = d.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+    const isSelected = window.mesFiltroAdmin === val ? 'selected' : '';
+    options += `<option value="${val}" ${isSelected}>${name.charAt(0).toUpperCase() + name.slice(1)}</option>`;
+  }
+
+  return `
+    <div class="flex justify-end mb-6">
+      <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-2 shadow-sm">
+        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z"></path></svg>
+        <span class="text-sm font-semibold text-slate-600">Período:</span>
+        <select onchange="updateMesFiltroAdmin(this)" class="bg-transparent text-sm font-bold text-teal-600 focus:outline-none cursor-pointer">
+          ${options}
+        </select>
+      </div>
+    </div>
+  `;
+}
+
 function renderRelatorioFinanceiro(dados) {
   const resumo = dados.resumo || {};
   const porTamanho = dados.porTamanho || {};
   const solicitacoes = dados.solicitacoes || [];
 
-  let html = `
+  let html = generateMesFiltroHtml() + `
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-6 shadow-sm">
         <span class="text-emerald-600 text-xs font-bold uppercase tracking-widest block mb-2">Total de Receita</span>
@@ -953,7 +994,7 @@ function renderClientesGasto(dados) {
   const clientes = dados.clientes || [];
   const totalGeral = dados.totalReceitaGeral || 0;
 
-  let html = `
+  let html = generateMesFiltroHtml() + `
     <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-3xl p-6 shadow-sm mb-8">
       <span class="text-purple-600 text-xs font-bold uppercase tracking-widest block mb-2">Receita Total dos Top Clientes</span>
       <div class="flex items-end gap-3">

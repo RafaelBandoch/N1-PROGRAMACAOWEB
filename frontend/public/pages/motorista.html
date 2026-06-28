@@ -156,21 +156,35 @@
         const d = new Date(rota.data);
         const dateStr = !isNaN(d) ? d.toLocaleDateString('pt-BR') : rota.data;
 
+        let isAllDone = true;
+        let hasAnyDone = false;
+
+        if (rota.tarefas && rota.tarefas.length > 0) {
+          rota.tarefas.forEach(t => {
+            const isCompleted = t.status === 'ENTREGUE' || t.status === 'COLETADO';
+            const isJustified = t.status === 'JUSTIFICADO' || t.status === 'CANCELADO';
+            const isPending = !isCompleted && !isJustified;
+            
+            if (isPending) isAllDone = false;
+            if (isCompleted || t.status === 'EM_ANDAMENTO') hasAnyDone = true;
+          });
+        } else {
+          isAllDone = false;
+        }
+
         let headerAction = '';
         let badgeColor = 'bg-slate-100 text-slate-600';
 
-        if (rota.status === 'PLANEJADA') {
-          badgeColor = 'bg-sky-100 text-sky-700';
-          headerAction = `<button onclick="updateRotaStatus(${rota.id}, 'EM_EXECUCAO')" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Iniciar Rota</button>`;
-        } else if (rota.status === 'EM_EXECUCAO') {
-          badgeColor = 'bg-teal-100 text-teal-700';
-          headerAction = `<button onclick="updateRotaStatus(${rota.id}, 'FINALIZADA')" class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Finalizar Rota</button>`;
-        } else if (rota.status === 'FINALIZADA') {
+        if (rota.status === 'FINALIZADA') {
           badgeColor = 'bg-slate-200 text-slate-700';
           headerAction = `<span class="px-4 py-2 bg-slate-100 border border-slate-200 text-slate-500 rounded-xl text-sm font-bold">Rota Concluída</span>`;
+        } else if (rota.status === 'EM_EXECUCAO' || hasAnyDone || isAllDone) {
+          badgeColor = 'bg-teal-100 text-teal-700';
+          headerAction = `<button onclick="updateRotaStatus(${rota.id}, 'FINALIZADA')" class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Finalizar Rota</button>`;
+        } else {
+          badgeColor = 'bg-sky-100 text-sky-700';
+          headerAction = `<button onclick="updateRotaStatus(${rota.id}, 'EM_EXECUCAO')" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition">Iniciar Rota</button>`;
         }
-
-        let isAllDone = true;
 
         html += `
           <div class="mb-10 bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
@@ -210,8 +224,6 @@
             const isCompleted = t.status === 'ENTREGUE' || t.status === 'COLETADO';
             const isJustified = t.status === 'JUSTIFICADO' || t.status === 'CANCELADO';
             const isPending = !isCompleted && !isJustified;
-
-            if (isPending) isAllDone = false;
 
             let nodeClass = '';
             let nodeIcon = '';

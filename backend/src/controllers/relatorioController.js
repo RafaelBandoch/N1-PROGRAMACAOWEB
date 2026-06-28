@@ -8,9 +8,13 @@ module.exports = {
         return res.status(403).json({ erro: 'Acesso negado' });
       }
 
-      const { dataInicio, dataFim } = req.query;
+      const { dataInicio, dataFim, mes } = req.query;
 
       let query = db('solicitacoes').whereIn('status', ['ACEITO']);
+
+      if (mes) {
+        query = query.where('data_agendada', 'like', `${mes}%`);
+      }
 
       if (dataInicio) {
         query = query.where('data_agendada', '>=', dataInicio);
@@ -83,11 +87,15 @@ module.exports = {
         return res.status(403).json({ erro: 'Acesso negado' });
       }
 
-      const { limite = 10 } = req.query;
+      const { limite = 10, mes } = req.query;
 
-      const solicitacoes = await db('solicitacoes')
-        .whereIn('status', ['ACEITO'])
-        .select('*');
+      let query = db('solicitacoes').whereIn('status', ['ACEITO']);
+
+      if (mes) {
+        query = query.where('data_agendada', 'like', `${mes}%`);
+      }
+
+      const solicitacoes = await query.select('*');
 
       // Agrupar por cliente
       const clienteGastos = {};
