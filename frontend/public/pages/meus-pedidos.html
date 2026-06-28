@@ -63,6 +63,13 @@
     </div>
 
     <!-- Resumo Financeiro -->
+    <div id="filtroFinanceiroContainer" class="flex flex-col md:flex-row justify-between items-center mb-6 hidden gap-4">
+      <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">Resumo Financeiro</h2>
+      <select id="mesFiltro" onchange="atualizarResumoFiltro()" class="bg-white border border-slate-300 text-slate-700 text-sm rounded-xl focus:ring-teal-500 focus:border-teal-500 block p-2.5 shadow-sm min-w-[200px]">
+        <option value="todos">Todos os meses</option>
+      </select>
+    </div>
+    
     <div id="resumoFinanceiro" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 hidden">
       <div class="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-3xl p-6 shadow-sm">
         <div class="flex items-center justify-between mb-2">
@@ -132,6 +139,8 @@
       loadResumoFinanceiro();
     });
 
+    window.dadosFinanceirosAtuais = [];
+    
     async function loadResumoFinanceiro() {
       const token = localStorage.getItem('token');
       try {
@@ -143,18 +152,75 @@
 
         if (res.ok) {
           const data = await res.json();
-          const resumo = document.getElementById('resumoFinanceiro');
-          resumo.classList.remove('hidden');
-
-          document.getElementById('totalGasto').textContent = `R$ ${data.totalGasto.toFixed(2).replace('.', ',')}`;
-          document.getElementById('totalPedidos').textContent = data.totalPedidos;
+          window.dadosFinanceirosAtuais = data.solicitacoes || [];
           
-          const gastoMedio = data.totalPedidos > 0 ? data.totalGasto / data.totalPedidos : 0;
-          document.getElementById('gastoMedio').textContent = `R$ ${gastoMedio.toFixed(2).replace('.', ',')}`;
+          const resumo = document.getElementById('resumoFinanceiro');
+          const filtroContainer = document.getElementById('filtroFinanceiroContainer');
+          resumo.classList.remove('hidden');
+          
+          if (window.dadosFinanceirosAtuais.length > 0) {
+            filtroContainer.classList.remove('hidden');
+            preencherSelectMeses(window.dadosFinanceirosAtuais);
+          }
+          
+          atualizarResumoFiltro();
         }
       } catch (err) {
         console.error('Erro ao carregar resumo financeiro:', err);
       }
+    }
+
+    function preencherSelectMeses(solicitacoes) {
+      const select = document.getElementById('mesFiltro');
+      // Limpa as opções existentes (exceto "Todos os meses")
+      select.innerHTML = '<option value="todos">Todos os meses</option>';
+      
+      const mesesSet = new Set();
+      
+      solicitacoes.forEach(sol => {
+        const d = new Date(sol.data_agendada);
+        if (!isNaN(d)) {
+          const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+          let display = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+          display = display.charAt(0).toUpperCase() + display.slice(1);
+          mesesSet.add(JSON.stringify({ key, display }));
+        }
+      });
+      
+      const meses = Array.from(mesesSet).map(s => JSON.parse(s)).sort((a, b) => b.key.localeCompare(a.key));
+      
+      meses.forEach(mes => {
+        const option = document.createElement('option');
+        option.value = mes.key;
+        option.textContent = mes.display;
+        select.appendChild(option);
+      });
+    }
+
+    function atualizarResumoFiltro() {
+      const select = document.getElementById('mesFiltro');
+      const filtro = select.value;
+      
+      let solFiltradas = window.dadosFinanceirosAtuais;
+      
+      if (filtro !== 'todos') {
+        solFiltradas = solFiltradas.filter(sol => {
+          const d = new Date(sol.data_agendada);
+          if (!isNaN(d)) {
+            const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            return key === filtro;
+          }
+          return false;
+        });
+      }
+      
+      const totalGasto = solFiltradas.reduce((acc, sol) => acc + parseFloat(sol.preco || 0), 0);
+      const totalPedidos = solFiltradas.length;
+      const gastoMedio = totalPedidos > 0 ? totalGasto / totalPedidos : 0;
+      
+      document.getElementById('totalGasto').textContent = `R$ ${totalGasto.toFixed(2).replace('.', ',')}`;
+      document.getElementById('totalPedidos').textContent = totalPedidos;
+      document.getElementById('gastoMedio').textContent = `R$ ${gastoMedio.toFixed(2).replace('.', ',')}`;
     }
 
     async function loadPedidos() {
@@ -313,14 +379,18 @@
           let statusIcon = '⏳';
           let statusText = 'Em Análise';
           
-          if (pedido.status === 'ACEITO') {
+          if (pedido.status === 'ACEITO' || pedido.status === 'EM_ANDAMENTO') {
             statusColor = 'text-teal-700 bg-teal-50 border-teal-200';
             statusIcon = '✅';
             statusText = 'Aprovado / Em andamento';
-          } else if (pedido.status === 'REJEITADO') {
+          } else if (pedido.status === 'REJEITADO' || pedido.status === 'CANCELADO') {
             statusColor = 'text-red-600 bg-red-50 border-red-200';
             statusIcon = '❌';
             statusText = 'Cancelado';
+          } else if (pedido.status === 'ENTREGUE') {
+            statusColor = 'text-blue-700 bg-blue-50 border-blue-200';
+            statusIcon = '📦';
+            statusText = 'Entregue';
           }
 
           const card = document.createElement('div');
@@ -373,7 +443,7 @@
             
             <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400">
               <span>Solicitado em: ${dataCriadaFormatada}</span>
-              ${pedido.status === 'ACEITO' ? `<button onclick="abrirRastreamento(${pedido.id})" class="bg-teal-50 text-teal-700 font-semibold px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-100 transition">Acompanhar Pedido</button>` : ''}
+              ${(pedido.status === 'ACEITO' || pedido.status === 'EM_ANDAMENTO') ? `<button onclick="abrirRastreamento(${pedido.id})" class="bg-teal-50 text-teal-700 font-semibold px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-100 transition">Acompanhar Pedido</button>` : ''}
             </div>
           `;
           grid.appendChild(card);

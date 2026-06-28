@@ -36,6 +36,8 @@ exports.listar = async (req, res, next) => {
       query = query.where('rotas.motorista_id', req.user.motorista_id);
     }
 
+    query = query.orderBy('rotas.id', 'desc');
+
     const rotas = await query;
     res.json(rotas);
   } catch (error) {
@@ -74,13 +76,13 @@ exports.getTarefas = async (req, res, next) => {
       return res.status(404).json({ error: 'Rota não encontrada' });
     }
 
-    const tarefas = await db('tarefas')
-      .join('rota_tarefas', 'tarefas.id', '=', 'rota_tarefas.tarefa_id')
-      .where('rota_tarefas.rota_id', id)
-      .select('tarefas.*')
-      .orderBy('tarefas.id', 'asc');
+      const tarefas = await db('tarefas')
+        .join('rota_tarefas', 'tarefas.id', '=', 'rota_tarefas.tarefa_id')
+        .where('rota_tarefas.rota_id', id)
+        .select('tarefas.*')
+        .orderBy('tarefas.id', 'desc');
 
-    res.json(tarefas);
+      res.json(tarefas);
   } catch (error) {
     next(error);
   }

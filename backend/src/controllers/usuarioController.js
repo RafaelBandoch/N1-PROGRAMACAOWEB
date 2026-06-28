@@ -3,7 +3,7 @@ const db = require('../database/db');
 exports.criar = async (req, res, next) => {
   try {
 
-    const { email, senha } = req.body;
+    const { email, senha, role } = req.body;
 
     if (!email || !senha) {
       return res.status(400).json({
@@ -23,7 +23,8 @@ exports.criar = async (req, res, next) => {
 
     const [id] = await db('usuarios').insert({
       email,
-      senha
+      senha,
+      role: role || 'cliente'
     });
 
     res.status(201).json({
@@ -40,7 +41,7 @@ exports.listar = async (req, res, next) => {
   try {
 
     const usuarios = await db('usuarios')
-      .select('id', 'email');
+      .select('id', 'email', 'role');
 
     res.json(usuarios);
 
